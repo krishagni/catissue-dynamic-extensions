@@ -1648,8 +1648,10 @@ edu.common.de.LookupField = function(params) {
   this.postRender = function() {
     this.control = new Select2Search(this.inputEl);
     this.control.onQuery(qFunc).onChange(onChange);
-    this.control.setValue(this.value);
     this.control.onInitSelection(initSelection).render();
+    if (this.value) {
+      this.control.setValue(this.value);
+    }
   };
 
   this.getName = function() {
