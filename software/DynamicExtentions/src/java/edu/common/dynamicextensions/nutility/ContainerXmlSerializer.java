@@ -267,7 +267,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 			csvFile =  new StringBuilder(pvDir).append(File.separator).append(fileName).append(".csv");
 			csvWriter = new CSVWriter(new FileWriter(csvFile.toString()));
 
-			csvWriter.writeNext(PV_CSV_HEADER);
+			//csvWriter.writeNext(PV_CSV_HEADER);
 			
 			for(PermissibleValue pv : permissibleValues) {
 				String val = pv.getValue() != null ? pv.getValue() : "";
