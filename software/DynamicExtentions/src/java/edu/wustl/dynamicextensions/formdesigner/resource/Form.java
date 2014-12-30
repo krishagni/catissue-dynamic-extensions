@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.common.dynamicextensions.nutility.BOUtil;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -198,9 +200,9 @@ public class Form {
 		try {
 			// get temp location programatically.
 			if (file.getOriginalFilename() != null) {
-				String uploadedFileLocation = "/tmp/" + new Date().getTime() + file.getOriginalFilename();
-				Utility.saveStreamToFileInTemp(file.getInputStream(), uploadedFileLocation);
-				output = "{\"status\": \"saved\", \"file\" : \"" + uploadedFileLocation + "\"}";
+				File pvFile = File.createTempFile("pvs-", ".csv");
+				FileUtils.copyInputStreamToFile(file.getInputStream(), pvFile);
+				output = "{\"status\": \"saved\", \"file\" : \"" + pvFile.getAbsolutePath() + "\"}";
 			}
 		} catch (Exception ex) {
 			return output;
