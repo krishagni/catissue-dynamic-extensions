@@ -69,21 +69,29 @@ public class FormData {
 	public ControlValue getFieldValue(String name) {
 		return fieldValues.get(name);
 	}
+
+	public boolean isUsingUdn() {
+		return isUsingUdn(appData);
+	}
 	
 	public String toJson() {
-		return new Gson().toJson(getFieldNameValueMap());
+		return toJson(false);
+	}
+	
+	public String toJson(boolean includeUdn) {
+		return new Gson().toJson(getFieldNameValueMap(includeUdn));
 	}
 	
 	public static FormData fromJson(String json) {
 		return fromJson(json, null);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public static FormData fromJson(String json, Long containerId) {
 		Type type = new TypeToken<Map<String, Object>>() {}.getType();
 		Map<String, Object> valueMap = new Gson().fromJson(json, type);
 		if (valueMap.get("containerId") == null && containerId == null) {
-			throw new RuntimeException("Input JSON doesn't have mandatory property: containerId");
+			throw new IllegalArgumentException("Input JSON doesn't have mandatory property: containerId");
 		}
 				
 		if (containerId == null) {
@@ -92,13 +100,15 @@ public class FormData {
 
 		Container container = Container.getContainer(containerId);
 		if (container == null) {
-			throw new RuntimeException("Input JSON specifies invalid container id: " + containerId);
+			throw new IllegalArgumentException("Input specifies invalid container id: " + containerId);
 		}
 		
 		valueMap.remove("containerId");
 		
-		FormData formData = getFormData(container, valueMap);
 		Map<String, Object> appData = (Map<String, Object>)valueMap.get("appData");
+		boolean useUdn = isUsingUdn(appData);
+
+		FormData formData = getFormData(container, valueMap, useUdn);		
 		formData.setAppData(appData);		
 		
 		if (valueMap.get("recordId") != null) {
@@ -107,9 +117,13 @@ public class FormData {
 		
 		return formData;
 	}
+		
+	public static FormData getFormData(Container container, Map<String, Object> valueMap) {
+		return getFormData(container, valueMap, false);
+	}
 	
 	@SuppressWarnings("unchecked")
-	public static FormData getFormData(Container container, Map<String, Object> valueMap) {		
+	public static FormData getFormData(Container container, Map<String, Object> valueMap, boolean useUdn) {
 		FormData formData = new FormData(container);
 		Double recordId = (Double)valueMap.get("id");
 		if (recordId != null) {
@@ -120,15 +134,21 @@ public class FormData {
 			if (fieldValue.getKey().equals("id")) {
 				continue;
 			}
-			
-			Control ctrl = container.getControl(fieldValue.getKey());
+						
+			Control ctrl = null;
+			if (useUdn) {
+				ctrl = container.getControlByUdn(fieldValue.getKey());
+			} else {
+				ctrl = container.getControl(fieldValue.getKey());
+			}
+
 			if (ctrl instanceof SubFormControl) {
 				SubFormControl sfCtrl = (SubFormControl)ctrl;
 				List<Map<String, Object>> subValueMapList = (List<Map<String, Object>>)fieldValue.getValue();
 				List<FormData> subFormData = new ArrayList<FormData>();
 				if (subValueMapList != null) {
 					for (Map<String, Object> subValueMap : subValueMapList) {
-						subFormData.add(getFormData(sfCtrl.getSubContainer(), subValueMap));
+						subFormData.add(getFormData(sfCtrl.getSubContainer(), subValueMap, useUdn));
 					}
 				} 
 				
@@ -145,38 +165,59 @@ public class FormData {
 				formData.addFieldValue(new ControlValue(ctrl,fcv));
 			} else if (ctrl != null){
 				formData.addFieldValue(new ControlValue(ctrl, fieldValue.getValue()));
-			}
+			}			
 		}
 		
 		return formData;
 	}
 						
-	private Map<String, Object> getFieldNameValueMap() {
+	private Map<String, Object> getFieldNameValueMap(boolean includeUdn) {
 		Map<String, Object> props = new HashMap<String, Object>();
 		props.put("appData",getAppData());
 		props.put("containerId", container.getId());
 		props.put("id", recordId);
 		
 		for (ControlValue fieldValue : getFieldValues()) {
-			String fieldName = fieldValue.getControl().getName();
-			Object value = fieldValue.getValue();
+			String name = fieldValue.getControl().getName();
+			if (includeUdn) {
+				name = fieldValue.getControl().getUserDefinedName();
+			}
 			
+			Object value = fieldValue.getValue();			
 			if (value instanceof FileControlValue) {
 				FileControlValue fcv = (FileControlValue)value;
-				props.put(fieldName, fcv.toValueMap());
+				props.put(name, fcv.toValueMap());
 			} else if (value instanceof List) {
 				List<FormData> formDataList = (List<FormData>)value;
 				
 				List<Map<String, Object>> sfData = new ArrayList<Map<String, Object>>();
 				for (FormData formData : formDataList) {
-					sfData.add(formData.getFieldNameValueMap());
+					sfData.add(formData.getFieldNameValueMap(includeUdn));
 				}
 				
-				props.put(fieldName, sfData);
+				props.put(name, sfData);
 			} else if (value != null) {
-				props.put(fieldName, value);
+				props.put(name, value);
 			}			
 		}
+		
 		return props;
+	}
+	
+	private static boolean isUsingUdn(Map<String, Object> appData) {
+		if (appData == null) {
+			return false;
+		}
+		
+		Object val = appData.get("useUdn");
+		if (val instanceof String) {
+			return ((String) val).trim().equals("true");
+		} else if (val instanceof Boolean) {
+			return ((Boolean) val).booleanValue();
+		} else if (val instanceof Number) {
+			return ((Number) val).intValue() == 1;
+		}
+		
+		return false;
 	}	
 }
