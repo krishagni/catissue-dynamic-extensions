@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipInputStream;
 
@@ -203,9 +204,10 @@ public class Form {
 		try {
 			// get temp location programatically.
 			if (file.getOriginalFilename() != null) {
-				File pvFile = File.createTempFile("pvs-", ".csv");
+				String filename = UUID.randomUUID().toString();
+				File pvFile = new File(System.getProperty("java.io.tmpdir"), filename);
 				FileUtils.copyInputStreamToFile(file.getInputStream(), pvFile);
-				output = "{\"status\": \"saved\", \"file\" : \"" + pvFile.getAbsolutePath() + "\"}";
+				output = "{\"status\": \"saved\", \"file\" : \"" + filename + "\"}";
 			}
 		} catch (Exception ex) {
 			return output;
