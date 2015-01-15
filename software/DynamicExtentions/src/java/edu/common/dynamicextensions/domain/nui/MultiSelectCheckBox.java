@@ -131,4 +131,9 @@ public class MultiSelectCheckBox extends SelectControl implements MultiSelectCon
 		writeElement(writer, "optionsPerRow", getOptionsPerRow());			
 		writeElementEnd(writer, "checkBox");		
 	}
+	
+	@Override
+	public ValidationStatus validate(Object value) {
+		return validateMultiple(value);
+	}		
 }

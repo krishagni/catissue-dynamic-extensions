@@ -3,6 +3,7 @@ package edu.common.dynamicextensions.napi;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,6 +17,8 @@ import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
+import edu.common.dynamicextensions.domain.nui.ValidationErrors;
+import edu.common.dynamicextensions.domain.nui.ValidationStatus;
 
 public class FormData {
 	private Container container;
@@ -202,6 +205,60 @@ public class FormData {
 		}
 		
 		return props;
+	}
+	
+	public void validate() {
+		validate(isUsingUdn());
+	}
+	
+	public void validate(boolean useUdn) {
+		ValidationErrors errors = new ValidationErrors();
+		
+		Map<String, Control> mandatory = new HashMap<String, Control>();
+		for (Control ctrl : container.getControls()) {
+			if (ctrl.isMandatory()) {
+				mandatory.put(ctrl.getName(), ctrl);
+			}
+			
+			if (ctrl instanceof SubFormControl) {
+				mandatory.put(ctrl.getName(), ctrl);
+			}
+		}
+		
+		for (ControlValue ctrlValue : fieldValues.values()) {
+			Control ctrl = ctrlValue.getControl();
+			mandatory.remove(ctrl.getName());
+			
+			if (ctrl instanceof SubFormControl) {
+				SubFormControl sfCtrl = (SubFormControl)ctrl;
+				
+				List<FormData> subFormData = (List<FormData>)ctrlValue.getValue();				
+				if (subFormData == null || subFormData.isEmpty()) {
+					subFormData = Collections.singletonList(new FormData(sfCtrl.getSubContainer()));
+				}
+				
+				try {
+					for(FormData sf : subFormData) {
+						sf.validate(useUdn);
+					}
+				} catch (ValidationErrors e) {
+					errors.addErrors(e.getErrors());
+				}				
+			} else {
+				ValidationStatus status = ctrl.validate(ctrlValue.getValue());
+				if (status != ValidationStatus.OK) {
+					String field = useUdn ? ctrl.getUserDefinedName() : ctrl.getName();
+					errors.addError(field, status);
+				}
+			}
+		}
+		
+		for (Control ctrl : mandatory.values()) {
+			String field = useUdn ? ctrl.getUserDefinedName() : ctrl.getName();
+			errors.addError(field, ValidationStatus.NULL_OR_EMPTY);
+		}
+		
+		errors.throwIfErrors();		
 	}
 	
 	private static boolean isUsingUdn(Map<String, Object> appData) {

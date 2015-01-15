@@ -219,4 +219,23 @@ public class DatePicker extends Control implements Serializable {
 			throw new RuntimeException("Error converting input object: " + value.getClass().getName() + " to java.util.Date", e);
 		}
 	}
+
+	@Override
+	public ValidationStatus validate(Object value) {
+		boolean empty = (value == null || value.toString().isEmpty());
+		if (isMandatory() && empty) {
+			return ValidationStatus.NULL_OR_EMPTY;
+		}
+		
+		if (empty) {
+			return ValidationStatus.OK;
+		}
+		
+		try {
+			fromString(value.toString());
+			return ValidationStatus.OK;
+		} catch (Exception e) {
+			return ValidationStatus.INVALID_VALUE;
+		}
+	}
 }

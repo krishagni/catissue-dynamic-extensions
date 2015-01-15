@@ -5,6 +5,8 @@ import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
 
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,8 @@ import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
+import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
+import edu.common.dynamicextensions.ndao.ResultExtractor;
 
 public abstract class AbstractLookupControl extends Control implements LookupControl {
 	private static final long serialVersionUID = 1L;
@@ -22,6 +26,8 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 	private static final String LU_KEY_COLUMN = "IDENTIFIER";
 	
 	private static final String LU_VALUE_COLUMN = "NAME";
+	
+	private static final String IS_KEY_EXISTS_SQL = "select count(*) from %s where %s = ?";
 	
 	@Override
 	public DataType getDataType() {
@@ -74,5 +80,41 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 		writeElementStart(writer, field);
 		super.serializeToXml(writer, props);
 		writeElementEnd(writer, field);						
+	}	
+
+	@Override
+	public ValidationStatus validate(Object value) {
+		boolean empty = value == null || value.toString().trim().isEmpty();		
+		if (!empty) {
+			empty = fromString(value.toString()).equals(-1L);
+		}
+		
+		if (isMandatory() && empty) {
+			return ValidationStatus.NULL_OR_EMPTY;
+		}
+				
+		
+		if (empty) {
+			return ValidationStatus.OK;
+		}
+	
+		if (!isValid(value)) {
+			return ValidationStatus.INVALID_VALUE;
+		}
+		
+		return ValidationStatus.OK;
+	}
+	
+	private boolean isValid(Object value) {
+		return JdbcDaoFactory.getJdbcDao().getResultSet(
+				String.format(IS_KEY_EXISTS_SQL, getTableName(), getLookupKey()), 
+				Collections.singletonList(fromString(value.toString())), 
+				new ResultExtractor<Boolean>() {
+					@Override
+					public Boolean extract(ResultSet rs) throws SQLException {
+						rs.next();
+						return rs.getLong(1) > 0;
+					}
+				});
 	}	
 }
