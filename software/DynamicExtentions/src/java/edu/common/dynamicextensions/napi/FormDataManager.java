@@ -19,4 +19,6 @@ public interface FormDataManager {
 	public void deleteFormData(UserContext userCtxt, Long containerId, Long recordId);
 
 	public FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName);
+	
+	public FormDataFilterManager getFilterMgr();
 }

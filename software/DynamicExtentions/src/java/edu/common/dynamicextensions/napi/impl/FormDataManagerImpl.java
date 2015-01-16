@@ -23,6 +23,7 @@ import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FileControlValue;
 import edu.common.dynamicextensions.napi.FormAuditManager;
 import edu.common.dynamicextensions.napi.FormData;
+import edu.common.dynamicextensions.napi.FormDataFilterManager;
 import edu.common.dynamicextensions.napi.FormDataManager;
 import edu.common.dynamicextensions.ndao.JdbcDao;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
@@ -44,14 +45,19 @@ public class FormDataManagerImpl implements FormDataManager {
 	private static final String GET_FILE_CONTROL_VALUES = "SELECT %s, %s, %s from %s where IDENTIFIER = ?";
 
 	private boolean auditEnable = true;
-
+	
 	public FormDataManagerImpl(boolean auditEnable) {
 		this.auditEnable = auditEnable;
 	}
 	
 	public FormDataManagerImpl() { 
 	}
-		
+	
+	@Override
+	public FormDataFilterManager getFilterMgr() {
+		return FormDataFilterManagerImpl.getInstance();
+	}
+
 	@Override
 	public FormData getFormData(Long containerId, Long recordId) {		
 		try {
@@ -98,6 +104,8 @@ public class FormDataManagerImpl implements FormDataManager {
 	@Override
 	public Long saveOrUpdateFormData(UserContext userCtxt, FormData formData, JdbcDao jdbcDao) {
 		try {
+			formData = getFilterMgr().executePreFilters(userCtxt, formData);
+			
 			String operation = formData.getRecordId() == null ? "INSERT" : "UPDATE";
 			Long recordId = saveOrUpdateFormData(jdbcDao, formData, null);
 			formData.setRecordId(recordId);
@@ -107,6 +115,7 @@ public class FormDataManagerImpl implements FormDataManager {
 				auditManager.audit(userCtxt, formData, operation, jdbcDao);
 			}
 			
+			formData = getFilterMgr().executePostFilters(userCtxt, formData);
 			return recordId;
 		} catch (Exception e) {
 			throw new RuntimeException("Error saving form data", e);
