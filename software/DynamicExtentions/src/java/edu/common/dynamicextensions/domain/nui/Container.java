@@ -67,6 +67,8 @@ public class Container implements Serializable {
 
 	private long ctrlId;
 	
+	private boolean managedTables = false;
+	
 	private Map<String, Control> controlsMap = new LinkedHashMap<String, Control>();
 	
 	private Set<String> userDefCtrlNames = new HashSet<String>();
@@ -633,25 +635,15 @@ public class Container implements Serializable {
 	}
 	
 	public Long save(UserContext userCtxt) {
-		return save(userCtxt, true);
-	}
-	
-	public Long save(UserContext userCtxt, boolean createTables) {
 		JdbcDao jdbcDao = JdbcDaoFactory.getJdbcDao();
-		return save(userCtxt, jdbcDao, createTables);
+		return save(userCtxt, jdbcDao);
 	}
 	
-	public Long save(UserContext userCtxt, JdbcDao jdbcDao) {
-		return save(userCtxt, jdbcDao, true);
-	}
-	
-	public Long save(UserContext userCtxt, JdbcDao jdbcDao, boolean createTables) {		
+	public Long save(UserContext userCtxt, JdbcDao jdbcDao) {		
 		throwExceptionIfDto();
 		
 		try {
-			if (createTables) {
-				executeDDLWithoutTxn(jdbcDao);
-			}
+			executeDDLWithoutTxn(jdbcDao);
 			
 			boolean insert = (id == null);			
 			int numIds = 0;
@@ -787,7 +779,8 @@ public class Container implements Serializable {
 			container = fromDto(parsedContainer);
 		}
 		
-		return container.save(ctxt, createTables);
+		container.setManagedTables(!createTables);
+		return container.save(ctxt);
 	}
 				
 	public void editContainer(Container newContainer) {
@@ -855,16 +848,20 @@ public class Container implements Serializable {
 	
 
 	protected void executeDDL(JdbcDao jdbcDao, String parentTableName) {
+		if (isManagedTables()) {
+			return;
+		}
+		
 		//
 		// 1. Execute DDL referring to addLog, editLog and delLog
 		//
 		List<ColumnDef> columnDefs = new ArrayList<ColumnDef>();
 		for (Control ctrl : addLog) {
-			boolean isMultiValuedControl = ctrl instanceof MultiSelectControl || ctrl instanceof SubFormControl;
-			boolean nonDataColumn = ctrl instanceof Label || ctrl instanceof PageBreak;
-			if (!isMultiValuedControl && !nonDataColumn) {
-				columnDefs.addAll(ctrl.getColumnDefs());
+			if (isNonDataField(ctrl) || isMultiValued(ctrl) || isOneToOneNonInverse(ctrl)) {				
+				continue;
 			}
+			
+			columnDefs.addAll(ctrl.getColumnDefs());
 		}
 
 		if (id == null) {
@@ -1292,6 +1289,18 @@ public class Container implements Serializable {
 		putControls(props);
 		return props;
 	}
+	
+	//
+	// Indicates whether the form's table is managed by DE
+	// or host application
+	//
+	public boolean isManagedTables() {
+		return managedTables;
+	}
+	
+	public void setManagedTables(boolean managedTables) {
+		this.managedTables = managedTables;
+	}
 			
 	private void putControls(Map<String, Object> containerProps) {
 		List<List<Map<String, Object>>> rows = new ArrayList<List<Map<String, Object>>>();
@@ -1305,5 +1314,31 @@ public class Container implements Serializable {
 			
 			rows.add(row);
 		}		
+	}
+	
+	private boolean isMultiValued(Control ctrl) {
+		if (ctrl instanceof MultiSelectControl) {
+			return true;
+		}
+		
+		if (ctrl instanceof SubFormControl) {
+			SubFormControl sfCtrl = (SubFormControl)ctrl;
+			return !sfCtrl.isOneToOne();
+		}
+		
+		return false;
+	}
+	
+	private boolean isOneToOneNonInverse(Control ctrl) {
+		if (!(ctrl instanceof SubFormControl)) {
+			return false;
+		}
+		
+		SubFormControl sfCtrl = (SubFormControl)ctrl;
+		return sfCtrl.isOneToOne() && !sfCtrl.isInverse();
+	}
+	
+	private boolean isNonDataField(Control ctrl) {
+		return ctrl instanceof Label || ctrl instanceof PageBreak;
 	}
 }

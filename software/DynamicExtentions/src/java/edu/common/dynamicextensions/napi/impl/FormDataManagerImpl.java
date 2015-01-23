@@ -10,12 +10,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.util.CollectionUtils;
+
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
 import edu.common.dynamicextensions.domain.nui.Label;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
+import edu.common.dynamicextensions.domain.nui.ControlValueCrud;
 import edu.common.dynamicextensions.domain.nui.PageBreak;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.UserContext;
@@ -180,7 +183,7 @@ public class FormDataManagerImpl implements FormDataManager {
 						ControlValue ctrlValue = new ControlValue(ctrl, msValues.toArray(new String[0]));					
 						formData.addFieldValue(ctrlValue);					
 					}
-						
+					
 					formsData.add(formData);
 				}
 					
@@ -190,10 +193,25 @@ public class FormDataManagerImpl implements FormDataManager {
 		
 		for (FormData formData : formsData) {
 			for (Control ctrl : subFormCtrls) {
-				SubFormControl subFormCtrl = (SubFormControl)ctrl;
-				List<FormData> subFormData = getFormData(jdbcDao, subFormCtrl.getSubContainer(), "PARENT_RECORD_ID", formData.getRecordId());				
-				formData.addFieldValue(new ControlValue(subFormCtrl, subFormData));
-			}
+				SubFormControl sfCtrl = (SubFormControl)ctrl;
+				if (sfCtrl instanceof ControlValueCrud) {
+					ControlValueCrud crud = (ControlValueCrud)sfCtrl;
+					formData.addFieldValue(crud.getValue(jdbcDao, formData));
+				} else if (!sfCtrl.isOneToOne() || !sfCtrl.isInverse()) {
+					List<FormData> sfData = getFormData(jdbcDao, sfCtrl.getSubContainer(), "PARENT_RECORD_ID", formData.getRecordId());
+					
+					ControlValue cv = null;
+					if (sfCtrl.isOneToOne() && !CollectionUtils.isEmpty(sfData)) {
+						cv = new ControlValue(sfCtrl, sfData.iterator().next());
+					} else {
+						cv = new ControlValue(sfCtrl, sfData);
+					}
+					
+					formData.addFieldValue(cv);					
+				} else {
+					throw new RuntimeException("One-to-one inverse not yet implemented - TODO");
+				}
+			}			
 		}
 		
 		return formsData;		
@@ -267,20 +285,20 @@ public class FormDataManagerImpl implements FormDataManager {
 					}					
 				});		
 	}
-
+	
 	private Long saveOrUpdateFormData(JdbcDao jdbcDao, FormData formData, Long parentRecId)
 	throws Exception {
 		List<Control> simpleCtrls = new ArrayList<Control>();
 		List<Control> multiSelectCtrls = new ArrayList<Control>();
 		List<Control> subFormCtrls = new ArrayList<Control>();
-		
+
 		Container container = formData.getContainer();
 		Long recordId = formData.getRecordId();
 		List<InputStream> inputStreams = new ArrayList<InputStream>();
 		
 		segregateControls(container, simpleCtrls, multiSelectCtrls, subFormCtrls);
 		
-		String upsertSql = buildUpsertSql(simpleCtrls, container.getDbTableName(), recordId, parentRecId);
+		String upsertSql = buildUpsertSql(simpleCtrls, subFormCtrls, container.getDbTableName(), recordId, parentRecId);
 		List<Object> params = new ArrayList<Object>();
 
 		try {
@@ -314,6 +332,23 @@ public class FormDataManagerImpl implements FormDataManager {
 				recordId = jdbcDao.getNextId(RECORD_ID_SEQ);
 				formData.setRecordId(recordId);
 			}
+			
+			for (Control ctrl : subFormCtrls) {
+				SubFormControl sfCtrl = (SubFormControl)ctrl;
+				if (!sfCtrl.isOneToOne() || !sfCtrl.isInverse()) {
+					continue;
+				}
+				
+				
+				if (sfCtrl instanceof ControlValueCrud) {
+					ControlValueCrud crud = (ControlValueCrud)sfCtrl;
+					Object key = crud.saveValue(jdbcDao, formData, formData.getFieldValue(sfCtrl.getName()));
+					params.add(key);
+				} else {
+					throw new RuntimeException("One-to-one inverse not yet implemented - TODO");
+				}
+			}
+			
 			params.add(recordId);
 
 			if (!upsertSql.isEmpty()) {
@@ -333,15 +368,32 @@ public class FormDataManagerImpl implements FormDataManager {
 
 			for (Control sfCtrl : subFormCtrls) {
 				SubFormControl subFormCtrl = (SubFormControl) sfCtrl;
+				if (subFormCtrl.isOneToOne() && subFormCtrl.isInverse()) {
+					continue;
+				}
+				
 				ControlValue subFormVal = formData.getFieldValue(subFormCtrl.getName());
-				List<FormData> subFormsData = subFormVal != null ? (List<FormData>) subFormVal.getValue() : null;
+				
+				if (subFormCtrl instanceof ControlValueCrud) {
+					ControlValueCrud crud = (ControlValueCrud)subFormCtrl;
+					crud.saveValue(jdbcDao, formData, subFormVal);
+					continue;
+				} 
+				
+				List<FormData> subFormsData = null;
+				if (subFormCtrl.isOneToOne() && subFormVal != null) {
+					subFormsData = new ArrayList<FormData>();
+					subFormsData.add((FormData)subFormVal.getValue());
+				} else if (subFormVal != null) {
+					subFormsData = (List<FormData>) subFormVal.getValue();
+				}
 				
 				if (subFormsData == null) {
 					continue;
 				}
-				String sfTableName = subFormCtrl.getSubContainer().getDbTableName();
-				Set<Long> currentSfIds = new HashSet<Long>();
 				
+				String sfTableName = subFormCtrl.getSubContainer().getDbTableName();
+				Set<Long> currentSfIds = new HashSet<Long>();				
 				for (FormData subFormData : subFormsData) {
 					Long subFormRecId = saveOrUpdateFormData(jdbcDao, subFormData, recordId);
 					subFormData.setRecordId(subFormRecId);
@@ -370,12 +422,12 @@ public class FormDataManagerImpl implements FormDataManager {
 		return recordId;		
 	}
 
-	private String buildUpsertSql(List<Control> simpleCtrls, String tableName, Long recordId, Long parentRecId) {
+	private String buildUpsertSql(List<Control> simpleCtrls, List<Control> subFormCtrls, String tableName, Long recordId, Long parentRecId) {
 		String sql = null;
 		if (recordId == null) {
-			sql = buildInsertSql(simpleCtrls, tableName, parentRecId != null);
+			sql = buildInsertSql(simpleCtrls, subFormCtrls, tableName, parentRecId != null);
 		} else {
-			sql = buildUpdateSql(simpleCtrls, tableName);
+			sql = buildUpdateSql(simpleCtrls, subFormCtrls, tableName);
 		}
 		
 		return sql;
@@ -384,7 +436,7 @@ public class FormDataManagerImpl implements FormDataManager {
 	//
 	// take care of file control;
 	// 
-	private String buildInsertSql(List<Control> simpleCtrls, String tableName, boolean insertParentRecId) {
+	private String buildInsertSql(List<Control> simpleCtrls, List<Control> subFormCtrls, String tableName, boolean insertParentRecId) {
 		StringBuilder columnNames = new StringBuilder();
 		StringBuilder bindVars = new StringBuilder();
 		
@@ -409,6 +461,14 @@ public class FormDataManagerImpl implements FormDataManager {
 			bindVars.append("?, ");
 		}
 		
+		for (Control ctrl : subFormCtrls) {
+			SubFormControl sfCtrl = (SubFormControl)ctrl;
+			if (sfCtrl.isOneToOne() && sfCtrl.isInverse()) {
+				columnNames.append(sfCtrl.getDbColumnName()).append(", ");
+				bindVars.append("?, ");				
+			}
+		}
+		
 		columnNames.append("IDENTIFIER");
 		bindVars.append("?");
 		
@@ -420,7 +480,7 @@ public class FormDataManagerImpl implements FormDataManager {
 		return insertSql.toString();
 	}
 	
-	private String buildUpdateSql(List<Control> simpleCtrls, String tableName) {
+	private String buildUpdateSql(List<Control> simpleCtrls, List<Control> subFormCtrls, String tableName) {
 		if (simpleCtrls.isEmpty()) {
 			return "";
 		}
@@ -436,7 +496,15 @@ public class FormDataManagerImpl implements FormDataManager {
 			} else {
 				updateSql.append(ctrl.getDbColumnName()).append(" = ?, ");
 			}			
-		}		
+		}
+		
+		for (Control ctrl : subFormCtrls) {
+			SubFormControl sfCtrl = (SubFormControl)ctrl;
+			if (sfCtrl.isOneToOne() && sfCtrl.isInverse()) {
+				updateSql.append(ctrl.getDbColumnName()).append(" = ?, ");
+			}			
+		}
+		
 		updateSql.delete(updateSql.length() - 2, updateSql.length());
 		
 		updateSql.append(" WHERE IDENTIFIER = ?");
@@ -468,7 +536,12 @@ public class FormDataManagerImpl implements FormDataManager {
 		}		
 	}
 	
-	private void segregateControls(Container container, List<Control> simpleCtrls, List<Control> multiSelectCtrls, List<Control> subFormCtrls) {
+	private void segregateControls(
+			Container container, 
+			List<Control> simpleCtrls, 
+			List<Control> multiSelectCtrls, 
+			List<Control> subFormCtrls) {
+		
 		for (Control ctrl : container.getControlsMap().values()) {
 			if (ctrl instanceof SubFormControl) {
 				subFormCtrls.add(ctrl);

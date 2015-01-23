@@ -112,8 +112,6 @@ public class FormData {
 		boolean useUdn = isUsingUdn(appData);
 
 		FormData formData = getFormData(container, valueMap, useUdn);		
-		formData.setAppData(appData);		
-		
 		if (valueMap.get("recordId") != null) {
 			formData.setRecordId(((Double)valueMap.get("recordId")).longValue());
 		}
@@ -128,6 +126,10 @@ public class FormData {
 	@SuppressWarnings("unchecked")
 	public static FormData getFormData(Container container, Map<String, Object> valueMap, boolean useUdn) {
 		FormData formData = new FormData(container);
+		
+		Map<String, Object> appData = (Map<String, Object>)valueMap.get("appData");
+		formData.setAppData(appData);
+				
 		Double recordId = (Double)valueMap.get("id");
 		if (recordId != null) {
 			formData.setRecordId(recordId.longValue());
@@ -147,15 +149,21 @@ public class FormData {
 
 			if (ctrl instanceof SubFormControl) {
 				SubFormControl sfCtrl = (SubFormControl)ctrl;
-				List<Map<String, Object>> subValueMapList = (List<Map<String, Object>>)fieldValue.getValue();
-				List<FormData> subFormData = new ArrayList<FormData>();
-				if (subValueMapList != null) {
-					for (Map<String, Object> subValueMap : subValueMapList) {
-						subFormData.add(getFormData(sfCtrl.getSubContainer(), subValueMap, useUdn));
-					}
-				} 
-				
-				formData.addFieldValue(new ControlValue(ctrl, subFormData));
+				if (sfCtrl.isOneToOne()) {
+					Map<String, Object> subValueMap = (Map<String, Object>)fieldValue.getValue();
+					FormData subFormData = getFormData(sfCtrl.getSubContainer(), subValueMap, useUdn);
+					formData.addFieldValue(new ControlValue(ctrl, subFormData));					
+				} else {
+					List<Map<String, Object>> subValueMapList = (List<Map<String, Object>>)fieldValue.getValue();
+					List<FormData> subFormData = new ArrayList<FormData>();
+					if (subValueMapList != null) {
+						for (Map<String, Object> subValueMap : subValueMapList) {
+							subFormData.add(getFormData(sfCtrl.getSubContainer(), subValueMap, useUdn));
+						}
+					} 
+					
+					formData.addFieldValue(new ControlValue(ctrl, subFormData));					
+				}
 			} else if (ctrl instanceof MultiSelectControl) {				
 				List<String> values = (List<String>)fieldValue.getValue();
 				formData.addFieldValue(new ControlValue(ctrl, values == null ? null : values.toArray(new String[0])));
@@ -199,6 +207,8 @@ public class FormData {
 				}
 				
 				props.put(name, sfData);
+			} else if (value instanceof FormData) {
+				props.put(name, ((FormData)value).getFieldNameValueMap(includeUdn));
 			} else if (value != null) {
 				props.put(name, value);
 			}			
@@ -232,7 +242,13 @@ public class FormData {
 			if (ctrl instanceof SubFormControl) {
 				SubFormControl sfCtrl = (SubFormControl)ctrl;
 				
-				List<FormData> subFormData = (List<FormData>)ctrlValue.getValue();				
+				List<FormData> subFormData = null;
+				if (sfCtrl.isOneToOne()) {
+					subFormData = Collections.singletonList((FormData)ctrlValue.getValue());
+				} else {
+					subFormData = (List<FormData>)ctrlValue.getValue();
+				}
+								
 				if (subFormData == null || subFormData.isEmpty()) {
 					subFormData = Collections.singletonList(new FormData(sfCtrl.getSubContainer()));
 				}
