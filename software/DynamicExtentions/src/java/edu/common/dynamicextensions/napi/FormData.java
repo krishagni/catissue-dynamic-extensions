@@ -28,6 +28,8 @@ public class FormData {
 	private Map<String, Object> appData = new HashMap<String, Object>();
 	
 	private Map<String, ControlValue> fieldValues = new LinkedHashMap<String, ControlValue>();
+	
+	private FormData parentFormData;
 
 	public FormData(Container container) {
 		this.container = container;
@@ -56,7 +58,7 @@ public class FormData {
 	public void setAppData(Map<String, Object> appData) {
 		this.appData = appData;
 	}
-
+	
 	public Collection<ControlValue> getFieldValues() {
 		return fieldValues.values();
 	}
@@ -76,6 +78,16 @@ public class FormData {
 	public boolean isUsingUdn() {
 		return isUsingUdn(appData);
 	}
+
+	public FormData getRootFormData() {
+		FormData result = this;
+		while (result.parentFormData != null) {
+			result = result.parentFormData;
+		}
+		
+		return result;		
+	}
+
 	
 	public String toJson() {
 		return toJson(false);
@@ -111,7 +123,7 @@ public class FormData {
 		Map<String, Object> appData = (Map<String, Object>)valueMap.get("appData");
 		boolean useUdn = isUsingUdn(appData);
 
-		FormData formData = getFormData(container, valueMap, useUdn);		
+		FormData formData = getFormData(container, valueMap, useUdn, null);		
 		if (valueMap.get("recordId") != null) {
 			formData.setRecordId(((Double)valueMap.get("recordId")).longValue());
 		}
@@ -120,12 +132,13 @@ public class FormData {
 	}
 		
 	public static FormData getFormData(Container container, Map<String, Object> valueMap) {
-		return getFormData(container, valueMap, false);
+		return getFormData(container, valueMap, false, null);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static FormData getFormData(Container container, Map<String, Object> valueMap, boolean useUdn) {
+	public static FormData getFormData(Container container, Map<String, Object> valueMap, boolean useUdn, FormData parent) {
 		FormData formData = new FormData(container);
+		formData.parentFormData = parent;
 		
 		Map<String, Object> appData = (Map<String, Object>)valueMap.get("appData");
 		formData.setAppData(appData);
@@ -151,14 +164,14 @@ public class FormData {
 				SubFormControl sfCtrl = (SubFormControl)ctrl;
 				if (sfCtrl.isOneToOne()) {
 					Map<String, Object> subValueMap = (Map<String, Object>)fieldValue.getValue();
-					FormData subFormData = getFormData(sfCtrl.getSubContainer(), subValueMap, useUdn);
+					FormData subFormData = getFormData(sfCtrl.getSubContainer(), subValueMap, useUdn, formData);
 					formData.addFieldValue(new ControlValue(ctrl, subFormData));					
 				} else {
 					List<Map<String, Object>> subValueMapList = (List<Map<String, Object>>)fieldValue.getValue();
 					List<FormData> subFormData = new ArrayList<FormData>();
 					if (subValueMapList != null) {
 						for (Map<String, Object> subValueMap : subValueMapList) {
-							subFormData.add(getFormData(sfCtrl.getSubContainer(), subValueMap, useUdn));
+							subFormData.add(getFormData(sfCtrl.getSubContainer(), subValueMap, useUdn, formData));
 						}
 					} 
 					

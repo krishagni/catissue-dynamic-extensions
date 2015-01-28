@@ -2,6 +2,11 @@ var edu = edu || {};
 edu.common = edu.common || {};
 edu.common.de = edu.common.de || {};
 
+edu.common.de.id = 0;
+edu.common.de.nextUid = function(el) {
+  return ++edu.common.de.id;
+}
+
 edu.common.de.RequiredValidator = function(field, dataEl) {
   this.validate = function() {
     var valid = false;
@@ -437,8 +442,7 @@ edu.common.de.FieldFactory = {
     var fieldObj;
     idx = idx || "";
 
-    var id = 'de-' + field.name + "-" + idx;
-
+    var id = 'de-' + field.name + "-" + edu.common.de.nextUid();
     if (field.type == 'stringTextField') {
       fieldObj = new edu.common.de.TextField(id, field, args);
     } else if (field.type == 'numberField') {
@@ -475,7 +479,8 @@ edu.common.de.FieldFactory = {
 
 edu.common.de.TextField = function(id, field) {
   this.inputEl = null;
-  this.validator;
+
+  this.validator = null;
 
   this.render = function() {
     this.inputEl = $("<input/>")
@@ -1570,7 +1575,7 @@ edu.common.de.Extend = function(props) {
   return child;
 };
 
-edu.common.de.LookupField = function(params) {
+edu.common.de.LookupField = function(params, callback) {
   this.inputEl = null;
 
   this.control = null;
@@ -1614,6 +1619,10 @@ edu.common.de.LookupField = function(params) {
       that.value = selected.id;
     } else {
       that.value = '';
+    }
+
+    if (typeof callback == "function") {
+      callback(selected);
     }
   };
 
