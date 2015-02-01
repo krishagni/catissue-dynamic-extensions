@@ -97,11 +97,7 @@ public class FormDataManagerImpl implements FormDataManager {
 
 	@Override
 	public Long saveOrUpdateFormData(UserContext userCtxt, FormData formData) {
-		try {
-			return saveOrUpdateFormData(userCtxt, formData, JdbcDaoFactory.getJdbcDao());
-		} catch (Exception e) {
-			throw new RuntimeException("Error saving form data", e);
-		} 
+		return saveOrUpdateFormData(userCtxt, formData, JdbcDaoFactory.getJdbcDao());
 	}
 
 	@Override
@@ -120,6 +116,8 @@ public class FormDataManagerImpl implements FormDataManager {
 			
 			formData = getFilterMgr().executePostFilters(userCtxt, formData);
 			return recordId;
+		} catch (IllegalArgumentException iae) {
+			throw iae;
 		} catch (Exception e) {
 			throw new RuntimeException("Error saving form data", e);
 		}

@@ -639,6 +639,8 @@ edu.common.de.DatePicker = function(id, field) {
   this.timeEl = null;
   this.validator;
 
+  this.minWidth = 225;
+
   this.render = function() {
     this.dateEl = $("<input/>")
       .prop({id: id, type: 'text'})
@@ -1681,7 +1683,7 @@ edu.common.de.LookupField = function(params, callback) {
       val = val.id;
     }
 
-    return {name: field.name, value: val ? val : ''};
+    return {name: field.name, value: val};
   };
 
   this.getDisplayValue = function() {
@@ -1754,7 +1756,7 @@ edu.common.de.LookupSvc = function(params) {
     var that = this;
     xhr.done(
       function(data) {
-        var result = that.formatResults(data);
+        var result = that.formatResults(data, queryTerm);
         if (!queryTerm) {
           defaultList = result;
         }
