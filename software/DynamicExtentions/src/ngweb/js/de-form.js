@@ -1722,7 +1722,11 @@ edu.common.de.LookupField = function(params, callback) {
   };
 
   this.search = function(qTerm) {
-    return this.svc.getEntities(qTerm);
+    var searchFilters = {};
+    if (params) {
+      searchFilters = params.searchFilters || {};
+    }
+    return this.svc.getEntities(qTerm, searchFilters);
   };
 };
 
@@ -1731,25 +1735,42 @@ edu.common.de.LookupField.extend = edu.common.de.Extend;
 edu.common.de.LookupSvc = function(params) {
   var entitiesMap = {};
  
-  var defaultList = [];
+  var defaultList = {};
+
+  var xhrMap = {};
 
   var defaultValue;
 
-  this.getEntities = function(queryTerm) {
+  this.getEntities = function(queryTerm, searchFilters) {
     var deferred = $.Deferred();
-    if (!queryTerm && defaultList.length > 0) {
-      deferred.resolve(defaultList);
-      return deferred.promise();
+
+    var resultKey = '_default';
+    if (!queryTerm) {
+      if (searchFilters) {
+        var keys = Object.keys(searchFilters).sort();
+        if (keys.length > 0) {
+          resultKey = '';
+        }
+
+        for (var i = 0; i < keys.length; ++i) {
+          resultKey += keys[i] + "__" + searchFilters[keys[i]] + '__';
+        }
+      }
+
+      if (defaultList[resultKey]) {
+        deferred.resolve(defaultList[resultKey]);
+        return deferred.promise();
+      }
     }
 
     var baseUrl = this.getApiUrl();
     var xhr;
     if (queryTerm) {      
-      xhr = $.ajax({type: 'GET', url: baseUrl, data: this.searchRequest(queryTerm)});
-    } else if (this.getAllXhr) {
-      xhr = this.getAllXhr;
+      xhr = $.ajax({type: 'GET', url: baseUrl, data: this.searchRequest(queryTerm, searchFilters)});
+    } else if (xhrMap[resultKey]) {
+      xhr = xhrMap[resultKey];
     } else {
-      xhr = this.getAllXhr = $.ajax({type: 'GET', url: baseUrl, data: this.searchRequest(queryTerm)});
+      xhr = xhrMap[resultKey] = $.ajax({type: 'GET', url: baseUrl, data: this.searchRequest(queryTerm, searchFilters)});
     }
    
    
@@ -1758,15 +1779,17 @@ edu.common.de.LookupSvc = function(params) {
       function(data) {
         var result = that.formatResults(data, queryTerm);
         if (!queryTerm) {
-          defaultList = result;
+          defaultList[resultKey] = result;
         }
 
         deferred.resolve(result);
+        delete xhrMap[resultKey];
       }
     ).fail(
       function(data) {
         alert("Failed to load entities list");
         deferred.resolve([]);
+        delete xhrMap[resultKey];
       }
     );
 
