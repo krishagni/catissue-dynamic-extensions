@@ -282,7 +282,7 @@ edu.common.de.DataTable = function(args) {
       var fieldObjs = this.tableRowsData[i].fieldObjs;
       var recordId = this.tableRowsData[i].recordId;
       for (var j = 0; j < fieldObjs.length; j++) {
-        var value = firstRow[j].getValue();
+        var value = firstRow[j].getValue(true);
         if (value != undefined) {
           fieldObjs[j].setValue(recordId, value.value);
         }

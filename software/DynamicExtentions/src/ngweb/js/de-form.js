@@ -1699,7 +1699,7 @@ edu.common.de.LookupField = function(params, callback) {
 
   this.setValue = function(recId, value) {
     this.recId = recId;
-    this.value = value ? value : '';
+    this.value = value; // ? value : '';
     if (this.control) {
       this.control.setValue(value);
     }
