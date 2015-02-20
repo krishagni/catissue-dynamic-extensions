@@ -12,10 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import edu.common.dynamicextensions.domain.nui.ColumnDef;
-import edu.common.dynamicextensions.domain.nui.Control;
-import edu.common.dynamicextensions.domain.nui.DataType;
-import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
 import edu.common.dynamicextensions.ndao.ResultExtractor;
@@ -28,6 +24,8 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 	private static final String LU_VALUE_COLUMN = "NAME";
 	
 	private static final String IS_KEY_EXISTS_SQL = "select count(*) from %s where %s = ?";
+	
+	private static final String GET_KEY_BY_ALT_KEY = "select %s from %s where %s = ?";
 	
 	@Override
 	public DataType getDataType() {
@@ -46,12 +44,18 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 			return null;
 		}
 		
-		return new BigDecimal(value).longValue();
+		try {
+			return new BigDecimal(value).longValueExact();
+		} catch (Exception e) {
+			return getKeyByAltKey(value);
+		}
 	}
 
 	public abstract void getProps(Map<String, Object> props);
 	
 	public abstract String getTableName();		
+	
+	public abstract String getAltKeyColumn();
 
 	@Override
 	public String getParentKey() {
@@ -117,4 +121,17 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 					}
 				});
 	}	
+	
+	private Long getKeyByAltKey(String value) {
+		String query = String.format(GET_KEY_BY_ALT_KEY, getLookupKey(), getTableName(), getAltKeyColumn());
+		return JdbcDaoFactory.getJdbcDao().getResultSet(
+				query, 
+				Collections.singletonList(value),
+				new ResultExtractor<Long>() {
+					@Override
+					public Long extract(ResultSet rs) throws SQLException {
+						return rs.next() ? rs.getLong(1) : null;						
+					}
+				});
+	}
 }
