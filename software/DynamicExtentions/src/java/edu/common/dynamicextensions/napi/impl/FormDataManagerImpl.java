@@ -14,11 +14,12 @@ import org.springframework.util.CollectionUtils;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
+import edu.common.dynamicextensions.domain.nui.ControlValueCrud;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
 import edu.common.dynamicextensions.domain.nui.Label;
+import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
-import edu.common.dynamicextensions.domain.nui.ControlValueCrud;
 import edu.common.dynamicextensions.domain.nui.PageBreak;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.UserContext;
@@ -94,7 +95,73 @@ public class FormDataManagerImpl implements FormDataManager {
 			throw new RuntimeException("Error obtaining form data: [" + container.getId() + ", " + recordId  + "]", e);
 		}	
 	}
+	
+	@Override
+	public List<FormData> getSummaryData(Long containerId, List<Long> recordIds) {
+		try {
+			List<FormData> result = Collections.emptyList();
+			
+			Container container = Container.getContainer(containerId);
+			if (container != null) {
+				result = getSummaryData(container, recordIds);
+			}
+			
+			return result;
+		} catch (Exception e) {
+			throw new RuntimeException("Error obtaining summarized form data list", e);
+		}
+	}
 
+	@Override
+	public List<FormData> getSummaryData(final Container container, final List<Long> recordIds) {
+		try {
+			JdbcDao jdbcDao = JdbcDaoFactory.getJdbcDao();
+			
+			final List<Control> summaryCtrls = new ArrayList<Control>();
+			for (Control ctrl : container.getControls()) {
+				if (isGridControl(ctrl)) {
+					summaryCtrls.add(ctrl);
+				}
+			}
+			
+			if (summaryCtrls.isEmpty()) {
+				return Collections.emptyList();
+			}
+			
+			String sql = buildRecsSummaryQuery(summaryCtrls, container.getDbTableName(), "IDENTIFIER", recordIds.size());
+			return jdbcDao.getResultSet(sql, recordIds, new ResultExtractor<List<FormData>>() {
+				@Override
+				public List<FormData> extract(ResultSet rs) throws SQLException {
+					List<FormData> result = new ArrayList<FormData>();
+					
+					while (rs.next()) {
+						Long recordId = rs.getLong("IDENTIFIER");
+						FormData formData = new FormData(container);
+						formData.setRecordId(recordId);
+						
+						int idx = 1;
+						for (Control ctrl : summaryCtrls) {
+							Object rsObj = null;
+							if (ctrl instanceof DatePicker) {
+								rsObj = rs.getTimestamp(idx++);
+							} else {
+								rsObj = rs.getObject(idx++);
+							}
+							
+							formData.addFieldValue(new ControlValue(ctrl, rsObj));
+						}
+						
+						result.add(formData);
+					}
+					
+					return result;
+				}				
+			});			
+		} catch (Exception e) {
+			throw new RuntimeException("Error obtaining summarized form data list", e);
+		}
+	}
+	
 	@Override
 	public Long saveOrUpdateFormData(UserContext userCtxt, FormData formData) {
 		return saveOrUpdateFormData(userCtxt, formData, JdbcDaoFactory.getJdbcDao());
@@ -149,32 +216,7 @@ public class FormDataManagerImpl implements FormDataManager {
 					FormData formData = new FormData(container);
 					formData.setRecordId(recordId);
 						
-					for (Control ctrl : simpleCtrls) {
-						ControlValue ctrlValue = null;
-
-						if (ctrl instanceof FileUploadControl) {
-							String filename = rs.getString(ctrl.getDbColumnName() + "_NAME");
-							if (filename != null) {
-								String type = rs.getString(ctrl.getDbColumnName() + "_TYPE");
-								String fileId = rs.getString(ctrl.getDbColumnName() + "_ID");
-								ctrlValue = new ControlValue(ctrl, new FileControlValue(filename, type, fileId));
-							} else {
-								ctrlValue = new ControlValue(ctrl, null);
-							}
-						} else {
-							Object rsObj = null;
-							if (ctrl instanceof DatePicker) {
-								rsObj = rs.getTimestamp(ctrl.getDbColumnName());
-							} else {
-								rsObj = rs.getObject(ctrl.getDbColumnName());
-							}
-							
-							String value = ctrl.toString(rsObj);
-							ctrlValue = new ControlValue(ctrl, value);
-						}
-							
-						formData.addFieldValue(ctrlValue);
-					}
+					extractSimpleValues(simpleCtrls, rs, formData);
 						
 					for (Control ctrl : multiSelectCtrls) {
 						List<String> msValues = getMultiSelectValues(jdbcDao, ctrl, recordId);
@@ -214,7 +256,7 @@ public class FormDataManagerImpl implements FormDataManager {
 		
 		return formsData;		
 	}
-
+	
 	private String buildQuery(List<Control> simpleCtrls, String tableName, String identifyingColumn) {
 		StringBuilder query = new StringBuilder("SELECT ");
 		for (Control ctrl : simpleCtrls) {
@@ -233,7 +275,46 @@ public class FormDataManagerImpl implements FormDataManager {
 		return query.toString();
 	}
 	
-	
+	private String buildRecsSummaryQuery(List<Control> ctrls, String tableName, String identifyingColumn, int noOfRecords) {
+		StringBuilder query = new StringBuilder("SELECT ");
+		
+		int lookup = 0;
+		for (Control ctrl : ctrls) {
+			if (ctrl instanceof FileUploadControl) {
+				query.append("m.").append(ctrl.getDbColumnName()).append("_NAME, ");
+			} else if (ctrl instanceof LookupControl) {
+				LookupControl lu = (LookupControl)ctrl;
+				query.append("l").append(lookup).append(".").append(lu.getValueColumn()).append(", ");
+				lookup++;
+			} else {
+				query.append("m.").append(ctrl.getDbColumnName()).append(", ");
+			}
+		}
+
+		
+		query.append("m.").append(identifyingColumn)
+			.append(" from ")
+			.append(tableName)
+			.append(" m ");
+		
+		lookup = 0;
+		for (Control ctrl : ctrls) {
+			if (ctrl instanceof LookupControl) {
+				LookupControl lu = (LookupControl)ctrl;
+				String alias = "l" + lookup;
+				query.append(" left join ").append(lu.getTableName()).append(" ").append(alias)
+					.append(" on ").append(alias).append(".").append(lu.getLookupKey()).append(" = ").append("m.").append(lu.getParentKey());
+			}
+		}
+		
+		query.append(" WHERE m.").append(identifyingColumn).append(" in (");
+		for (int i = 0; i < noOfRecords - 1; ++i) {
+			query.append("?, ");
+		}
+		query.append("?)");			
+		return query.toString();
+	}
+		
 	private List<String> getMultiSelectValues(final JdbcDao jdbcDao, final Control ctrl, Long recordId) 
 	throws SQLException {		
 		MultiSelectControl msCtrl = (MultiSelectControl)ctrl;
@@ -576,5 +657,47 @@ public class FormDataManagerImpl implements FormDataManager {
 		}
 		String deleteSql = deleteSqlBuilder.substring(0, deleteSqlBuilder.lastIndexOf(",")).concat(")");
 		jdbcDao.executeUpdate(deleteSql, toBeDeletedSfData);
+	}
+
+	private void extractSimpleValues(List<Control> ctrls, ResultSet rs, FormData formData) 
+	throws SQLException {
+		for (Control ctrl : ctrls) {
+			ControlValue ctrlValue = null;
+
+			if (ctrl instanceof FileUploadControl) {
+				String filename = rs.getString(ctrl.getDbColumnName() + "_NAME");
+				if (filename != null) {
+					String type = rs.getString(ctrl.getDbColumnName() + "_TYPE");
+					String fileId = rs.getString(ctrl.getDbColumnName() + "_ID");
+					ctrlValue = new ControlValue(ctrl, new FileControlValue(filename, type, fileId));
+				} else {
+					ctrlValue = new ControlValue(ctrl, null);
+				}
+			} else {
+				Object rsObj = null;
+				if (ctrl instanceof DatePicker) {
+					rsObj = rs.getTimestamp(ctrl.getDbColumnName());
+				} else {
+					rsObj = rs.getObject(ctrl.getDbColumnName());
+				}
+				
+				String value = ctrl.toString(rsObj);
+				ctrlValue = new ControlValue(ctrl, value);
+			}
+				
+			formData.addFieldValue(ctrlValue);
+		}		
+	}
+	
+	private boolean isGridControl(Control ctrl) {
+		if (ctrl instanceof MultiSelectControl || ctrl instanceof SubFormControl) {
+			return false;
+		}
+		
+		if (ctrl instanceof PageBreak || ctrl instanceof Label) {
+			return false;
+		}
+		
+		return ctrl.showInGrid();
 	}
 }
