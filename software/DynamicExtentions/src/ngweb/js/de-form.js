@@ -161,16 +161,18 @@ edu.common.de.Form = function(args) {
   this.fileDownloadUrl = args.fileDownloadUrl;
   this.appData = args.appData;
   this.dateFormat = args.dateFormat;
+
+  this.customHdrs = args.customHdrs || {};
   
   if (!this.formDef && this.formDefUrl) {
     var url = this.formDefUrl.replace(":formId", this.formId);
-    this.formDefXhr = $.ajax({type: 'GET', url: url});
+    this.formDefXhr = $.ajax({type: 'GET', url: url, headers: this.customHdrs});
   }
 
   if (this.recordId && !this.formData && this.formDataUrl) {
     var url = this.formDataUrl.replace(":formId", args.id)
                               .replace(":recordId", args.recordId);
-    this.formDataXhr = $.ajax({type: 'GET', url: url});
+    this.formDataXhr = $.ajax({type: 'GET', url: url, headers: this.customHdrs});
   }
 
   this.render = function() {
@@ -359,6 +361,7 @@ edu.common.de.Form = function(args) {
     $.ajax({
       type: method,
       url: url,
+      headers: this.customHdrs,
       data: JSON.stringify(formData)
     }).done(function(data) { 
       data = JSON.parse(data);
@@ -633,7 +636,7 @@ edu.common.de.TextArea = function(id, field) {
   };
 };
 
-edu.common.de.DatePicker = function(id, field) {
+edu.common.de.DatePicker = function(id, field, args) {
   this.inputEl = null;
   this.dateEl = null;
   this.timeEl = null;
@@ -643,10 +646,10 @@ edu.common.de.DatePicker = function(id, field) {
 
   this.render = function() {
     this.dateEl = $("<input/>")
-      .prop({id: id, type: 'text'})
+      .prop({id: id, type: 'text', title: field.toolTip})
       .addClass("form-control");
 
-    var dateField = $("<div/>").addClass("plus-addon plus-addon-input-right de-date-picker")
+    var dateField = $("<div/>").addClass("de-addon de-addon-input-right de-date-picker")
       .append(this.dateEl)
       .append($("<span/>").addClass("glyphicon glyphicon-calendar"));
 
@@ -655,14 +658,14 @@ edu.common.de.DatePicker = function(id, field) {
 
     var format = field.format;
     if (format && format.indexOf('HH:mm') != -1) {
-      dateFmt = dateFormat.concat(" HH:mm");
+      dateFmt = args.dateFormat.concat(" HH:mm");
       this.timeEl = $("<input/>")
-        .prop({id: 'time', type: 'text'})
+        .prop({id: 'time', type: 'text', title: field.toolTip})
         .addClass("form-control");
 
       dateField.css("width","59%");
 
-      var timeField = $("<div/>").addClass("plus-addon plus-addon-input-right de-time-picker")
+      var timeField = $("<div/>").addClass("de-addon de-addon-input-right de-time-picker")
         .append(this.timeEl)
         .append($("<span/>").addClass("glyphicon glyphicon-time"));
 
@@ -688,7 +691,7 @@ edu.common.de.DatePicker = function(id, field) {
     }
 
     this.dateEl.datepicker({
-      format: typeof dateFormat == "undefined" ? format : dateFormat,
+      format: typeof args.dateFormat == "undefined" ? format : args.dateFormat,
       autoclose: true,
       minViewMode: format});
 
@@ -1766,11 +1769,20 @@ edu.common.de.LookupSvc = function(params) {
     var baseUrl = this.getApiUrl();
     var xhr;
     if (queryTerm) {      
-      xhr = $.ajax({type: 'GET', url: baseUrl, data: this.searchRequest(queryTerm, searchFilters)});
+      xhr = $.ajax({
+        type: 'GET', 
+        url: baseUrl, 
+        headers: this.getHeaders(), 
+        data: this.searchRequest(queryTerm, searchFilters)
+      });
     } else if (xhrMap[resultKey]) {
       xhr = xhrMap[resultKey];
     } else {
-      xhr = xhrMap[resultKey] = $.ajax({type: 'GET', url: baseUrl, data: this.searchRequest(queryTerm, searchFilters)});
+      xhr = xhrMap[resultKey] = $.ajax({
+        type: 'GET', 
+        url: baseUrl, 
+        headers: this.getHeaders(), 
+        data: this.searchRequest(queryTerm, searchFilters)});
     }
    
    
@@ -1813,7 +1825,7 @@ edu.common.de.LookupSvc = function(params) {
 
     var that = this;
     var baseUrl = this.getApiUrl();
-    $.ajax({type: 'GET', url: baseUrl + id})
+    $.ajax({type: 'GET', url: baseUrl + id, headers: this.getHeaders()})
       .done(function(data) {
         var result = that.formatResult(data);
         entitiesMap[id] = result;
@@ -1849,6 +1861,10 @@ edu.common.de.LookupSvc = function(params) {
 
     return deferred.promise();
   };
+
+  this.getHeaders = function() {
+    return {};
+  }
 };
 
 edu.common.de.LookupSvc.extend = edu.common.de.Extend;
