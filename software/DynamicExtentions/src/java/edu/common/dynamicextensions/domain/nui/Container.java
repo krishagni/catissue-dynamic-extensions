@@ -1,5 +1,6 @@
 package edu.common.dynamicextensions.domain.nui;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -759,7 +760,17 @@ public class Container implements Serializable {
 	throws Exception {
 		ContainerParser parser = new ContainerParser(formXml, pvDir);
 		Container parsedContainer = parser.parse();
-
+		return createContainer(ctxt, parsedContainer, createTables);
+	}
+	
+	public static Long createContainer(UserContext ctxt, InputStream in, boolean createTables) 
+	throws Exception {
+		ContainerParser parser = new ContainerParser(in);
+		Container parsedContainer = parser.parse();
+		return createContainer(ctxt, parsedContainer, createTables);
+	}
+				
+	public static Long createContainer(UserContext ctxt, Container parsedContainer, boolean createTables) {
 		Container existingContainer = null;		
 		if (parsedContainer.getId() != null) {
 			existingContainer = getContainer(parsedContainer.getId());
