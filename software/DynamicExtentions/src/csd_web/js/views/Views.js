@@ -1994,11 +1994,19 @@ var getDEJson = function (args) {
   var prevRow = null;
   var rowNo = 0;
   var colNo = 0;
+  var controlsOrder = args.json.get('controlsOrder');
+  var controlObjectCollection = args.json.get('controlObjectCollection');
 
-  _.each(args.json.attributes.controlObjectCollection, function(field) {
-	    // Create NewField with appropriate new DE attributes
-    field = field.attributes;
-	var newField = getNewField({field : field});
+  for (cntr = 0; cntr < controlsOrder.length; cntr++) {
+    var controlName = controlsOrder[cntr];
+    var control = controlObjectCollection[controlName];
+    if (control == undefined) {
+      continue;
+    }
+
+    // Create NewField with appropriate new DE attributes
+    field = control.attributes;
+    var newField = getNewField({field : field});
   
     // Adding control specific properties 
     if (newField.type == 'numberField' || newField.type == 'stringTextField' || newField.type == 'textArea') {
@@ -2053,7 +2061,7 @@ var getDEJson = function (args) {
     }
 
     columns[colNo++] = newField;
-  });
+  };
   
   var newJson = {};
   newJson['name'] = args.json.attributes.formName;
