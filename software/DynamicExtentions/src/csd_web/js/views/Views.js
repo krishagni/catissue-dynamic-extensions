@@ -2095,7 +2095,8 @@ var getNewField = function(args) {
   if (field.type == 'numericField') {
     newField['type'] = 'numberField';
   } else if (field.type == 'radioButton') {
-    newField['type'] = 'radiobutton';	
+    newField['type'] = 'radiobutton';
+    newField['optionsPerRow'] = field.optionsPerRow;	
   } else if (field.type == 'checkBox') {
     newField['type'] = 'booleanCheckbox';	
   } else if (field.type == 'multiselectBox' || field.type == 'listBox') {
@@ -2104,6 +2105,7 @@ var getNewField = function(args) {
     newField['type'] = 'combobox'
   } else if  (field.type == 'multiselectCheckBox') { 
     newField['type'] = 'checkbox'
+    newField['optionsPerRow'] = field.optionsPerRow;
   } else if (field.type == 'subForm') {
     newField = new getDEJson({json :field.subForm});
     newField['type'] = field.type;
