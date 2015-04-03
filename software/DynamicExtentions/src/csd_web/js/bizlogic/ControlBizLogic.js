@@ -540,7 +540,7 @@ var ControlBizLogic = {
 			// Erase the existing view
 			Main.currentFieldView.destroy();
 		}
-		var control = new Models.Field(fieldModel.toJSON());
+		var control = new Models.Field($.extend(true, {}, fieldModel.attributes));
 		var shortCode = Utility.getShortCode(control.get('type'));
 		control.set({
 			editName : undefined,
