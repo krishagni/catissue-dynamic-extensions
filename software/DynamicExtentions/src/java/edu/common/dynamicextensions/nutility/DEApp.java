@@ -4,6 +4,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.springframework.transaction.PlatformTransactionManager;
+
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
 import edu.common.dynamicextensions.ndao.TransactionManager;
@@ -15,9 +17,9 @@ public class DEApp {
 	
 	private static String timeFormat;
 
-	public static void init(DataSource ds, String fileUploadDir, String dateFormat, String timeFormat) {
+	public static void init(DataSource ds, PlatformTransactionManager txnMgr, String fileUploadDir, String dateFormat, String timeFormat) {
 		JdbcDaoFactory.setDataSource(ds);
-        TransactionManager.getInstance(ds);
+        TransactionManager.getInstance(ds, txnMgr);
         try {
 			String product = ds.getConnection().getMetaData().getDatabaseProductName();
 	        DbSettingsFactory.init(product);
