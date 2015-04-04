@@ -48,8 +48,6 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	private int xPos;
 
-	private int optionsPerRow;
-
 	private boolean showLabel = true;
 
 	private boolean skipLogicSourceControl;
@@ -163,14 +161,6 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	public void setxPos(int xPos) {
 		this.xPos = xPos;
-	}
-
-	public int getOptionsPerRow() {
-		return optionsPerRow;
-	}
-
-	public void setOptionsPerRow(int optionsPerRow) {
-		this.optionsPerRow = optionsPerRow;
 	}
 
 	public boolean showLabel() {
@@ -346,7 +336,6 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		result = prime * result + (phi ? 1231 : 1237);
 		result = prime * result + sequenceNumber;
 		result = prime * result + xPos;
-		result = prime * result + optionsPerRow;
 		result = prime * result + (showLabel ? 1231 : 1237);
 		result = prime * result + (skipLogicSourceControl ? 1231 : 1237);
 		result = prime * result + (calculatedSourceControl ? 1231 : 1237);
@@ -385,7 +374,6 @@ public abstract class Control implements Comparable<Control>, Serializable {
 			phi != ctrl.phi ||
 			sequenceNumber != ctrl.sequenceNumber ||
 			xPos != ctrl.xPos ||
-			optionsPerRow != ctrl.optionsPerRow ||
 			showLabel != ctrl.showLabel ||
 			skipLogicSourceControl != ctrl.skipLogicSourceControl ||
 			calculatedSourceControl != ctrl.calculatedSourceControl ||
@@ -450,7 +438,6 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		ctrlProps.put("customLabel", getCustomLabel());
 		ctrlProps.put("labelPosition", getLabelPosition());
 		ctrlProps.put("toolTip", getToolTip());
-		ctrlProps.put("optionsPerRow", getOptionsPerRow());
 		ctrlProps.put("skipLogicSourceControl", isSkipLogicSourceControl());
 		ctrlProps.put("skipLogicTargetControl", isSkipLogicTargetControl());
 		ctrlProps.put("calculatedSourceControl", isCalculatedSourceControl());
