@@ -161,7 +161,7 @@ var Views = {
 					var controlsOrder = this.model.get('controlsOrder');
 					var controlObjectCollection = this.model
 							.get('controlObjectCollection');
-					for (cntr = 0; cntr < controlsOrder.length; cntr++) {
+					for (var cntr = 0; cntr < controlsOrder.length; cntr++) {
 
 						var controlName = controlsOrder[cntr];
 						var control = controlObjectCollection[controlName];
@@ -1997,7 +1997,7 @@ var getDEJson = function (args) {
   var controlsOrder = args.json.get('controlsOrder');
   var controlObjectCollection = args.json.get('controlObjectCollection');
 
-  for (cntr = 0; cntr < controlsOrder.length; cntr++) {
+  for (var cntr = 0; cntr < controlsOrder.length; cntr++) {
     var controlName = controlsOrder[cntr];
     var control = controlObjectCollection[controlName];
     if (control == undefined) {

@@ -158,7 +158,6 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 	}
 	
 	private void emitContainerProps(Container container) {
-		writeElement(writer, "id", 		container.getId());
 		writeElement(writer, "name", 	container.getName());
 		writeElement(writer, "caption", container.getCaption());
 	}
