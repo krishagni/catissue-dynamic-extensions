@@ -2053,14 +2053,12 @@ var getDEJson = function (args) {
       newField['type'] = newField.fancyControlType;
     }
 
-    if (prevRow == null || prevRow != field.sequenceNumber) {
-      columns = new Array();
-      colNo = 0;
-      rows[rowNo++] = columns;
-      prevRow = field.sequenceNumber;
+    var columns = rows[field.sequenceNumber - 1];
+    if (columns == undefined) {
+      columns = [];
+      rows.push(columns);
     }
-
-    columns[colNo++] = newField;
+    columns.push(newField);
   };
   
   var newJson = {};
@@ -2090,6 +2088,7 @@ var getNewField = function(args) {
   newField['conceptDefinition'] = field.conceptDefinition;
   newField['validationRules'] = field.validationRules || [];
   newField['fancyControlType'] = field.fancyControlType;
+  newField['defaultValue'] = field.defaultPv
 
   // Correcting the type properties 
   if (field.type == 'numericField') {
