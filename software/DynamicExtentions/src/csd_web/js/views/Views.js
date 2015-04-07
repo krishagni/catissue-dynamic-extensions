@@ -1989,11 +1989,7 @@ var Views = {
 };
 
 var getDEJson = function (args) {
-  var rows = new Array();
-  var columns = null;
-  var prevRow = null;
-  var rowNo = 0;
-  var colNo = 0;
+  var rows = {};
   var controlsOrder = args.json.get('controlsOrder');
   var controlObjectCollection = args.json.get('controlObjectCollection');
 
@@ -2053,18 +2049,23 @@ var getDEJson = function (args) {
       newField['type'] = newField.fancyControlType;
     }
 
-    var columns = rows[field.sequenceNumber - 1];
+    var columns = rows[field.sequenceNumber];
     if (columns == undefined) {
       columns = [];
-      rows.push(columns);
+      rows[field.sequenceNumber] = columns;
     }
     columns.push(newField);
   };
+
+  var rowList = [];
+  $.each(rows, function(key, value) {
+    rowList.push(value);
+  })
   
   var newJson = {};
   newJson['name'] = args.json.attributes.formName;
   newJson['caption'] = args.json.attributes.caption;
-  newJson['rows'] = rows;
+  newJson['rows'] = rowList;
 
   return newJson;
 };
