@@ -270,7 +270,8 @@ var Views = {
 					"click #addPv" : "addPv",
 					"click #deletePv" : "deletePv",
 					"click #changeControlButtonid" : "changeControl",
-					"keyup #controlCaption" : "setAttributeName"
+					"keyup #controlCaption" : "setAttributeName",
+					"click input[name='field-place']": "showHidePlacementControl"
 				},
 
 				setAttributeName : function(event) {
@@ -405,7 +406,7 @@ var Views = {
 					  validationMessages = this.validatePvDataType(newModel, "INTEGER")
 					  
 					} else if (newModel.attributes.dataType == 'FLOAT') {
-                      validationMessages = this.validatePvDataType(newModel, "FLOAT")
+			                      validationMessages = this.validatePvDataType(newModel, "FLOAT")
 					} else if (newModel.attributes.dataType == 'BOOLEAN') {
 					  validationMessages = this.validatePvDataType(newModel, "BOOLEAN")
 				    }
@@ -480,7 +481,71 @@ var Views = {
 						}
 					}
 
+					this.setPlacement();
 					this.showMessages(validationMessages, status);
+				},
+
+				setPlacement: function() {
+					var formModel = Main.formView.getFormModel();
+					var controlRows = formModel.get('controlRows');
+					var placementControlName = $('select[name="placement-control"]').val();
+					var fieldPlace = $('input[name="field-place"]:checked').val();
+					if (!fieldPlace  || (placementControlName == undefined && fieldPlace != "LAST_ROW")) {
+						return;
+					}
+
+					var rowNum = 0;
+					if (!!placementControlName) {
+						rowNum = formModel.getControl(placementControlName).get("sequenceNumber");
+					}
+					
+					switch (fieldPlace) {
+						case 'LAST_ROW':
+							var keys = Object.keys(controlRows);
+							if (keys.length > 0) {
+								rowNum = keys[keys.length -1];
+							}
+							rowNum += 1;
+							break;
+						case 'ROW_BEFORE':
+							if (rowNum > 1 && controlRows[rowNum -1] == undefined) {
+								rowNum -= 1;
+							}
+							break;
+						case 'ROW_AFTER':
+							rowNum += 1;
+							break;
+						case 'SAME_ROW':
+							controlRows[rowNum].push(this.model.get("controlName"));
+							this.model.set({'sequenceNumber': rowNum});
+							return;
+					}
+					
+					var controlNames = [this.model.get("controlName")];
+					while(true) {
+						var temp = controlRows[rowNum]
+						controlRows[rowNum] = controlNames;
+						for (var j = 0; j < controlNames.length; j++) {
+							formModel.getControl(controlNames[j]).set({'sequenceNumber': rowNum});
+						}
+
+						if (temp == undefined) {
+							break;
+						}
+
+						controlNames = temp;
+						rowNum++;
+					}
+
+				},
+
+				showHidePlacementControl: function() {
+					var fieldPlace = $("input[name='field-place']:checked").val();
+					if (fieldPlace == 'LAST_ROW') {
+						$('select[name="placement-control"]').hide();
+					} else {
+						$('select[name="placement-control"]').show();
+					}
 				},
 
 				validatePvDataType : function (newModel, dataType) {
@@ -704,8 +769,33 @@ var Views = {
 				},
 
 				render : function() {
-					this.$el.html(Mustache.to_html(this.model.get('template'),
-							this.model.toJSON()));
+					var formModel = Main.formView.getFormModel();
+					this.$el.html(Mustache.to_html(this.model.get('template'), this.model.toJSON()));
+
+					var isSubFormControl = this.model.get("isSubFormControl");
+					if (!isSubFormControl) { 
+						var controlsOrder = formModel.get('controlsOrder');
+						var ControlCollection = formModel.get('controlObjectCollection');
+						for (var i = 0; i < controlsOrder.length; i++) {
+							var control = ControlCollection[controlsOrder[i]]
+							if (control == undefined || this.model.id == control.id) {
+								continue;
+							}
+
+							$('select[name="placement-control"]')
+								.append($("<option/>")
+								.prop("value", controlsOrder[i])
+								.append(control.get("caption")));
+						}
+						
+						if (this.model.get("id") == null) {
+							$('select[name="placement-control"]').hide();
+							$('input[name="field-place"][value="LAST_ROW"]').prop("checked", true);
+						}
+					} else {
+						$("#field-placement", this.$el).css("display", "none");
+					}
+
 					// clear messages div
 					$("#messagesDiv").html("");
 					$("#messagesDiv").removeClass('success');

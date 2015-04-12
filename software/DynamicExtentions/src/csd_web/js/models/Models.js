@@ -17,7 +17,8 @@ var Models = {
 					this.set({
 						// controlCollection : new Array(),
 						controlObjectCollection : {},
-						controlsOrder : new Array()
+						controlsOrder : new Array(),
+						controlRows: {}
 					});
 				},
 

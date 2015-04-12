@@ -654,9 +654,13 @@ var ControlBizLogic = {
 	 * Create an empty control for editing
 	 */
 	createControl : function(controlType) {
+		var selectedNodeId = Main.treeView.getTree().getSelectedItemId();
+		var selectedNodeControlType = Main.treeView.getTree().getUserData(
+				selectedNodeId, "controlType");
 		var shortCode = Utility.getShortCode(controlType);
 		var controlModel = new Models.Field({
 			type : controlType,
+			isSubFormControl: selectedNodeControlType == 'subForm',
 			pvs : {},
 			sequenceNumber : ControlBizLogic.getNextSequenceNumber(),
 			controlName : shortCode
