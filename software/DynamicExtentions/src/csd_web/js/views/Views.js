@@ -383,8 +383,8 @@ var Views = {
 					});
 
 					this.populateFieldsInModel(newModel);
-					var validationMessages = newModel.validate(newModel
-							.toJSON());
+					var validationMessages = newModel.validate(newModel.toJSON());
+					this.setPlacement();
 
 					/*
 					 * if (this.model.get('editName') == undefined &&
@@ -409,7 +409,7 @@ var Views = {
 			                      validationMessages = this.validatePvDataType(newModel, "FLOAT")
 					} else if (newModel.attributes.dataType == 'BOOLEAN') {
 					  validationMessages = this.validatePvDataType(newModel, "BOOLEAN")
-				    }
+				    	}
 					
 					if (validationMessages.length == 0) {
 						this.populateFields();
@@ -481,7 +481,6 @@ var Views = {
 						}
 					}
 
-					this.setPlacement();
 					this.showMessages(validationMessages, status);
 				},
 
@@ -498,6 +497,15 @@ var Views = {
 					if (!!placementControlName) {
 						rowNum = formModel.getControl(placementControlName).get("sequenceNumber");
 					}
+
+					var ctrName = this.model.get("controlName");
+					var seqNum = this.model.get("sequenceNumber");
+					if (controlRows[seqNum]) {
+						var index = controlRows[seqNum].indexOf(ctrName);
+						if (index != -1) {
+							controlRows[seqNum].splice(index, 1);
+						}
+					}
 					
 					switch (fieldPlace) {
 						case 'LAST_ROW':
@@ -505,15 +513,15 @@ var Views = {
 							if (keys.length > 0) {
 								rowNum = keys[keys.length -1];
 							}
-							rowNum += 1;
+							rowNum++;
 							break;
 						case 'ROW_BEFORE':
 							if (rowNum > 1 && controlRows[rowNum -1] == undefined) {
-								rowNum -= 1;
+								rowNum--;
 							}
 							break;
 						case 'ROW_AFTER':
-							rowNum += 1;
+							rowNum++;
 							break;
 						case 'SAME_ROW':
 							controlRows[rowNum].push(this.model.get("controlName"));
@@ -526,7 +534,11 @@ var Views = {
 						var temp = controlRows[rowNum]
 						controlRows[rowNum] = controlNames;
 						for (var j = 0; j < controlNames.length; j++) {
-							formModel.getControl(controlNames[j]).set({'sequenceNumber': rowNum});
+							if (controlNames[j] == this.model.get("controlName")) {
+								this.model.set({'sequenceNumber': rowNum});
+							} else {
+								formModel.getControl(controlNames[j]).set({'sequenceNumber': rowNum});
+							}
 						}
 
 						if (temp == undefined) {
@@ -787,8 +799,13 @@ var Views = {
 								.prop("value", controlsOrder[i])
 								.append(control.get("caption")));
 						}
-						
-						if (this.model.get("id") == null) {
+
+						if (this.model.get("copy")) {
+							var selectedId = Main.treeView.getTree().getSelectedItemId();
+							var selectedControlName = Main.treeView.getTree().getUserData(selectedId, "controlName");
+							$('select[name="placement-control"]').val(selectedControlName);
+							$('input[name="field-place"][value="SAME_ROW"]').prop("checked", true);	
+						} else if (this.model.get("id") == null) {
 							$('select[name="placement-control"]').hide();
 							$('input[name="field-place"][value="LAST_ROW"]').prop("checked", true);
 						}
@@ -2126,7 +2143,7 @@ var getDEJson = function (args) {
 
       newField['pvs'] = pvs;
     } else if (newField.type == 'datePicker') {
-      newField['format'] = field.format;
+      newField['format'] = Utility.dateFormats[field.format];
       newField['showCalendar'] = field.showCalendar;
       newField['defaultType'] = field.defaultType;
       newField['defaultValue'] = field.defaultValue;

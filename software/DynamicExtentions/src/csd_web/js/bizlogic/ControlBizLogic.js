@@ -543,6 +543,7 @@ var ControlBizLogic = {
 		var control = new Models.Field($.extend(true, {}, fieldModel.attributes));
 		var shortCode = Utility.getShortCode(control.get('type'));
 		control.set({
+			id: null,
 			editName : undefined,
 			formTreeNodeId : undefined,
 			controlName : shortCode,

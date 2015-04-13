@@ -1,4 +1,11 @@
 var Utility = {
+	dateFormats : {
+	  'DATE': 'MM-dd-yyyy',
+	  'DATE AND TIME': 'MM-dd-yyyy HH:mm',
+	  'MONTH AND YEAR': 'MM-yyyy',
+	  'YEAR ONLY': 'yyyy'
+	},
+
 	constructBaseURL : function() {
 		var baseURL = "";
 		var currentURL = window.location + "";
