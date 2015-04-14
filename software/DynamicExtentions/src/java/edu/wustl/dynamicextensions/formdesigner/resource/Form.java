@@ -178,14 +178,13 @@ public class Form {
 			if (save.equalsIgnoreCase("yes")) {
 				txn = TransactionManager.getInstance().startTxn();
 				container.persistContainer();
+				Integer containerId = (Integer) propertiesMap.get("id");
+				BOUtil.getInstance().getGenerator().update(containerId.longValue());
 				TransactionManager.getInstance().commit(txn);
 			}
 			formProps.setProperty(CSDConstants.STATUS, CSDConstants.STATUS_SAVED);
 
-            Integer containerId = (Integer) propertiesMap.get("id");
-            BOUtil.getInstance().getGenerator().update(containerId.longValue());
-
-            return formProps.getAllProperties();
+			return formProps.getAllProperties();
 		} catch (Exception ex) {
 			propertiesMap.put("status", "error");
 			ex.printStackTrace();
