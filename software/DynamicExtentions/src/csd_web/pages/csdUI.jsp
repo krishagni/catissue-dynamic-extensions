@@ -108,7 +108,7 @@
 </script>
 
 <script type="text/javascript">
-  var dateFormat = "mm-dd-yyyy";
+  var dateFormat = '<%=((String)session.getAttribute("datePattern")).toLowerCase()%>';
 </script>
 <title>CSD</title>
 </head>
