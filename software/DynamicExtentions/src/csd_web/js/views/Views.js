@@ -790,7 +790,7 @@ var Views = {
 						var ControlCollection = formModel.get('controlObjectCollection');
 						for (var i = 0; i < controlsOrder.length; i++) {
 							var control = ControlCollection[controlsOrder[i]]
-							if (control == undefined || this.model.id == control.id) {
+							if (control == undefined || this.model.cid == control.cid) {
 								continue;
 							}
 
@@ -805,7 +805,7 @@ var Views = {
 							var selectedControlName = Main.treeView.getTree().getUserData(selectedId, "controlName");
 							$('select[name="placement-control"]').val(selectedControlName);
 							$('input[name="field-place"][value="SAME_ROW"]').prop("checked", true);	
-						} else if (this.model.get("id") == null) {
+						} else if (controlsOrder.indexOf(this.model.get("controlName")) == -1) {
 							$('select[name="placement-control"]').hide();
 							$('input[name="field-place"][value="LAST_ROW"]').prop("checked", true);
 						}
@@ -2148,7 +2148,7 @@ var getDEJson = function (args) {
       newField['defaultType'] = field.defaultType;
       newField['defaultValue'] = field.defaultValue;
     } else if (newField.type == 'booleanCheckbox') {
-      newField['defaultChecked'] = field.defaultChecked;
+      newField['defaultChecked'] = field.isChecked;
     } else if (newField.type == 'label') {
       newField['heading'] = field.heading;
       newField['note'] = field.note;
