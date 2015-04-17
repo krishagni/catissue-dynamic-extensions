@@ -28,6 +28,11 @@
   width: 100%;
 }
 
+#field-placement .propertiesContainerCell.drop-down {
+  width: 38%;
+  padding-left: 10px;
+}
+
 .textBoxTiny{
 	width: 25%;
 }
@@ -183,16 +188,6 @@
 .propertiesTextBoxContainer {
 	width: 40%;
 }
-
-.radio-group label {
-  font-weight: 400;
-  margin-right: 10px;
-}
-
-.radio-group label input {
-  margin-right: 5px;
-}
-
 
 # CSS RELATED TO PREVIEW OF NEW DE MODEL
 

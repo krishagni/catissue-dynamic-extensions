@@ -1,16 +1,19 @@
 <div class = "controlHeaders"><label class = 'text_bold'>General Properties</label></div>
 
 <div id="field-placement" class="propertiesContainer">
-  <div style="width: 24%; text-align: right;" class = "propertiesContainerCell">
+  <div style="width: 24%; text-align: right;" class="propertiesContainerCell">
     <label class = 'text_normal'>Field Placement</label>
   </div>
-  <div style="width: 50%; padding-left: 10px" class="propertiesContainerCell radio-group">
-    <label><input name="field-place" type="radio" value="LAST_ROW">Last Row</label>
-    <label><input name="field-place" type="radio" value="ROW_BEFORE">Row Before</label>
-    <label><input name="field-place" type="radio" value="ROW_AFTER">Row After</label>
-    <label><input name="field-place" type="radio" value="SAME_ROW">Same Row</label>
+  <div class="propertiesContainerCell drop-down">
+    <select name="placement-position" class="textDropDown">
+      <option value="">Select Position</option>
+      <option value="LAST_ROW">Last Row</option>
+      <option value="ROW_BEFORE">Row Before</option>
+      <option value="ROW_AFTER">Row After</option>
+      <option value="SAME_ROW">Same Row</option>
+    </select>
   </div>
-  <div style="width: 26%" class="propertiesContainerCell">
+  <div class="propertiesContainerCell drop-down">
     <select name="placement-control" class="textDropDown">
       <option value="">Select Control</option>
     </select>

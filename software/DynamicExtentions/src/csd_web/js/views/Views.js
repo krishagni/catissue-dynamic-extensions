@@ -271,7 +271,7 @@ var Views = {
 					"click #deletePv" : "deletePv",
 					"click #changeControlButtonid" : "changeControl",
 					"keyup #controlCaption" : "setAttributeName",
-					"click input[name='field-place']": "showHidePlacementControl"
+					"change select[name='placement-position']": "showHidePlacementControl"
 				},
 
 				setAttributeName : function(event) {
@@ -488,8 +488,8 @@ var Views = {
 					var formModel = Main.formView.getFormModel();
 					var controlRows = formModel.get('controlRows');
 					var placementControlName = $('select[name="placement-control"]').val();
-					var fieldPlace = $('input[name="field-place"]:checked').val();
-					if (!fieldPlace  || (placementControlName == undefined && fieldPlace != "LAST_ROW")) {
+					var position = $('select[name="placement-position"]').val();
+					if (!position  || (!placementControlName && position != "LAST_ROW")) {
 						return;
 					}
 
@@ -505,9 +505,12 @@ var Views = {
 						if (index != -1) {
 							controlRows[seqNum].splice(index, 1);
 						}
+						if (controlRows[seqNum].length == 0) {
+							delete controlRows[seqNum];
+						}
 					}
 					
-					switch (fieldPlace) {
+					switch (position) {
 						case 'LAST_ROW':
 							var keys = Object.keys(controlRows);
 							if (keys.length > 0) {
@@ -552,8 +555,8 @@ var Views = {
 				},
 
 				showHidePlacementControl: function() {
-					var fieldPlace = $("input[name='field-place']:checked").val();
-					if (fieldPlace == 'LAST_ROW') {
+					var position = $('select[name="placement-position"]').val();
+					if (!position || position == 'LAST_ROW') {
 						$('select[name="placement-control"]').hide();
 					} else {
 						$('select[name="placement-control"]').show();
@@ -800,14 +803,15 @@ var Views = {
 								.append(control.get("caption")));
 						}
 
+						$('select[name="placement-control"]').hide();
 						if (this.model.get("copy")) {
 							var selectedId = Main.treeView.getTree().getSelectedItemId();
 							var selectedControlName = Main.treeView.getTree().getUserData(selectedId, "controlName");
 							$('select[name="placement-control"]').val(selectedControlName);
-							$('input[name="field-place"][value="SAME_ROW"]').prop("checked", true);	
+							$('select[name="placement-position"]').val('SAME_ROW');	
+							$('select[name="placement-control"]').show();
 						} else if (controlsOrder.indexOf(this.model.get("controlName")) == -1) {
-							$('select[name="placement-control"]').hide();
-							$('input[name="field-place"][value="LAST_ROW"]').prop("checked", true);
+							$('select[name="placement-position"]').val('LAST_ROW');	
 						}
 					} else {
 						$("#field-placement", this.$el).css("display", "none");
