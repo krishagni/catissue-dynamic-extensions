@@ -36,12 +36,23 @@ public class DEApp {
 		return fileUploadDir;
 	}
 
+	public static void setFileUploadDir(String fileUploadDir) {
+		DEApp.fileUploadDir = fileUploadDir;
+	}
+		
 	public static String getDateFormat() {
 		return dateFormat;
 	}
 
+	public static void setDateFormat(String dateFormat) {
+		DEApp.dateFormat = dateFormat;
+	}
+		
 	public static String getTimeFormat() {
 		return timeFormat;
 	}
 	
+	public static void setTimeFormat(String timeFormat) {
+		DEApp.timeFormat = timeFormat;
+	}	
 }
