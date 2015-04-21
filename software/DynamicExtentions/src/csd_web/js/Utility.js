@@ -6,6 +6,26 @@ var Utility = {
 	  'YEAR ONLY': 'yyyy'
 	},
 
+	controlShortCodes: {
+	  "stringTextField": "ST",
+	  "comboBox": "DD",
+	  "numericField": "NT", 
+	  "textArea": "TA",
+	  "radioButton": "RB",
+	  "checkBox": "CB",
+	  "listBox": "LB",
+	  "multiselectBox": "MLB",
+	  "multiselectCheckBox": "MCB", 
+	  "datePicker": "DP",
+	  "fileUpload": "FU", 
+	  "fancyControl": "FC", 
+	  "note": "N",
+	  "heading": "H", 
+	  "label": "L", 
+	  "subForm": "SF",
+	  "pageBreak": "PB"
+	},
+
 	constructBaseURL : function() {
 		var baseURL = "";
 		var currentURL = window.location + "";
@@ -110,80 +130,11 @@ var Utility = {
 	},
 
 	getShortCode : function(type) {
-		var shortCode = GlobalMemory.nodeCounter;
-
-		switch (type) {
-
-		case "stringTextField":
-			shortCode = "ST" + GlobalMemory.nodeCounter;
-			break;
-
-		case "comboBox":
-			shortCode = "DD" + GlobalMemory.nodeCounter;
-			break;
-
-		case "numericField":
-			shortCode = "NT" + GlobalMemory.nodeCounter;
-			break;
-
-		case "textArea":
-			shortCode = "TA" + GlobalMemory.nodeCounter;
-			break;
-
-		case "radioButton":
-			shortCode = "RB" + GlobalMemory.nodeCounter;
-			break;
-
-		case "checkBox":
-			shortCode = "CB" + GlobalMemory.nodeCounter;
-			break;
-
-		case "listBox":
-			shortCode = "LB" + GlobalMemory.nodeCounter;
-			break;
-
-		case "multiselectBox":
-			shortCode = "MLB" + GlobalMemory.nodeCounter;
-			break;
-
-		case "multiselectCheckBox":
-			shortCode = "MCB" + GlobalMemory.nodeCounter;
-			break;
-
-		case "datePicker":
-			shortCode = "DP" + GlobalMemory.nodeCounter;
-			break;
-
-		case "fileUpload":
-			shortCode = "FU" + GlobalMemory.nodeCounter;
-			break;
-
-		case "fancyControl":
-			shortCode = "FC" + GlobalMemory.nodeCounter;
-			break;
-
-		case "note":
-			shortCode = "N" + GlobalMemory.nodeCounter;
-			break;
-
-		case "heading":
-			shortCode = "H" + GlobalMemory.nodeCounter;
-			break;
-
-		case "label":
-			shortCode = "L" + GlobalMemory.nodeCounter;
-			break;
-
-		case "subForm":
-			shortCode = "SF" + GlobalMemory.nodeCounter;
-			break;
-
-		case "pageBreak":
-			shortCode = "PB" + GlobalMemory.nodeCounter;
-			break;
-
-		default:
-
+		var shortCode = this.controlShortCodes[type] + GlobalMemory.nodeCounter;
+		var controlsOrder = Main.formView.getFormModel().get("controlsOrder");
+		if (controlsOrder.indexOf(shortCode) != -1) {
+			GlobalMemory.nodeCounter++;
+			shortCode = this.getShortCode(type);	
 		}
 
 		return shortCode;

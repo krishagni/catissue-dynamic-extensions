@@ -9,15 +9,17 @@ var Views = {
 					_.bindAll(this, 'render'); // fixes loss of context for
 					this.render();// self-rendering
 				},
+
 				loadForm : function() {
-
-					Routers.formEventsRouterPointer.navigate("loadCachedForm/"
-							+ $('#formCaption').val(), true);
-
+					Routers.formEventsRouterPointer
+						.navigate("loadCachedForm/" + $('#formCaption').val(), true);
 				},
+
 				saveForm : function(showMessage) {
 					if (!Utility.checkNameForCorrectness($('#formName').val())) {
-					  Utility.notify($("#notifications"), "Form Name should not contain special characters and white spaces", "error");
+					  Utility.notify(
+					    $("#notifications"), 
+					    "Form Name should not contain special characters and white spaces", "error");
 					  return;
 					}
 					// Save Model
@@ -25,8 +27,7 @@ var Views = {
 					this.populateControlsInForm();
 					$("#formWaitingImage").show();
 					// set form info from summary
-					this.model.setFormInformation(Main.mainTabBarView
-							.getFormSummaryView().getModel());
+					this.model.setFormInformation(Main.mainTabBarView.getFormSummaryView().getModel());
 					this.model.set({
 						formulae : GlobalMemory.formulae
 					});
@@ -43,67 +44,43 @@ var Views = {
                                           }
                                         }
                                        
-					this.model
-							.save(
-									{
-								    		save : "yes"
-									},
-									{
-										wait : true,
-										success : function(model, response) {
-											if (model.get("status") == "saved") {
+					this.model.save({
+					    save : "yes"
+					  },{
+					    wait : true,
+					    success : function(model, response) {
+					      if (model.get("status") == "saved") {
+					        Routers.updateCachedFormMethod(model);
+					        $("#formWaitingImage").hide();
 
-												Routers
-														.updateCachedFormMethod(model);
-												$("#formWaitingImage").hide();
-												var message = model
-														.get('caption')
-														+ " was saved successfully.";
-											/*	$("#popupMessageText").html(
-														message);
-												$("#dialog-message").dialog(
-														'open');
-												Main.mainTabBarView
-														.getFormSummaryView()
-														.displayFormInfo(
-																model
-																		.getFormInformation());*/
-			if (showMessage) {
-				Utility.notify($("#notifications"), message, "success");
-			}
+					        var message = model.get('caption') + " was saved successfully.";
+					        if (showMessage) {
+					          Utility.notify($("#notifications"), message, "success");
+					        }
 
-												// change from Save as to save
-												$('#saveForm').prop("value",
-														" Save  ")
+					        // change from Save as to save
+					        $('#saveForm').prop("value", " Save  ");
+					        model.updateControlIdProp(response.controlCollection);
+					      } else {
+					        $("#formWaitingImage").hide();
+       					        Utility.notify($("#notifications"), "Could not save the form successfully", "error");
+					      }
+					    },
+					  
+					    error : function(model, response) {
+					      $("#formWaitingImage").hide();
+       					      Utility.notify($("#notifications"), message, "success");
+					    }
+					  }
+					);
 
-											} else {
-												$("#formWaitingImage").hide();
-										/*		$("#popupMessageText")
-														.html(
-																"Could not save the form successfully.");
-												$("#dialog-message").dialog(
-														'open'); */
-            Utility.notify($("#notifications"), "Could not save the form successfully", "error");
-
-											}
-										},
-										error : function(model, response) {
-											$("#formWaitingImage").hide();
-										/*	$("#popupMessageText")
-													.html(
-															"Could not save the form successfully.");
-											$("#dialog-message").dialog('open'); */
-            Utility.notify($("#notifications"), message, "success");
-										}
-
-									});
                                         this.model.set('controlObjectCollection', ctrlColl);
                                         for (var i = 0; i < this.model.get('controlCollection').length; ++i) {
                                           var ctrl = this.model.get('controlCollection')[i];
                                           if (ctrl.type == 'subForm') {
                                             var sf = ctrl.subForm;
                                             sf.set('controlObjectCollection', sfCtrlColl[ctrl.controlName]);
-                                          }
+					  }
                                         }
 				},
 
@@ -323,33 +300,25 @@ var Views = {
 
 				deleteControl : function(event) {
 					GlobalMemory.currentBufferControlModel = this.model;
-					$('#dialogMessageText').html(
-							'Do you wish to delete this Control?');
-					$("#general-dialog")
-							.dialog(
-									{
-										buttons : {
-											Yes : function() {
-												$('#deleteControlButtonid')
-														.prop("disabled", true);
-												$('#createControlButtonid')
-														.prop("disabled", true);
-												$('#addPv').prop("disabled",
-														true);
-												$('#deletePv').prop("disabled",
-														true);
-												ControlBizLogic
-														.deleteControl(GlobalMemory.currentBufferControlModel);
-												$(this).dialog("close");
-												Main.currentFieldView.destroy();
-											},
-											No : function() {
-												$(this).dialog("close");
-											}
-										}
-									});
+					$('#dialogMessageText').html('Do you wish to delete this Control?');
+					$("#general-dialog").dialog({
+						buttons : {
+							Yes : function() {
+								$('#deleteControlButtonid').prop("disabled", true);
+								$('#createControlButtonid').prop("disabled", true);
+								$('#addPv').prop("disabled", true);
+								$('#deletePv').prop("disabled",	true);
+								ControlBizLogic.deleteControl(GlobalMemory.currentBufferControlModel);
+								$(this).dialog("close");
+								Main.currentFieldView.destroy();
+								Main.formView.saveForm(false);
+							},
+							No : function() {
+								$(this).dialog("close");
+							}
+						}
+					});
 					$("#general-dialog").dialog("open");
-
 				},
 
 				enableDeleteButton : function() {
@@ -467,8 +436,8 @@ var Views = {
 										"controlName",
 										this.model.get('controlName'));
 							}
-							Main.formView.saveForm(false);
 						}
+						Main.formView.saveForm(false);
 
 						// add page break
 						var addPageBreak = $(

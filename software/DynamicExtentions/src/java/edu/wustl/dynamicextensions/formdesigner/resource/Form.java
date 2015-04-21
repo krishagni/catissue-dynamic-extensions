@@ -184,7 +184,7 @@ public class Form {
 			}
 			formProps.setProperty(CSDConstants.STATUS, CSDConstants.STATUS_SAVED);
 
-			return formProps.getAllProperties();
+			return container.getProperties().getAllProperties();
 		} catch (Exception ex) {
 			propertiesMap.put("status", "error");
 			ex.printStackTrace();
