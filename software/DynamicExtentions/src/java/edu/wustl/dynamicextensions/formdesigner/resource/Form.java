@@ -265,7 +265,9 @@ public class Form {
 		
 		try {
 			String contentType = file.getContentType();
-			if (contentType != null && contentType.equals("application/zip")) {
+			String fileName = file.getOriginalFilename();
+			
+			if ((contentType != null && contentType.equals("application/zip")) || fileName.endsWith(".zip")) {
 				DirOperationsUtility.getInstance().createTempDirectory(tmpDirName);
 				ZipUtility.extractZipToDestination(file.getInputStream(), tmpDirName);
 			} else {
