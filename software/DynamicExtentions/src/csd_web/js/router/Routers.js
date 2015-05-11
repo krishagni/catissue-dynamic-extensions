@@ -285,6 +285,9 @@ var Routers = {
 				loadFormSuccessHandler : function(model, response) {
 					var formId = model.get('id');
 					if (formId != undefined && formId != null) {
+						var scope = parent.angular.element(".container.os-de-form").scope()
+						scope.form.caption = model.get('caption');
+						scope.$apply();
 						GlobalMemory.editForm = true;
 					}
 					Routers.formEventsRouterPointer.updateUI(model);
