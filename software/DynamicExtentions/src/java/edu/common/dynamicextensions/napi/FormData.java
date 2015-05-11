@@ -110,7 +110,7 @@ public class FormData {
 		}
 				
 		if (containerId == null) {
-			containerId = ((Double)valueMap.get("containerId")).longValue();		
+			containerId = ((Number)valueMap.get("containerId")).longValue();		
         }
 
 		Container container = Container.getContainer(containerId);
@@ -125,7 +125,7 @@ public class FormData {
 
 		FormData formData = getFormData(container, valueMap, useUdn, null);		
 		if (valueMap.get("recordId") != null) {
-			formData.setRecordId(((Double)valueMap.get("recordId")).longValue());
+			formData.setRecordId(((Number)valueMap.get("recordId")).longValue());
 		}
 		
 		return formData;
@@ -143,7 +143,7 @@ public class FormData {
 		Map<String, Object> appData = (Map<String, Object>)valueMap.get("appData");
 		formData.setAppData(appData);
 				
-		Double recordId = (Double)valueMap.get("id");
+		Number recordId = (Number)valueMap.get("id");
 		if (recordId != null) {
 			formData.setRecordId(recordId.longValue());
 		}
@@ -195,7 +195,7 @@ public class FormData {
 		return formData;
 	}
 						
-	private Map<String, Object> getFieldNameValueMap(boolean includeUdn) {
+	public Map<String, Object> getFieldNameValueMap(boolean includeUdn) {
 		Map<String, Object> props = new HashMap<String, Object>();
 		props.put("appData",getAppData());
 		props.put("containerId", container.getId());

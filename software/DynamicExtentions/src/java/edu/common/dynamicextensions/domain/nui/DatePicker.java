@@ -7,16 +7,13 @@ import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
 
 import java.io.Serializable;
 import java.io.Writer;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
@@ -100,7 +97,7 @@ public class DatePicker extends Control implements Serializable {
 				fmt = DEFAULT_DATE_FORMAT;
 			}
 			
-			if (format.contains("HH:mm")) {
+			if (format.contains("HH:mm") || format.contains("hh:mm")) {
 				String timeFormat = DEApp.getTimeFormat() == null ? DEFAULT_TIME_FORMAT : DEApp.getTimeFormat(); 
 				fmt = fmt.concat(" "+ timeFormat);
 			}
