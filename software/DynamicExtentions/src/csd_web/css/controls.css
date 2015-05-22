@@ -24,6 +24,15 @@
 	width: 52%;
 }
 
+#field-placement .textDropDown {
+  width: 100%;
+}
+
+#field-placement .propertiesContainerCell.drop-down {
+  width: 38%;
+  padding-left: 10px;
+}
+
 .textBoxTiny{
 	width: 25%;
 }
@@ -179,7 +188,6 @@
 .propertiesTextBoxContainer {
 	width: 40%;
 }
-
 
 # CSS RELATED TO PREVIEW OF NEW DE MODEL
 

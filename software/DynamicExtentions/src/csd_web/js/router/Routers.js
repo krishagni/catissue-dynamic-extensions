@@ -369,7 +369,8 @@ var Routers = {
 										.get('type'));
 						control.set({
 							editName : control.get('controlName'),
-							formTreeNodeId : controlNodeId
+							formTreeNodeId : controlNodeId,
+							isSubFormControl: false
 						});
 
 						if (previousControl != null) {
@@ -427,7 +428,8 @@ var Routers = {
 													+ "."
 													+ updatedControl
 															.get('controlName'),
-											formTreeNodeId : subFrmCntrlNodeId
+											formTreeNodeId : subFrmCntrlNodeId,
+											isSubFormControl: true
 										});
 
 								subFrm.get('controlObjectCollection')[subControl
@@ -449,23 +451,23 @@ var Routers = {
 				},
 
 				populateModelWithControls : function(control, subFrm) {
+					var formModel = Main.formView.getFormModel();
 					var updatedControl = Utility.addFieldHandlerMap[control
 							.get('type')](control, false, 'controlContainer');
 					if (control.get('type') == "subForm") {
-						updatedControl.set({
-							subForm : subFrm
-						});
-
+						updatedControl.set({subForm : subFrm});
 					}
-					Main.formView.getFormModel().get('controlObjectCollection')[control
-							.get('controlName')] = updatedControl;
-					Main.formView.getFormModel().get('controlsOrder').push(
-							control.get('controlName'));
+
+					formModel.get('controlObjectCollection')[control.get('controlName')] = updatedControl;
+					formModel.get('controlsOrder').push(control.get('controlName'));
+
+					var controls = formModel.get('controlRows')[control.get("sequenceNumber")] || [];
+					controls.push(control.get("controlName"));
+					formModel.get('controlRows')[control.get("sequenceNumber")] = controls;
 
 				},
 
-				populateTreeWithControlNodes : function(controlName,
-						displayLabel, type) {
+				populateTreeWithControlNodes : function(controlName, displayLabel, type) {
 					var id = GlobalMemory.nodeCounter;
 					Main.treeView.getTree().insertNewChild(1, id, displayLabel,
 							0, 0, 0, 0);

@@ -837,6 +837,10 @@ edu.common.de.SelectField = function(id, field) {
       this.inputEl.append($("<option/>").prop("value", pv.value).append(pv.value));
     }
 
+    if (field.defaultValue != undefined) {
+      this.inputEl.val(field.defaultValue.value);
+    }
+
     return this.inputEl;
   };
 

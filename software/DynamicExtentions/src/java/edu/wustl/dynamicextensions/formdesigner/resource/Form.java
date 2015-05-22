@@ -178,14 +178,13 @@ public class Form {
 			if (save.equalsIgnoreCase("yes")) {
 				txn = TransactionManager.getInstance().startTxn();
 				container.persistContainer();
+				Integer containerId = (Integer) propertiesMap.get("id");
+				BOUtil.getInstance().getGenerator().update(containerId.longValue());
 				TransactionManager.getInstance().commit(txn);
 			}
 			formProps.setProperty(CSDConstants.STATUS, CSDConstants.STATUS_SAVED);
 
-            Integer containerId = (Integer) propertiesMap.get("id");
-            BOUtil.getInstance().getGenerator().update(containerId.longValue());
-
-            return formProps.getAllProperties();
+			return container.getProperties().getAllProperties();
 		} catch (Exception ex) {
 			propertiesMap.put("status", "error");
 			ex.printStackTrace();
@@ -266,7 +265,9 @@ public class Form {
 		
 		try {
 			String contentType = file.getContentType();
-			if (contentType != null && contentType.equals("application/zip")) {
+			String fileName = file.getOriginalFilename();
+			
+			if ((contentType != null && contentType.equals("application/zip")) || fileName.endsWith(".zip")) {
 				DirOperationsUtility.getInstance().createTempDirectory(tmpDirName);
 				ZipUtility.extractZipToDestination(file.getInputStream(), tmpDirName);
 			} else {
