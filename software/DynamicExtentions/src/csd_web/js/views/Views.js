@@ -89,16 +89,19 @@ var Views = {
 					this.populateControlsInForm();
 					this.model.setFormInformation(Main.mainTabBarView
 							.getFormSummaryView().getModel());
-					  $('#previewFrame').hide();
-					  $('#preview').empty();
-					  var deJson = getDEJson({json: this.model});
-					  this.form = new edu.common.de.Form({
+					$('#previewFrame').hide();
+					$('#preview').empty();
+					
+					var scope = parent.angular.element(".container.os-de-form").scope()
+					var deJson = getDEJson({json: this.model});
+					this.form = new edu.common.de.Form({
 						formDef       : deJson,
 						formDiv       : 'preview',
-						showActionBtns: false
-					  });
-					  this.form.render();
-					  $('#formWaitingImage').hide();
+						showActionBtns: false,
+						dateFormat    : scope.global.dateFmt 
+					});
+					this.form.render();
+					$('#formWaitingImage').hide();
 				},
 
 				loadModelInSession : function() {
