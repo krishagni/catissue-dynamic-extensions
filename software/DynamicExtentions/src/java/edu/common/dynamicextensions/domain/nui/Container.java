@@ -555,8 +555,8 @@ public class Container implements Serializable {
 			// the control type got changed -> remove old + add new
 			//
 			control.setId(++ctrlId);
-			if (!(control instanceof MultiSelectControl)) {						// For MSCtrls Column name is "VALUE"
-				control.setDbColumnName(String.format(columnNameFmt, ctrlId)); 	// Set DB name here
+			if (!(control instanceof MultiSelectControl) && !isManagedTables()) {	// For MSCtrls Column name is "VALUE"
+				control.setDbColumnName(String.format(columnNameFmt, ctrlId)); 	    // Set DB name here
 			}
 			
 			add(delLog, existingControl);			
@@ -788,9 +788,9 @@ public class Container implements Serializable {
 			container = existingContainer;
 		} else if (parsedContainer.isDto) {
 			container = fromDto(parsedContainer);
+			container.setManagedTables(!createTables);
 		}
-		
-		container.setManagedTables(!createTables);
+				
 		return container.save(ctxt);
 	}
 				
