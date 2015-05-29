@@ -1864,8 +1864,7 @@ var Views = {
 						$("#popupMessageText").html(message);
 						$("#dialog-message").dialog('open');
 					} else {
-						location.href = "../../ExportFormAction.de?containerId="
-								+ formId;
+						location.href = "../../rest/ng/forms/" + formId + "/definition-zip";
 					}
 
 				},
