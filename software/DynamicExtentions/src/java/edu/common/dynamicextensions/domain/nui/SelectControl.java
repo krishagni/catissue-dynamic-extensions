@@ -86,7 +86,7 @@ public abstract class SelectControl extends Control implements Serializable {
 			try {
 				result = new SimpleDateFormat(pvDataSource.getDateFormat()).parse(value);
 			} catch (Exception e) {
-				throw new RuntimeException("Error parsing date string: " + value, e);
+				throw new IllegalArgumentException("Error parsing date string: " + value, e);
 			}			
 		}
 		

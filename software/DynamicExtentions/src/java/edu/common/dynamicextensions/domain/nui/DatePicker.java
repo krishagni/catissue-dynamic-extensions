@@ -106,7 +106,7 @@ public class DatePicker extends Control implements Serializable {
 			simpleDateFormat.setLenient(false);
 			return simpleDateFormat.parse(value);
 		} catch (Exception e) {
-			throw new RuntimeException("Error creating date object from [" + value + "]. Format: " + format, e);
+			throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + format, e);
 		}
 	}
 	

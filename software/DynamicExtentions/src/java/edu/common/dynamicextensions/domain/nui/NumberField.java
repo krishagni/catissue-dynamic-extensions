@@ -165,7 +165,12 @@ public class NumberField extends TextField implements Serializable {
 			return null;
 		}
 
-		return new BigDecimal(value);
+		try {
+			return new BigDecimal(value);
+		} catch (NumberFormatException nfe) {
+			throw new IllegalArgumentException("Invalid number: " + value);
+		}
+		
 	}
 
 	@Override

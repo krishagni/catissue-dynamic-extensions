@@ -186,7 +186,12 @@ public class FormDataManagerImpl implements FormDataManager {
 		} catch (IllegalArgumentException iae) {
 			throw iae;
 		} catch (Exception e) {
-			throw new RuntimeException("Error saving form data", e);
+			StringBuilder msg = new StringBuilder("Error saving form data: ");
+			if (e.getMessage() != null) {
+				msg.append(e.getMessage());
+			}
+			
+			throw new RuntimeException(msg.toString(), e);
 		}
 	}
 	

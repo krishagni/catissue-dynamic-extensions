@@ -90,14 +90,18 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 	public ValidationStatus validate(Object value) {
 		boolean empty = value == null || value.toString().trim().isEmpty();		
 		if (!empty) {
-			empty = fromString(value.toString()).equals(-1L);
+			Long id = fromString(value.toString());
+			if (id == null) {
+				return ValidationStatus.INVALID_VALUE;
+			}
+			
+			empty = id.equals(-1L);
 		}
 		
 		if (isMandatory() && empty) {
 			return ValidationStatus.NULL_OR_EMPTY;
 		}
-				
-		
+						
 		if (empty) {
 			return ValidationStatus.OK;
 		}

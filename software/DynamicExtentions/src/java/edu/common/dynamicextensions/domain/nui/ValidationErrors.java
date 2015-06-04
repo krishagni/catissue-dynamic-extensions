@@ -29,4 +29,23 @@ public class ValidationErrors extends IllegalArgumentException {
 			throw this;
 		}
 	}
+	
+	@Override
+	public String getMessage() {
+		return toString();
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder errMsg = new StringBuilder();
+		for (Map.Entry<String, ValidationStatus> error : errors.entrySet()) {
+			errMsg.append(error.getKey()).append(":").append(error.getValue().toString()).append(", ");
+		}
+		
+		if (errMsg.length() > 0) {
+			errMsg.delete(errMsg.length() - 2, errMsg.length());
+		}
+		
+		return errMsg.toString();
+	}
 }

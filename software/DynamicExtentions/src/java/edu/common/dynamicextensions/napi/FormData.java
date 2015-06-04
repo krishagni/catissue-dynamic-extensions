@@ -276,18 +276,18 @@ public class FormData {
 			} else {
 				ValidationStatus status = ctrl.validate(ctrlValue.getValue());
 				if (status != ValidationStatus.OK) {
-					String field = useUdn ? ctrl.getUserDefinedName() : ctrl.getName();
+					String field = useUdn ? ctrl.getUserDefinedName() : ctrl.getCaption();
 					errors.addError(field, status);
 				}
 			}
 		}
 		
 		for (Control ctrl : mandatory.values()) {
-			String field = useUdn ? ctrl.getUserDefinedName() : ctrl.getName();
+			String field = useUdn ? ctrl.getUserDefinedName() : ctrl.getCaption();
 			errors.addError(field, ValidationStatus.NULL_OR_EMPTY);
 		}
 		
-		errors.throwIfErrors();		
+		errors.throwIfErrors();
 	}
 	
 	private static boolean isUsingUdn(Map<String, Object> appData) {
