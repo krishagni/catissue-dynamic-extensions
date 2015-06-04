@@ -568,17 +568,28 @@ public class Container implements Serializable {
 			if (existingControl instanceof MultiSelectControl) {
 				MultiSelectControl existingMsCtrl = (MultiSelectControl)existingControl;
 				MultiSelectControl newMsCtrl = (MultiSelectControl)control;
-				newMsCtrl.setTableName(existingMsCtrl.getTableName());
+				if (!isManagedTables()) {
+					// 
+					// We do not allow to change table name in case of non-managed forms/tables
+					//
+					newMsCtrl.setTableName(existingMsCtrl.getTableName());
+				}				
 			} else if (existingControl instanceof SubFormControl) {
 				SubFormControl existingSfCtrl = (SubFormControl)existingControl;
 				SubFormControl newSfCtrl = (SubFormControl)control;				
-				newSfCtrl.setTableName(existingSfCtrl.getTableName());
-								
+				if (!isManagedTables()) {
+					newSfCtrl.setTableName(existingSfCtrl.getTableName());
+				}
+												
 				if (bulkEdit) {
 					Container newSfContainer = newSfCtrl.getSubContainer();
 					Container existingSfContainer = existingSfCtrl.getSubContainer();
 					newSfContainer.setId(existingSfContainer.getId());
-					newSfContainer.setDbTableName(existingSfContainer.getDbTableName());
+					if (!isManagedTables()) {
+						newSfContainer.setDbTableName(existingSfContainer.getDbTableName());
+					} else {
+						existingSfContainer.setManagedTables(true); // perlocate down to all sub-forms
+					}
 					existingSfContainer.editContainer(newSfContainer);
 					existingSfCtrl.setUserDefinedName(newSfCtrl.getUserDefinedName());
 					control = existingSfCtrl;
@@ -586,7 +597,10 @@ public class Container implements Serializable {
 			}
 			
 			control.setId(existingControl.getId());
-			control.setDbColumnName(existingControl.getDbColumnName());
+			
+			if (!isManagedTables()) {
+				control.setDbColumnName(existingControl.getDbColumnName());
+			}			
 			control.setContainer(this);
 			add(editLog, control);			
 		}	
@@ -797,6 +811,10 @@ public class Container implements Serializable {
 	public void editContainer(Container newContainer) {
 		if (! this.getName().equals(newContainer.getName())) {
 			throw new RuntimeException("Error : Container name cannot be edited");
+		}
+		
+		if (isManagedTables()) {
+			setDbTableName(newContainer.getDbTableName());
 		}
 		
 		this.setName(newContainer.getName());
