@@ -243,9 +243,9 @@ public class FormData {
 				mandatory.put(ctrl.getName(), ctrl);
 			}
 			
-			if (ctrl instanceof SubFormControl) {
-				mandatory.put(ctrl.getName(), ctrl);
-			}
+//			if (ctrl instanceof SubFormControl) {
+//				mandatory.put(ctrl.getName(), ctrl);
+//			}
 		}
 		
 		for (ControlValue ctrlValue : fieldValues.values()) {
