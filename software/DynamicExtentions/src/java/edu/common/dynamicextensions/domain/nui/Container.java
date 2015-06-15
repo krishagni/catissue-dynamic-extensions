@@ -576,7 +576,12 @@ public class Container implements Serializable {
 				}				
 			} else if (existingControl instanceof SubFormControl) {
 				SubFormControl existingSfCtrl = (SubFormControl)existingControl;
-				SubFormControl newSfCtrl = (SubFormControl)control;				
+				SubFormControl newSfCtrl = (SubFormControl)control;
+				
+				existingSfCtrl.setForeignKey(newSfCtrl.getForeignKey());
+				existingSfCtrl.setParentKey(newSfCtrl.getParentKey());
+				existingSfCtrl.setPathLink(newSfCtrl.isPathLink());
+				
 				if (!isManagedTables()) {
 					newSfCtrl.setTableName(existingSfCtrl.getTableName());
 				}
@@ -817,8 +822,8 @@ public class Container implements Serializable {
 			setDbTableName(newContainer.getDbTableName());
 		}
 		
-		this.setName(newContainer.getName());
-		this.setCaption(newContainer.getCaption());
+		setName(newContainer.getName());
+		setCaption(newContainer.getCaption());
 		
 		if (newContainer.getPrimaryKey() != null) {
 			this.setPrimaryKey(newContainer.getPrimaryKey());
