@@ -76,7 +76,7 @@ public class Query {
         queryJoinTree = compiler.getQueryJoinTree();
         
         if (queryExpr.hasResultPostProc()) {
-        	String procName = queryExpr.getResultPostProc();
+        	String procName = queryExpr.getResultPostProcName();
         	ResultPostProcFactory factory = ResultPostProcManager.getInstance().getFactory(procName);
         	resultPostProc = factory.create(queryExpr);
         }        
