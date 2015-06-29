@@ -105,8 +105,12 @@ public class FormData {
 	public static FormData fromJson(String json, Long containerId) {
 		Type type = new TypeToken<Map<String, Object>>() {}.getType();
 		Map<String, Object> valueMap = new Gson().fromJson(json, type);
+		return fromValueMap(containerId, valueMap);
+	}
+
+	public static FormData fromValueMap(Long containerId, Map<String, Object> valueMap) {
 		if (valueMap.get("containerId") == null && containerId == null) {
-			throw new IllegalArgumentException("Input JSON doesn't have mandatory property: containerId");
+			throw new IllegalArgumentException("Input doesn't have mandatory property: containerId");
 		}
 				
 		if (containerId == null) {
