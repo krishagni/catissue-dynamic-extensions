@@ -609,6 +609,7 @@ var Views = {
 								dataType : $('#dataType').val(),
 								format : $('#format').val(),
 								isPHI : $('#isPHI').is(":checked"),
+								showInGrid : $('#showInGrid').is(":checked"),
 								isHTMLLabel : $('#isHTMLLabel').is(":checked"),
 								isMandatory : $('#isMandatory').is(":checked"),
 								isAutoCalculate : $('#autoCalculate').is(
@@ -666,6 +667,7 @@ var Views = {
 								dataType : $('#dataType').val(),
 								format : $('#format').val(),
 								isPHI : $('#isPHI').is(":checked"),
+								showInGrid : $('#showInGrid').is(":checked"),
 								isMandatory : $('#isMandatory').is(":checked"),
 								isHTMLLabel : $('#isHTMLLabel').is(":checked"),
 								isAutoCalculate : $('#autoCalculate').is(
@@ -796,6 +798,7 @@ var Views = {
 					$('#isHTMLLabel').prop('checked',
 							this.model.get('isHTMLLabel'));
 					$('#isPHI').prop('checked', this.model.get('isPHI'));
+					$('#showInGrid').prop("checked", this.model.get('showInGrid'));
 					$('#isMandatory').prop('checked',
 							this.model.get('isMandatory'));
 					$('#autoCalculate').prop('checked',
