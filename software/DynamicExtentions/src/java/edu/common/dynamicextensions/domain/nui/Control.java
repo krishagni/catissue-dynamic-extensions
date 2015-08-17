@@ -456,11 +456,11 @@ public abstract class Control implements Comparable<Control>, Serializable {
 	public void serializeToXml(Writer writer, Properties props) {
 		writeElement(writer, "name",        getName());
 		writeElement(writer, "udn",         getUserDefinedName());
-		writeElement(writer, "caption",     getCaption());
+		writeCDataElement(writer, "caption",     getCaption());
 		writeCDataElement(writer, "customLabel", getCustomLabel());
 		writeElement(writer, "phi",         isPhi());
 		writeElement(writer, "mandatory",   isMandatory());
-		writeElement(writer, "toolTip",     getToolTip());
+		writeCDataElement(writer, "toolTip",     getToolTip());
 		writeElement(writer, "showLabel",   showLabel());
 		writeElement(writer, "showInGrid",  showInGrid());
 	}	

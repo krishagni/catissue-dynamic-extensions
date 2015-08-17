@@ -1,5 +1,6 @@
 package edu.common.dynamicextensions.nutility;
 
+import static edu.common.dynamicextensions.nutility.XmlUtil.writeCDataElement;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElement;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementEnd;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
@@ -118,7 +119,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 			for (PermissibleValue pv : pvs){
 				writeElementStart(writer, "option");
 				
-				writeElement(writer, "value", pv.getValue());
+				writeCDataElement(writer, "value", pv.getValue());
 				writeElementEnd(writer,"option");
 
 			}
@@ -159,7 +160,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 	
 	private void emitContainerProps(Container container) {
 		writeElement(writer, "name", 	container.getName());
-		writeElement(writer, "caption", container.getCaption());
+		writeCDataElement(writer, "caption", container.getCaption());
 	}
 
 	private void emitContainerEnd() {

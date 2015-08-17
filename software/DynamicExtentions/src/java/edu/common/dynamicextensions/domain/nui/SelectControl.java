@@ -3,6 +3,7 @@
  */
 package edu.common.dynamicextensions.domain.nui;
 
+import static edu.common.dynamicextensions.nutility.XmlUtil.writeCDataElement;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElement;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementEnd;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
@@ -238,7 +239,7 @@ public abstract class SelectControl extends Control implements Serializable {
 	public void serializeToXml(Writer writer, Properties props) {
 		super.serializeToXml(writer, props);
 
-		writeElement(writer, "defaultValue", getDefaultValue());
+		writeCDataElement(writer, "defaultValue", getDefaultValue());
 		writeElementStart(writer, "options");
 		
 		PvDataSource pvDataSource = getPvDataSource();

@@ -3,6 +3,7 @@
  */
 package edu.common.dynamicextensions.domain.nui;
 
+import static edu.common.dynamicextensions.nutility.XmlUtil.writeCDataElement;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElement;
 
 import java.io.Serializable;
@@ -81,6 +82,6 @@ public abstract class TextField extends Control implements Serializable {
 	public void serializeToXml(Writer writer, Properties props) {
 		super.serializeToXml(writer, props);
 		writeElement(writer, "width",        getNoOfColumns());
-		writeElement(writer, "defaultValue", getDefaultValue());		
+		writeCDataElement(writer, "defaultValue", getDefaultValue());
 	}	
 }

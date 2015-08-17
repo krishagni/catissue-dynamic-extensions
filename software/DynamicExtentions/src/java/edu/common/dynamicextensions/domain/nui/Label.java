@@ -1,6 +1,7 @@
 
 package edu.common.dynamicextensions.domain.nui;
 
+import static edu.common.dynamicextensions.nutility.XmlUtil.writeCDataElement;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElement;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementEnd;
 import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
@@ -91,17 +92,17 @@ public class Label extends Control implements Serializable {
 		writeElement(writer, "udn", getUserDefinedName());
 
 		if (isHeading()) {
-			writeElement(writer, "heading", getCaption());
+			writeCDataElement(writer, "heading", getCaption());
 		} else if (isNote()){
-			writeElement(writer, "note", getCaption());
+			writeCDataElement(writer, "note", getCaption());
 		} else {
-			writeElement(writer, "caption", getCaption());
+			writeCDataElement(writer, "caption", getCaption());
 		}
 		
 		writeElement(writer, "customLabel", getCustomLabel());
 		writeElement(writer, "phi",         isPhi());
 		writeElement(writer, "mandatory",   isMandatory());
-		writeElement(writer, "toolTip",     getToolTip());
+		writeCDataElement(writer, "toolTip",     getToolTip());
 		writeElementEnd(writer, "label");		
 	}	
 }
