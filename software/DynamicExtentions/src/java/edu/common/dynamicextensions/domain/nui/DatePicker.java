@@ -106,7 +106,11 @@ public class DatePicker extends Control implements Serializable {
 			simpleDateFormat.setLenient(false);
 			return simpleDateFormat.parse(value);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + format, e);
+			try {
+				return new Date(Long.parseLong(value)); 
+			} catch (Exception e1) {
+				throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + format, e);
+			}			
 		}
 	}
 	
@@ -116,21 +120,7 @@ public class DatePicker extends Control implements Serializable {
 			return null;
 		}
 		
-		try {
-			String fmt = DEApp.getDateFormat();
-			if (fmt == null) {
-				fmt = DEFAULT_DATE_FORMAT;
-			}
-			
-			if (format.contains("HH:mm")) {
-				String timeFormat = DEApp.getTimeFormat() == null ? DEFAULT_TIME_FORMAT : DEApp.getTimeFormat(); 
-				fmt = fmt.concat(" "+ timeFormat);
-			}
-			
-			return new SimpleDateFormat(fmt).format(getDateObj(value));
-		} catch (Exception e) {
-			throw new RuntimeException("Error converting date to string: " + value, e);
-		}
+		return "" + getDateObj(value).getTime();		
 	}
 	
 	@Override
