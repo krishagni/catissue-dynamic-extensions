@@ -59,7 +59,9 @@ var ControlBizLogic = {
 		 * (model.get('parentName') != undefined) { controlName =
 		 * model.get('parentName') + "." + controlName; }
 		 */
-		Main.formView.getFormModel().deleteControl(model.get('editName'));
+		var formModel = Main.formView.getFormModel();
+		delete formModel.get('controlObjectCollection')[model.get('controlName')]
+		formModel.deleteControl(model.get('editName'));
 
 		Main.treeView.getTree().deleteItem(model.get('formTreeNodeId'), true);
 	},

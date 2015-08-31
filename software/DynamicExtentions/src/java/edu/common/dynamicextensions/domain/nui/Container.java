@@ -597,6 +597,7 @@ public class Container implements Serializable {
 					}
 					existingSfContainer.editContainer(newSfContainer);
 					existingSfCtrl.setUserDefinedName(newSfCtrl.getUserDefinedName());
+					existingSfCtrl.setSequenceNumber(newSfCtrl.getSequenceNumber());
 					control = existingSfCtrl;
 				}				
 			}

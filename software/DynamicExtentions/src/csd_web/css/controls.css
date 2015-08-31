@@ -1,3 +1,7 @@
+html, body {
+  height: 100%;
+}
+
 .textBox,.textBoxSmall,.textBoxTiny,.textDropDown {
     height: 34px;
     width: 99%;

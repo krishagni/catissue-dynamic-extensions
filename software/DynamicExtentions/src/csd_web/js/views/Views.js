@@ -24,7 +24,7 @@ var Views = {
           }
           // Save Model
           // alert(JSON.stringify(this.model.toJSON()));
-          this.populateControlsInForm();
+          this.populateControlsInForm(this.model);
           $("#formWaitingImage").show();
           // set form info from summary
           this.model.setFormInformation(Main.mainTabBarView.getFormSummaryView().getModel());
@@ -86,9 +86,8 @@ var Views = {
 
         loadModelInSessionForPreview : function() {
           $("#formWaitingImage").show();
-          this.populateControlsInForm();
-          this.model.setFormInformation(Main.mainTabBarView
-              .getFormSummaryView().getModel());
+          this.populateControlsInForm(this.model);
+          this.model.setFormInformation(Main.mainTabBarView.getFormSummaryView().getModel());
           $('#previewFrame').hide();
           $('#preview').empty();
           
@@ -106,14 +105,11 @@ var Views = {
 
         loadModelInSession : function() {
           $("#formWaitingImage").show();
-          this.populateControlsInForm();
+          this.populateControlsInForm(this.model);
           this.model.setFormInformation(Main.mainTabBarView.getFormSummaryView().getModel());
-          this.model.save(
-            {
+          this.model.save({
             save : "no"
-          },
-
-          {
+          }, {
             wait : true,
             success : function(model, response) {
               $("#formWaitingImage").hide();
@@ -123,73 +119,29 @@ var Views = {
 
             error : function(model, response) {
               $("#formWaitingImage").hide();
-            $("#popupMessageText").html("Could not process the form successfully.");
-            $("#dialog-message").dialog('open');
+              $("#popupMessageText").html("Could not process the form successfully.");
+              $("#dialog-message").dialog('open');
             }
-          }
-          );
+          });
         },
 
-        populateControlsInForm : function() {
-
-//          DesignModeBizLogic.populateControlPositions();
-
-          this.model.set({
-            controlCollection : new Array()
-          });
-
-          var controlsOrder = this.model.get('controlsOrder');
-          var controlObjectCollection = this.model
-              .get('controlObjectCollection');
-          for (var cntr = 0; cntr < controlsOrder.length; cntr++) {
-
-            var controlName = controlsOrder[cntr];
-            var control = controlObjectCollection[controlName];
-
-            if (control == undefined) {
-
-            } else {
-              if (control.get('type') == "subForm") {
-
-                var _subForm = control.get('subForm');
-                var subFormControlsOrder = _subForm
-                    .get('controlsOrder');
-                var subFormControlObjectCollection = _subForm
-                    .get('controlObjectCollection');
-
-                _subForm.set({
-                  controlCollection : new Array()
-                });
-
-                for ( var subCntr = 0; subCntr < subFormControlsOrder.length; subCntr++) {
-
-                  var subFormControlName = subFormControlsOrder[subCntr];
-                  var subFormControl = subFormControlObjectCollection[subFormControlName];
-
-                  if (subFormControl == undefined) {
-                  } else {
-                    // set control json
-                    _subForm.get('controlCollection').push(
-                        _.omit(subFormControl.attributes, ['template']));
-                  }
-                }
-                
-                // set sub form
-                control.set({
-                  subForm : _subForm
-                });
-              }
-              // set control json
-              this.model.get('controlCollection').push(_.omit(control.attributes, ['template']));
+        populateControlsInForm : function(model) {
+          model.set({controlCollection : new Array()});
+          
+          var that = this;
+          $.each(model.get('controlObjectCollection'), function(name, control) {
+            if (control.get('type') == "subForm") {
+              that.populateControlsInForm(control.get('subForm'));
             }
-          }
 
+            model.get('controlCollection').push(_.omit(control.attributes, ['template']));
+          });
         },
 
         getFormModel : function() {
-
           return this.model;
         },
+
         render : function() {
           /*
            * this.$el.html(Mustache.to_html(
@@ -302,7 +254,7 @@ var Views = {
         },
 
         deleteControl : function(event) {
-          GlobalMemory.currentBufferControlModel = this.model;
+          var that = this;
           $('#dialogMessageText').html('Do you wish to delete this Control?');
           $("#general-dialog").dialog({
             buttons : {
@@ -311,7 +263,7 @@ var Views = {
                 $('#createControlButtonid').prop("disabled", true);
                 $('#addPv').prop("disabled", true);
                 $('#deletePv').prop("disabled",  true);
-                ControlBizLogic.deleteControl(GlobalMemory.currentBufferControlModel);
+                ControlBizLogic.deleteControl(that.model);
                 $(this).dialog("close");
                 Main.currentFieldView.destroy();
                 Main.formView.saveForm(false);
@@ -468,61 +420,66 @@ var Views = {
           var rowNum = 0;
           if (!!placementControlName) {
             rowNum = formModel.getControl(placementControlName).get("sequenceNumber");
+          } 
+
+          if (position == 'LAST_ROW') {
+            var keys = Object.keys(controlRows);
+            if (keys.length > 0) {
+              rowNum = keys[keys.length -1];
+            }
           }
 
-          var ctrName = this.model.get("controlName");
-          var seqNum = this.model.get("sequenceNumber");
-          if (controlRows[seqNum]) {
-            var index = controlRows[seqNum].indexOf(ctrName);
+          var rows = {};
+          var cntrName = this.model.get("controlName");
+          var oldOrder = [];
+          that = this;
+          $.each(controlRows, function(key, controlNames) {
+            oldOrder = oldOrder.concat(controlNames);
+            var index = controlNames.indexOf(cntrName);
             if (index != -1) {
-              controlRows[seqNum].splice(index, 1);
-            }
-            if (controlRows[seqNum].length == 0) {
-              delete controlRows[seqNum];
-            }
-          }
-          
-          switch (position) {
-            case 'LAST_ROW':
-              var keys = Object.keys(controlRows);
-              if (keys.length > 0) {
-                rowNum = keys[keys.length -1];
-              }
-              rowNum++;
-              break;
-            case 'ROW_BEFORE':
-              if (rowNum > 1 && controlRows[rowNum -1] == undefined) {
-                rowNum--;
-              }
-              break;
-            case 'ROW_AFTER':
-              rowNum++;
-              break;
-            case 'SAME_ROW':
-              controlRows[rowNum].push(this.model.get("controlName"));
-              this.model.set({'sequenceNumber': rowNum});
-              return;
-          }
-          
-          var controlNames = [this.model.get("controlName")];
-          while(true) {
-            var temp = controlRows[rowNum]
-            controlRows[rowNum] = controlNames;
-            for (var j = 0; j < controlNames.length; j++) {
-              if (controlNames[j] == this.model.get("controlName")) {
-                this.model.set({'sequenceNumber': rowNum});
-              } else {
-                formModel.getControl(controlNames[j]).set({'sequenceNumber': rowNum});
-              }
+              controlNames.splice(index, 1);
             }
 
-            if (temp == undefined) {
-              break;
+            if (rowNum == key && position == 'ROW_BEFORE') {
+              that.setControlSequence(formModel, rows, [cntrName]);
             }
 
-            controlNames = temp;
-            rowNum++;
+            if (rowNum == key && position == 'SAME_ROW') {
+              controlNames.push(cntrName);
+            }
+
+            that.setControlSequence(formModel, rows, controlNames);
+
+            if (rowNum == key && (position == 'ROW_AFTER' || position == 'LAST_ROW')) {
+              that.setControlSequence(formModel, rows, [cntrName]);
+            }
+          }); 
+
+          formModel.set({'controlRows': rows});
+          var newOrder = [];
+          $.each(rows, function(key, controlNames) {
+            newOrder = newOrder.concat(controlNames);
+          });
+
+          var count = newOrder.indexOf(cntrName) - oldOrder.indexOf(cntrName);
+          var moveMode = count < 0 ? 'up_strict': 'down_strict';
+          while (count != 0) {
+            Main.treeView.getTree().moveItem(this.model.get('formTreeNodeId'), moveMode);
+            count += (moveMode == 'up_strict'? 1: -1);
           }
+        },
+
+        setControlSequence: function(formModel, controlRows, controlNames) {
+          if (controlNames.length == 0) {
+            return;
+          }
+          var num = Object.keys(controlRows).length + 1;
+          for (var j = 0; j < controlNames.length; j++) {
+            var cntr = formModel.getControl(controlNames[j]);
+            cntr = cntr == undefined ? this.model : cntr;
+            cntr.set({'sequenceNumber': num});
+          }
+          controlRows[num] = controlNames;
         },
 
         showHidePlacementControl: function() {
@@ -2074,18 +2031,11 @@ var Views = {
 
 var getDEJson = function (args) {
   var rows = {};
-  var controlsOrder = args.json.get('controlsOrder');
   var controlObjectCollection = args.json.get('controlObjectCollection');
 
-  for (var cntr = 0; cntr < controlsOrder.length; cntr++) {
-    var controlName = controlsOrder[cntr];
-    var control = controlObjectCollection[controlName];
-    if (control == undefined) {
-      continue;
-    }
-
+  $.each(controlObjectCollection, function(name, control) {
     // Create NewField with appropriate new DE attributes
-    field = control.attributes;
+    var field = control.attributes;
     var newField = getNewField({field : field});
   
     // Adding control specific properties 
@@ -2133,13 +2083,13 @@ var getDEJson = function (args) {
       newField['type'] = newField.fancyControlType;
     }
 
-    var columns = rows[field.sequenceNumber];
+    var columns = rows[control.get('sequenceNumber')];
     if (columns == undefined) {
       columns = [];
       rows[field.sequenceNumber] = columns;
     }
     columns.push(newField);
-  };
+  });
 
   var rowList = [];
   $.each(rows, function(key, value) {

@@ -349,7 +349,7 @@ var Utility = {
   },
 
   addSubForm : function(controlModel, show, container) {
-    var subFrm = new Models.Form();
+    var subFrm = new Models.Form(controlModel.get('subForm'));
     controlModel.set({
       template : Templates.templateList['subFormTemplate']
           + Templates.templateList['submitButtonTemplate'],

@@ -283,78 +283,62 @@ var Routers = {
     },
 
     loadControlsInModelAndTree : function(model) {
-      var tree =  Main.treeView.getTree();
+      var formModel = Main.formView.getFormModel();
+      for (var i = 0; i < model.get('controlCollection').length; i++) {
+        var control = new Models.Field(model.get('controlCollection')[i]);
+        this.populateModelWithControls(formModel, control, false);
+      }
+
+      var controls = [];
+      $.each(formModel.get('controlRows'), function(key, ctrls) {
+        controls = controls.concat(ctrls);
+      });
+
       // Need to add code to populate sub forms
-      for ( var cntr = 0; cntr < model.get('controlCollection').length; cntr++) {
-        var control = new Models.Field(model.get('controlCollection')[cntr]);
-        var previousControl = null;
-        previousControl = new Models.Field(model.get('controlCollection')[cntr + 1]);
-        var displayLbl = control.get('caption') + " (" + control.get('userDefinedName') + ")";
-        var controlNodeId = this.populateTreeWithControlNodes(
-            control.get('controlName'), displayLbl, control.get('type'));
+      for ( var cntr = 0; cntr < controls.length; cntr++) {
+        var control = formModel.get('controlObjectCollection')[controls[cntr]];
+        var controlNodeId = this.populateTreeWithControlNodes(1, control);
         control.set({
           editName : control.get('controlName'),
           formTreeNodeId : controlNodeId,
           isSubFormControl: false
         });
 
-        if (previousControl != null) {
-          if (previousControl.get('type') == "pageBreak") {
-            control.set({pageBreak : true});
-          }
-        }
-
-        GlobalMemory.nodeCounter++;
-        if (control.get('type') == "pageBreak") {
-            tree.setItemStyle(controlNodeId, "font-weight:bold; font-style:italic; font-color:#505050;");
-        }
-
         if (control.get('type') == "subForm") {
-          var subFrm = new Models.Form(control.get('subForm'));
-          subFrm.set({
-            controlObjectCollection : {}
-          });
-
+          var subFrm = control.get('subForm');
           for ( var subCntr = 0; subCntr < subFrm.get('controlCollection').length; subCntr++) {
             var subControl = new Models.Field(subFrm.get('controlCollection')[subCntr]);
-            var updatedControl = Utility.addFieldHandlerMap[subControl.get('type')](subControl, false, 'controlContainer');
-            var displayLabel = subControl.get('caption') + " (" + subControl.get('userDefinedName') + ")";
-            var subFrmCntrlNodeId = GlobalMemory.nodeCounter;
-            tree.insertNewChild(controlNodeId, subFrmCntrlNodeId, displayLabel, 0, 0, 0, 0);
-            tree.setUserData(subFrmCntrlNodeId, "controlName", subControl.get('controlName'));
-            tree.setUserData(subFrmCntrlNodeId, "controlType", subControl.get('type'));
-            updatedControl.set({
-              editName : control.get('controlName') + "." + updatedControl.get('controlName'),
+            this.populateModelWithControls(subFrm, subControl, true);
+            var subFrmCntrlNodeId = this.populateTreeWithControlNodes(controlNodeId, subControl);
+            subControl.set({
+              editName : control.get('controlName') + "." + subControl.get('controlName'),
               formTreeNodeId : subFrmCntrlNodeId,
               isSubFormControl: true
             });
-            subFrm.get('controlObjectCollection')[subControl.get('controlName')] = updatedControl;
-            subFrm.get('controlsOrder').push(updatedControl.get('controlName'));
-            GlobalMemory.nodeCounter++;
           }
         }
-         this.populateModelWithControls(control, subFrm);
        }
     },
 
-    populateModelWithControls : function(control, subFrm) {
-      var formModel = Main.formView.getFormModel();
+    populateModelWithControls : function(formModel, control, isSubForm) {
       var updatedControl = Utility.addFieldHandlerMap[control.get('type')](control, false, 'controlContainer');
-      if (control.get('type') == "subForm") {
-        updatedControl.set({subForm : subFrm});
-      }
       formModel.get('controlObjectCollection')[control.get('controlName')] = updatedControl;
       formModel.get('controlsOrder').push(control.get('controlName'));
-      var controls = formModel.get('controlRows')[control.get("sequenceNumber")] || [];
-      controls.push(control.get("controlName"));
-      formModel.get('controlRows')[control.get("sequenceNumber")] = controls;
+      
+      if (!isSubForm) {
+        var controls = formModel.get('controlRows')[control.get("sequenceNumber")] || [];
+        controls.push(control.get("controlName"));
+        formModel.get('controlRows')[control.get("sequenceNumber")] = controls;
+      }
     },
 
-    populateTreeWithControlNodes : function(controlName, displayLabel, type) {
-      var id = GlobalMemory.nodeCounter;
-      Main.treeView.getTree().insertNewChild(1, id, displayLabel, 0, 0, 0, 0);
-      Main.treeView.getTree().setUserData(id, "controlName", controlName);
-      Main.treeView.getTree().setUserData(id, "controlType", type);
+    populateTreeWithControlNodes : function(parentId, control) {
+      var tree =  Main.treeView.getTree();
+      var id = GlobalMemory.nodeCounter++;
+      var label = control.get('caption') + " (" + control.get('userDefinedName') + ")";
+      tree.insertNewChild(parentId, id, label, 0, 0, 0, 0);
+      tree.setUserData(id, "controlName", control.get('controlName'));
+      tree.setUserData(id, "controlType", control.get('type'));
       return id;
     }
   }),
