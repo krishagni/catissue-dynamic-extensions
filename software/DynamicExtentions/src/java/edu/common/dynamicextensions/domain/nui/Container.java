@@ -1120,7 +1120,7 @@ public class Container implements Serializable {
 		return "*";
 	}
 
-	private List<Control> getOrderedControlList() {
+	public List<Control> getOrderedControlList() {
 		final List<Control> controls = new ArrayList<Control>(getControls());
 		java.util.Collections.sort(controls);
 		return controls;

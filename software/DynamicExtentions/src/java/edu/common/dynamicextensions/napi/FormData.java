@@ -74,6 +74,15 @@ public class FormData {
 	public ControlValue getFieldValue(String name) {
 		return fieldValues.get(name);
 	}
+	
+	public Collection<ControlValue> getOrderedFieldValues() {
+		List<ControlValue> controlValues = new ArrayList<ControlValue>();
+		for (Control ctrl : getContainer().getOrderedControlList()) {
+			controlValues.add(fieldValues.get(ctrl.getName()));
+		}
+		
+		return controlValues;
+	}
 
 	public boolean isUsingUdn() {
 		return isUsingUdn(appData);
