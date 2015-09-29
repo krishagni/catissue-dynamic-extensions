@@ -461,11 +461,11 @@ public class QueryCompiler
         	throw new IllegalArgumentException("Field doesn't exists: " + field.getName());
         }
         
-        if (!fieldNameParts[1].equals("extensions") && (ctrl instanceof SubFormControl) && fieldNameParts.length > 2) {
+        if (!fieldNameParts[1].equals("extensions") && !fieldNameParts[1].equals("customFields") && (ctrl instanceof SubFormControl) && fieldNameParts.length > 2) {
         	formTree = analyzeSubFormFields(queryId, formTree, fieldNameParts, 1, captions, failIfAbsent);
-        } else if (fieldNameParts[1].equals("extensions") && (ctrl instanceof SubFormControl) && fieldNameParts.length > 3) {
+        } else if ((fieldNameParts[1].equals("extensions") || fieldNameParts[1].equals("customFields")) && (ctrl instanceof SubFormControl) && fieldNameParts.length > 3) {
         	formTree = analyzeExtensionFields(queryId, joinMap, formTree, fieldNameParts, captions, failIfAbsent);
-        }
+        } 
         
         if (formTree == null && failIfAbsent) {
         	return false;
