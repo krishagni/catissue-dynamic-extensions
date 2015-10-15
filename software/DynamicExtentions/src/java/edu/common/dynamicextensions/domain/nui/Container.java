@@ -596,6 +596,7 @@ public class Container implements Serializable {
 						existingSfContainer.setManagedTables(true); // perlocate down to all sub-forms
 					}
 					existingSfContainer.editContainer(newSfContainer);
+					existingSfCtrl.setCaption(newSfCtrl.getCaption());
 					existingSfCtrl.setUserDefinedName(newSfCtrl.getUserDefinedName());
 					existingSfCtrl.setSequenceNumber(newSfCtrl.getSequenceNumber());
 					control = existingSfCtrl;
