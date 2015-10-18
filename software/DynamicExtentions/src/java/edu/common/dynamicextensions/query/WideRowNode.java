@@ -56,7 +56,7 @@ public class WideRowNode implements Serializable {
     	List<ResultColumn> currentRow = new ArrayList<ResultColumn>();
     	if (this.columns != null) {
     		currentRow.addAll(this.columns);
-    		Collections.sort(currentRow, POS_BASED_COMPARATOR);
+		Collections.sort(currentRow, getPosBasedComparator());
     	}
     	
     	List<List<ResultColumn>> rows = new ArrayList<List<ResultColumn>>();
@@ -202,14 +202,16 @@ public class WideRowNode implements Serializable {
 		}
 
 		addChildRows(parentRow, mainColumns, from, to);
-    }   
+	}
     
-    private Comparator<ResultColumn> POS_BASED_COMPARATOR = new Comparator<ResultColumn>() {
-		@Override
-		public int compare(ResultColumn col0, ResultColumn col1) {
-			return col0.getExpression().getPos() - col1.getExpression().getPos();
-		}    	
-	};
+	private Comparator<ResultColumn> getPosBasedComparator() {
+		return new Comparator<ResultColumn>() {
+			@Override
+			public int compare(ResultColumn col0, ResultColumn col1) {
+				return col0.getExpression().getPos() - col1.getExpression().getPos();
+			}
+		};
+	}
 	
 	private int getFirstElementPos(List<ResultColumn> columns) {
 		return columns.get(0).getExpression().getPos();
@@ -269,7 +271,7 @@ public class WideRowNode implements Serializable {
 			columns.add(new ResultColumn(fieldExpr, 0));
 		}
 		
-		Collections.sort(columns, POS_BASED_COMPARATOR);
+		Collections.sort(columns, getPosBasedComparator());
 		return columns;		
 	}
 }
