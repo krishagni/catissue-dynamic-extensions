@@ -546,6 +546,7 @@ var Views = {
               .set({
                 caption : $('#controlCaption').val(),
                 defaultValue : $('#defaultValue').val(),
+                defaultDateType: $("input:radio[name=defaultDateType]:checked" ).val(),
                 controlName : $('#controlName').val(),
                 conceptDefinitionSource : $(
                     '#conceptDefinitionSource').val(),
@@ -604,6 +605,7 @@ var Views = {
           model.set({
                 caption : $('#controlCaption').val(),
                 defaultValue : $('#defaultValue').val(),
+                defaultDateType: $("input:radio[name=defaultDateType]:checked" ).val(),
                 controlName : $('#controlName').val(),
                 conceptDefinitionSource : $(
                     '#conceptDefinitionSource').val(),
@@ -805,6 +807,12 @@ var Views = {
             $("#fancyControlType").val(this.model.get('fancyControlType'))
               .prop('selected', true);
             break;
+
+          case "datePicker":
+            var dateType = this.model.get('defaultDateType');
+            $('input:radio[name=defaultDateType][value="' + dateType  + '"]').prop('checked', true);
+            break;
+
           default:
           }
           // init page break

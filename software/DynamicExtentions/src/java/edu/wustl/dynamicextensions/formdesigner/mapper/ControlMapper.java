@@ -9,6 +9,7 @@ import edu.common.dynamicextensions.domain.nui.ComboBox;
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
+import edu.common.dynamicextensions.domain.nui.DatePicker.DefaultDateType;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
 import edu.common.dynamicextensions.domain.nui.Label;
 //import edu.common.dynamicextensions.domain.nui.ListBox;
@@ -396,6 +397,8 @@ public class ControlMapper {
 		public Control propertiesToControl(Properties controlProps, Container container) {
 			DatePicker control = new DatePicker();
 			setCommonProperties(controlProps, control);
+			String defaultDateType = controlProps.getString("defaultDateType");
+			control.setDefaultDateType(DefaultDateType.valueOf(defaultDateType));
 			String format = controlProps.getString("format");
 			if (format != null) {
 				control.setFormat(displayFormatToActualFormat(format));
@@ -408,6 +411,7 @@ public class ControlMapper {
 			Properties controlProps = new Properties();
 			controlProps.setProperty(CSDConstants.CONTROL_TYPE, CSDConstants.DATE_PICKER);
 			controlProps.setProperty("format", actualFormatToDisplayFormat(((DatePicker) control).getFormat()));
+			controlProps.setProperty("defaultDateType", ((DatePicker) control).getDefaultDateType().toString());
 			getCommonProperties(controlProps, control);
 			return controlProps;
 		}
