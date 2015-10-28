@@ -411,7 +411,13 @@ public class ControlMapper {
 			Properties controlProps = new Properties();
 			controlProps.setProperty(CSDConstants.CONTROL_TYPE, CSDConstants.DATE_PICKER);
 			controlProps.setProperty("format", actualFormatToDisplayFormat(((DatePicker) control).getFormat()));
-			controlProps.setProperty("defaultDateType", ((DatePicker) control).getDefaultDateType().toString());
+			
+			if (((DatePicker) control).getDefaultDateType() == null) {
+				controlProps.setProperty("defaultDateType", "NONE");
+			} else {
+				controlProps.setProperty("defaultDateType", ((DatePicker) control).getDefaultDateType().toString());
+			}
+			
 			getCommonProperties(controlProps, control);
 			return controlProps;
 		}
