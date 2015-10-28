@@ -810,6 +810,7 @@ var Views = {
 
           case "datePicker":
             var dateType = this.model.get('defaultDateType');
+            dateType = !dateType ? 'NONE' : dateType;
             $('input:radio[name=defaultDateType][value="' + dateType  + '"]').prop('checked', true);
             break;
 
