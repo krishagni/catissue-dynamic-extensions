@@ -163,7 +163,7 @@ edu.common.de.Form = function(args) {
   this.dateFormat = args.dateFormat;
 
   this.customHdrs = args.customHdrs || {};
-  
+
   if (!this.formDef && this.formDefUrl) {
     var url = this.formDefUrl.replace(":formId", this.formId);
     this.formDefXhr = $.ajax({type: 'GET', url: url, headers: this.customHdrs});
@@ -724,7 +724,23 @@ edu.common.de.DatePicker = function(id, field, args) {
   };
 	  
   this.getValue = function() {
+    if (this.dateEl.val().trim().length == 0) {
+      //
+      // Date input field is left blank
+      //
+      return {name: field.name, value: null};
+    }
+
     var val = this.dateEl.datepicker('getDate');
+    if (isNaN(val.getTime())) {
+      //
+      // This scenario should never occur. If it occurs,
+      // take safe path of showing invalid date and exit
+      //
+      alert("Invalid date");
+      return {name: field.name, value: null};
+    }
+
     if (this.timeEl) {
       var time = this.timeEl.val().trim();
       var parts = time.split(":");
