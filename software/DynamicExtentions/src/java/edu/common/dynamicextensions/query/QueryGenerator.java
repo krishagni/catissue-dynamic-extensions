@@ -131,8 +131,12 @@ public class QueryGenerator {
     }
     
     private String buildSelectClause(SelectListNode selectList, JoinTree joinTree) {
-    	int colCnt = 0;
     	StringBuilder select = new StringBuilder();
+    	if (selectList.isDistinct()) {
+    		select.append("distinct ");
+    	}
+
+    	int colCnt = 0;
     	for (ExpressionNode element : selectList.getElements()) {
     		String colAlias = "c" + colCnt;
     		element.setColumnAlias(colAlias);

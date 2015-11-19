@@ -69,7 +69,9 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     
     @Override
     public SelectListNode visitSelectExpr(@NotNull AQLParser.SelectExprContext ctx) { 
-    	SelectListNode list = new SelectListNode();    	    	
+    	SelectListNode list = new SelectListNode();    	
+    	list.setDistinct(ctx.DISTINCT() != null);
+    	
     	for (int i = 0; i < ctx.select_element().size(); ++i) {
     		list.addElement((ExpressionNode)visit(ctx.select_element(i)));    		
     	}

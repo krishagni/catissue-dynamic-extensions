@@ -8,8 +8,18 @@ public class SelectListNode implements Node, Serializable {
 
 	private static final long serialVersionUID = -3175328287644413811L;
 	
+	private boolean distinct;
+
 	private List<ExpressionNode> elements = new ArrayList<ExpressionNode>();
 	
+	public boolean isDistinct() {
+		return distinct;
+	}
+
+	public void setDistinct(boolean distinct) {
+		this.distinct = distinct;
+	}
+
 	public void addElement(ExpressionNode element) {
 		elements.add(element);
 	}

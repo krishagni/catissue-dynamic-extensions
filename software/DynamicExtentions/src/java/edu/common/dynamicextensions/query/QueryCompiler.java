@@ -359,6 +359,8 @@ public class QueryCompiler
         }
         
         SelectListNode finalSelectList = new SelectListNode();
+        finalSelectList.setDistinct(selectList.isDistinct());
+
         boolean endOfElements = false;
         while (!endOfElements) {
             endOfElements = true;

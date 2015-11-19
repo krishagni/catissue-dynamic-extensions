@@ -3,7 +3,7 @@ grammar AQL;
 query         : (SELECT select_list WHERE)? filter_expr limit_expr? (crosstab_expr | report_expr)? #QueryExpr
               ;
       
-select_list   : select_element (',' select_element)* #SelectExpr
+select_list   : DISTINCT? select_element (',' select_element)* #SelectExpr
               ;
 
 select_element: arith_expr ('as' SLITERAL)?          #SelectElement
