@@ -30,7 +30,7 @@ report_expr   : ID (LP SLITERAL (',' SLITERAL)* RP)? #ReportExpr
 filter        : arith_expr  OP   arith_expr          #BasicFilter
               | arith_expr  MOP  literal_values      #MvFilter
               | FIELD       SOP  SLITERAL            #StringCompFilter
-              | FIELD       EOP                      #ExistsFilter
+              | FIELD       UOP                      #UnaryFilter
               | FIELD       BETWEEN LP arith_expr ',' arith_expr RP #BetweenFilter
               ;
               
@@ -92,7 +92,7 @@ LP       : '(';
 RP       : ')';
 MOP      : ('in'|'not in');
 SOP      : ('contains'|'starts with'|'ends with');
-EOP      : ('exists'|'not exists');
+UOP      : ('exists'|'not exists'|'any');
 BOOL     : ('true'|'false');
 OP       : ('>'|'<'|'>='|'<='|'='|'!='|'like');
 INT      : '-'? DIGIT+;

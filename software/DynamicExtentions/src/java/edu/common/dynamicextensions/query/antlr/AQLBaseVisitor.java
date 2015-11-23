@@ -154,6 +154,14 @@ public class AQLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements AQ
 	 * The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
+	@Override public T visitUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.
+	 */
 	@Override public T visitStringLiteral(@NotNull AQLParser.StringLiteralContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -227,14 +235,6 @@ public class AQLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements AQ
 	 * {@link #visitChildren} on {@code ctx}.
 	 */
 	@Override public T visitStringCompFilter(@NotNull AQLParser.StringCompFilterContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
-	 */
-	@Override public T visitExistsFilter(@NotNull AQLParser.ExistsFilterContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}

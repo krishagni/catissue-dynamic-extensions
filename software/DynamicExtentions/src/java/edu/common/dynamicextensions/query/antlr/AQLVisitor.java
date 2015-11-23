@@ -131,6 +131,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	T visitSelectExpr(@NotNull AQLParser.SelectExprContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link AQLParser#UnaryFilter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link AQLParser#StringLiteral}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -199,13 +206,6 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitStringCompFilter(@NotNull AQLParser.StringCompFilterContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link AQLParser#ExistsFilter}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExistsFilter(@NotNull AQLParser.ExistsFilterContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link AQLParser#AggFunc}.

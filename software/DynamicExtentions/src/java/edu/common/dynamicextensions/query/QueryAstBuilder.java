@@ -179,14 +179,14 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public FilterNode visitExistsFilter(@NotNull AQLParser.ExistsFilterContext ctx) {
+    public FilterNode visitUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx) {
     	FilterNode filter = new FilterNode();
     	
     	FieldNode field = new FieldNode();
     	field.setName(ctx.FIELD().getText());
     	filter.setLhs(field);
     	
-    	filter.setRelOp(RelationalOp.getBySymbol(ctx.EOP().getText()));
+    	filter.setRelOp(RelationalOp.getBySymbol(ctx.UOP().getText()));
     	return filter;
     }
 

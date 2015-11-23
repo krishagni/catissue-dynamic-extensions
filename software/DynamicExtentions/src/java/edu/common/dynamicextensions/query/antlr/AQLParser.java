@@ -18,7 +18,7 @@ public class AQLParser extends Parser {
 		T__1=1, T__0=2, WS=3, SELECT=4, WHERE=5, NTHCHILD=6, BETWEEN=7, MTHS_BTWN=8, 
 		YRS_BTWN=9, CURR_DATE=10, MINS_BTWN=11, COUNT=12, SUM=13, MIN=14, MAX=15, 
 		AVG=16, DISTINCT=17, LIMIT=18, CROSSTAB=19, OR=20, AND=21, PAND=22, NOT=23, 
-		ROUND=24, LP=25, RP=26, MOP=27, SOP=28, EOP=29, BOOL=30, OP=31, INT=32, 
+		ROUND=24, LP=25, RP=26, MOP=27, SOP=28, UOP=29, BOOL=30, OP=31, INT=32, 
 		FLOAT=33, YEAR=34, MONTH=35, DAY=36, DIGIT=37, ID=38, FIELD=39, SLITERAL=40, 
 		ESC=41, ARITH_OP=42, ERROR=43, QUOTE=44;
 	public static final String[] tokenNames = {
@@ -26,7 +26,7 @@ public class AQLParser extends Parser {
 		"'between'", "'months_between'", "'years_between'", "'current_date'", 
 		"'minutes_between'", "'count'", "'sum'", "'min'", "'max'", "'avg'", "'distinct'", 
 		"'limit'", "'crosstab'", "'or'", "'and'", "'pand'", "'not'", "'round'", 
-		"'('", "')'", "MOP", "SOP", "EOP", "BOOL", "OP", "INT", "FLOAT", "YEAR", 
+		"'('", "')'", "MOP", "SOP", "UOP", "BOOL", "OP", "INT", "FLOAT", "YEAR", 
 		"MONTH", "DAY", "DIGIT", "ID", "FIELD", "SLITERAL", "ESC", "ARITH_OP", 
 		"ERROR", "'\"'"
 	};
@@ -906,21 +906,21 @@ public class AQLParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
-	public static class ExistsFilterContext extends FilterContext {
-		public TerminalNode EOP() { return getToken(AQLParser.EOP, 0); }
+	public static class UnaryFilterContext extends FilterContext {
+		public TerminalNode UOP() { return getToken(AQLParser.UOP, 0); }
 		public TerminalNode FIELD() { return getToken(AQLParser.FIELD, 0); }
-		public ExistsFilterContext(FilterContext ctx) { copyFrom(ctx); }
+		public UnaryFilterContext(FilterContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof AQLListener ) ((AQLListener)listener).enterExistsFilter(this);
+			if ( listener instanceof AQLListener ) ((AQLListener)listener).enterUnaryFilter(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof AQLListener ) ((AQLListener)listener).exitExistsFilter(this);
+			if ( listener instanceof AQLListener ) ((AQLListener)listener).exitUnaryFilter(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof AQLVisitor ) return ((AQLVisitor<? extends T>)visitor).visitExistsFilter(this);
+			if ( visitor instanceof AQLVisitor ) return ((AQLVisitor<? extends T>)visitor).visitUnaryFilter(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1011,11 +1011,11 @@ public class AQLParser extends Parser {
 				break;
 
 			case 4:
-				_localctx = new ExistsFilterContext(_localctx);
+				_localctx = new UnaryFilterContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(146); match(FIELD);
-				setState(147); match(EOP);
+				setState(147); match(UOP);
 				}
 				break;
 

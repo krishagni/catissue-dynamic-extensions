@@ -196,6 +196,17 @@ public interface AQLListener extends ParseTreeListener {
 	void exitSelectExpr(@NotNull AQLParser.SelectExprContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link AQLParser#UnaryFilter}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#UnaryFilter}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link AQLParser#StringLiteral}.
 	 * @param ctx the parse tree
 	 */
@@ -304,17 +315,6 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStringCompFilter(@NotNull AQLParser.StringCompFilterContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#ExistsFilter}.
-	 * @param ctx the parse tree
-	 */
-	void enterExistsFilter(@NotNull AQLParser.ExistsFilterContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#ExistsFilter}.
-	 * @param ctx the parse tree
-	 */
-	void exitExistsFilter(@NotNull AQLParser.ExistsFilterContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#AggFunc}.

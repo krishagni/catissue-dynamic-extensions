@@ -363,8 +363,11 @@ public class QueryGenerator {
     		return getDateCmpSql(filter);
     	}
     	
-        String filterExpr = null, rhs = null;        
-        String lhs = getExpressionNodeSql(filter.getLhs(), filter.getLhs().getType());        
+        String filterExpr = null, lhs = null, rhs = null;
+        if (filter.getRelOp() != RelationalOp.ANY) {
+        	lhs = getExpressionNodeSql(filter.getLhs(), filter.getLhs().getType());
+        }
+
         switch (filter.getRelOp()) {
             case STARTS_WITH:
             case ENDS_WITH:
@@ -377,6 +380,10 @@ public class QueryGenerator {
             	}            	
             	break;
             	
+            case ANY:
+            	filterExpr = " 1 = 1 "; // always true
+            	break;
+
             case EXISTS:
             	filterExpr = lhs + " is not null ";
             	break;

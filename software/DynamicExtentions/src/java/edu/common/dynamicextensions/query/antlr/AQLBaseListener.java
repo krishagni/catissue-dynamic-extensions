@@ -238,6 +238,19 @@ public class AQLBaseListener implements AQLListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
+	@Override public void enterUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
 	@Override public void enterStringLiteral(@NotNull AQLParser.StringLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -362,19 +375,6 @@ public class AQLBaseListener implements AQLListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitStringCompFilter(@NotNull AQLParser.StringCompFilterContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterExistsFilter(@NotNull AQLParser.ExistsFilterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitExistsFilter(@NotNull AQLParser.ExistsFilterContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
