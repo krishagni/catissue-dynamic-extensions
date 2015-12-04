@@ -227,9 +227,13 @@ public class NumberField extends TextField implements Serializable {
 	}
 
 	@Override
+	public String getCtrlType() {
+		return "numberField";
+	}
+
+	@Override
 	public void getProps(Map<String, Object> props) {
 		super.getProps(props);
-		props.put("type", "numberField");
 		props.put("noOfDigits", getNoOfDigits());
 		props.put("noOfDigitsAfterDecimal", getNoOfDigitsAfterDecimal());
 		props.put("minValue", getMinValue());

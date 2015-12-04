@@ -53,12 +53,16 @@ public class RadioButton extends SelectControl implements Serializable {
 	@Override
 	public List<ColumnDef> getColumnDefs() {
 		return Collections.singletonList(ColumnDef.get(getDbColumnName(), getDbType()));
-	}	
-	
+	}
+
+	@Override
+	public String getCtrlType() {
+		return "radiobutton";
+	}
+
 	@Override
 	public void getProps(Map<String, Object> props) {
 		super.getProps(props);
-		props.put("type", "radiobutton");
 		props.put("optionsPerRow", getOptionsPerRow());
 	}
 	

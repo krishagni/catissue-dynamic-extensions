@@ -72,11 +72,15 @@ public class ListBox extends SelectControl implements Serializable {
 
 		return true;
 	}
-	
+
+	@Override
+	public String getCtrlType() {
+		return "listbox";
+	}
+
 	@Override
 	public void getProps(Map<String, Object> props) {
 		super.getProps(props);
-		props.put("type", "listbox");
 	}
 	
 	@Override

@@ -199,8 +199,12 @@ public class SubFormControl extends Control implements Serializable {
 	}
 
 	@Override
+	public String getCtrlType() {
+		return "subForm";
+	}
+
+	@Override
 	public void getProps(Map<String, Object> props) {
-		props.put("type", "subForm");
 		props.put("singleEntry", noOfEntries == -1 ? false : true);
 		props.putAll(getSubContainer().getProps());
 	}

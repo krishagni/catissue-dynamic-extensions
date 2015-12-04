@@ -99,11 +99,15 @@ public class MultiSelectListBox extends ListBox implements MultiSelectControl, S
 
 		return true;
 	}
+
+	@Override
+	public String getCtrlType() {
+		return "multiSelectListbox";
+	}
 	
 	@Override
 	public void getProps(Map<String, Object> props) {
 		super.getProps(props);
-		props.put("type", "multiSelectListbox");
 	}
 	
 	@Override

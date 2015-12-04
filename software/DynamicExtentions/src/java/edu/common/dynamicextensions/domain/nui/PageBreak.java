@@ -27,8 +27,13 @@ public class PageBreak extends Control {
 	}
 
 	@Override
+	public String getCtrlType() {
+		return "pageBreak";
+	}
+
+	@Override
 	public void getProps(Map<String, Object> props) {
-		props.put("type", "pageBreak");	
+
 	}
 	
 	@Override

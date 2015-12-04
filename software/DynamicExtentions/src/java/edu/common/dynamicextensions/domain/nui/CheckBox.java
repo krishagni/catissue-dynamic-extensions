@@ -82,8 +82,12 @@ public class CheckBox extends Control implements Serializable {
 	}
 
 	@Override
+	public String getCtrlType() {
+		return "booleanCheckbox";
+	}
+
+	@Override
 	public void getProps(Map<String, Object> props) {
-		props.put("type", "booleanCheckbox");
 		props.put("defaultChecked", isDefaultValueChecked());		
 	}	
 	

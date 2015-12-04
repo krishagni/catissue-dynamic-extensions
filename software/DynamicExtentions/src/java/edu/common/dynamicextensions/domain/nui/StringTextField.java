@@ -107,11 +107,15 @@ public class StringTextField extends TextField implements Serializable {
 		
 		return true;
 	}
-	
+
+	@Override
+	public String getCtrlType() {
+		return "stringTextField";
+	}
+
 	@Override
 	public void getProps(Map<String, Object> props) {
 		super.getProps(props);
-		props.put("type", "stringTextField");
 		props.put("url", isUrl());
 		props.put("password", isPassword());		
 	}

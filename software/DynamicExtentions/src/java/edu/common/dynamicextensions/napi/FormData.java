@@ -210,7 +210,7 @@ public class FormData {
 						
 	public Map<String, Object> getFieldNameValueMap(boolean includeUdn) {
 		Map<String, Object> props = new HashMap<String, Object>();
-		props.put("appData",getAppData());
+		props.put("appData", getAppData());
 		props.put("containerId", container.getId());
 		props.put("id", recordId);
 		
@@ -242,7 +242,52 @@ public class FormData {
 		
 		return props;
 	}
-	
+
+	public Map<String, Object> getFieldValueMap() {
+		Map<String, Object> props = new HashMap<String, Object>();
+		props.put("appData", getAppData());
+		props.put("containerId", container.getId());
+		props.put("caption", container.getCaption());
+		props.put("name", container.getName());
+		props.put("id", recordId);
+
+		List<Map<String, Object>> fields = new ArrayList<Map<String, Object>>();
+		props.put("fields", fields);
+
+		for (ControlValue fieldValue : getOrderedFieldValues()) {
+			Map<String, Object> fieldData = new HashMap<String, Object>();
+			fields.add(fieldData);
+
+			fieldData.put("name", fieldValue.getControl().getName());
+			fieldData.put("udn", fieldValue.getControl().getUserDefinedName());
+			fieldData.put("caption", fieldValue.getControl().getCaption());
+			fieldData.put("type", fieldValue.getControl().getCtrlType());
+
+			Object value = fieldValue.getValue();
+			if (value instanceof FileControlValue) {
+				FileControlValue fcv = (FileControlValue)value;
+				value = fcv.toValueMap();
+			} else if (value instanceof List) {
+				List<FormData> formDataList = (List<FormData>)value;
+
+				List<Map<String, Object>> sfData = new ArrayList<Map<String, Object>>();
+				for (FormData formData : formDataList) {
+					sfData.add(formData.getFieldValueMap());
+				}
+
+				value = sfData;
+			} else if (value instanceof FormData) {
+				value = ((FormData)value).getFieldValueMap();
+			}
+
+			if (value != null) {
+				fieldData.put("value", value);
+			}
+		}
+
+		return props;
+	}
+
 	public void validate() {
 		validate(isUsingUdn());
 	}

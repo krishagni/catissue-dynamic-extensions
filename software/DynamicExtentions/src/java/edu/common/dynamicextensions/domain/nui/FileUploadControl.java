@@ -50,10 +50,15 @@ public class FileUploadControl extends Control implements Serializable {
 	}
 
 	@Override
+	public String getCtrlType() {
+		return "fileUpload";
+	}
+
+	@Override
 	public void getProps(Map<String, Object> props) {
-		props.put("type", "fileUpload");		
-	}	
-	
+
+	}
+
 	@Override
 	public void serializeToXml(Writer writer, Properties props) {
 		writeElementStart(writer, "fileUpload");			

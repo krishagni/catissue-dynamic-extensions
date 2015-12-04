@@ -95,11 +95,15 @@ public class TextArea extends TextField implements Serializable {
 		
 		return true;
 	}
-	
+
+	@Override
+	public String getCtrlType() {
+		return "textArea";
+	}
+
 	@Override
 	public void getProps(Map<String, Object> props) {
 		super.getProps(props);
-		props.put("type", "textArea");
 		props.put("noOfRows", getNoOfRows());
 		props.put("minLength", getMinLength());
 		props.put("maxLength", getMaxLength());		

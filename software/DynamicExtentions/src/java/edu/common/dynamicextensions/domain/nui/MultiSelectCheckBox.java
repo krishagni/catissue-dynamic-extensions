@@ -117,11 +117,14 @@ public class MultiSelectCheckBox extends SelectControl implements MultiSelectCon
 
 		return true;
 	}
-	
+
+	@Override
+	public String getCtrlType() {
+		return "checkbox";
+	}
 	@Override
 	public void getProps(Map<String, Object> props) {
 		super.getProps(props);
-		props.put("type", "checkbox");
 		props.put("optionsPerRow", getOptionsPerRow()); 
 	}
 	

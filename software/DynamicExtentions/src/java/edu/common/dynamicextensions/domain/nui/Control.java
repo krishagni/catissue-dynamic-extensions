@@ -435,6 +435,7 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		ctrlProps.put("name", getName());
 		ctrlProps.put("udn", getUserDefinedName());
 		ctrlProps.put("caption", getCaption());
+		ctrlProps.put("type", getCtrlType());
 		ctrlProps.put("customLabel", getCustomLabel());
 		ctrlProps.put("labelPosition", getLabelPosition());
 		ctrlProps.put("toolTip", getToolTip());
@@ -450,6 +451,8 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		getProps(ctrlProps);
 		return ctrlProps;
 	}
+
+	public abstract String getCtrlType();
 		
 	public abstract void getProps(Map<String, Object> props);
 	

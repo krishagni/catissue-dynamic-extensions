@@ -157,8 +157,12 @@ public class DatePicker extends Control implements Serializable {
 	}
 
 	@Override
+	public String getCtrlType() {
+		return "datePicker";
+	}
+
+	@Override
 	public void getProps(Map<String, Object> props) {
-		props.put("type", "datePicker");
 		props.put("format", getFormat());
 		props.put("showCalendar", showCalendar());
 		props.put("defaultType", getDefaultDateType());

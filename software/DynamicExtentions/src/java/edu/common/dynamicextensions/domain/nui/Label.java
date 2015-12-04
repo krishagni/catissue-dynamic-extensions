@@ -77,10 +77,14 @@ public class Label extends Control implements Serializable {
 	public <T> T fromString(String value) {
 		return null;
 	}
-	
+
+	@Override
+	public String getCtrlType() {
+		return "label";
+	}
+
 	@Override
 	public void getProps(Map<String, Object> props) {
-		props.put("type", "label");
 		props.put("heading", isHeading());
 		props.put("note", isNote());		
 	}
