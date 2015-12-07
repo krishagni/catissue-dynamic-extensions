@@ -56,8 +56,8 @@ public class QueryGenerator {
     public QueryGenerator() {
     }
     
-    public QueryGenerator(WideRowMode mode, boolean ic, String dateFormat, String timeFormat) {
-    	this.wideRowSupport = (mode != WideRowMode.OFF);
+    public QueryGenerator(boolean wideRowSupport, boolean ic, String dateFormat, String timeFormat) {
+    	this.wideRowSupport = wideRowSupport;
     	this.ic = ic;
         this.dateFormat = dateFormat;
         this.timeFormat = timeFormat;
@@ -196,12 +196,12 @@ public class QueryGenerator {
     	return "'" + alias + "', " + alias + "." + primaryKey;
     }
     
-    private String buildCountClause(JoinTree joinTree) {
-    	StringBuilder countClause = new StringBuilder("count(");   	
-    	return countClause.append(wideRowSupport ? "distinct " : "")
-    		.append(joinTree.getForm().getPrimaryKey())
-    		.append(")").toString();    	     
-    }
+//    private String buildCountClause(JoinTree joinTree) {
+//    	StringBuilder countClause = new StringBuilder("count(");
+//    	return countClause.append(wideRowSupport ? "distinct " : "")
+//    		.append(joinTree.getForm().getPrimaryKey())
+//    		.append(")").toString();
+//    }
     
     private String buildFromClause(JoinTree joinTree) {
         StringBuilder from = new StringBuilder();

@@ -179,7 +179,7 @@ public class QueryResultData {
     public Iterator<String[]> stringifiedRowIterator() {
     	Iterator<Object[]> iter = null;
     	if (rows != null) {
-    		iter = rows.iterator();
+    		iter = rowIterator(rows.iterator());
     	} else if (rowGen != null) {
     		iter = rowIterator(rowGen.iterator());
     	}
