@@ -130,22 +130,19 @@ public class QueryResultData {
     }
 
     public List<Object[]> getRows() {
-        if (rows != null) {
-        	return rows;
-        }
-        
-        List<Object[]> rows = new ArrayList<Object[]>();
-        Iterator<Object[]> rowsIter = rowGen.iterator();
-        while (rowsIter.hasNext()) {
-        	Object[] row = rowsIter.next();
-        	if (screener != null) {
-        		row = screener.getScreenedRowData(resultColumns, row);
-        	}
-        	
-        	rows.add(row);
-        }
-        
-        return rows;
+		Iterator<Object[]> iter = null;
+		if (rows != null) {
+			iter = rowIterator(rows.iterator());
+		} else if (rowGen != null) {
+			iter = rowIterator(rowGen.iterator());
+		}
+
+		List<Object[]> result = new ArrayList<Object[]>();
+		while (iter.hasNext()) {
+			result.add(iter.next());
+		}
+
+		return result;
     }
 
 	public int getDbRowsCount() {
