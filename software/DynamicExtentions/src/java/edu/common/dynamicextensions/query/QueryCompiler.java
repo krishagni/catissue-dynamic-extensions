@@ -313,7 +313,7 @@ public class QueryCompiler
     }
 
 	private void analyzeBetweenNode(int queryId, BetweenNode between, Map<String, JoinTree> joinMap) {
-		analyzeField(queryId, between.getLhs(), joinMap);
+		analyzeExpressionNode(queryId, between.getLhs(), joinMap);
 		analyzeExpressionNode(queryId, between.getMinNode(), joinMap);
 		analyzeExpressionNode(queryId, between.getMaxNode(), joinMap);
 	}

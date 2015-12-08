@@ -1,6 +1,5 @@
-// Generated from AQL.g4 by ANTLR 4.1
+// Generated from AQL.g4 by ANTLR 4.5.1
 package edu.common.dynamicextensions.query.antlr;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
@@ -9,398 +8,431 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface AQLListener extends ParseTreeListener {
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#MinsDiffFunc}.
+	 * Enter a parse tree produced by the {@code QueryExpr}
+	 * labeled alternative in {@link AQLParser#query}.
 	 * @param ctx the parse tree
 	 */
-	void enterMinsDiffFunc(@NotNull AQLParser.MinsDiffFuncContext ctx);
+	void enterQueryExpr(AQLParser.QueryExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#MinsDiffFunc}.
+	 * Exit a parse tree produced by the {@code QueryExpr}
+	 * labeled alternative in {@link AQLParser#query}.
 	 * @param ctx the parse tree
 	 */
-	void exitMinsDiffFunc(@NotNull AQLParser.MinsDiffFuncContext ctx);
-
+	void exitQueryExpr(AQLParser.QueryExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#Field}.
+	 * Enter a parse tree produced by the {@code SelectExpr}
+	 * labeled alternative in {@link AQLParser#select_list}.
 	 * @param ctx the parse tree
 	 */
-	void enterField(@NotNull AQLParser.FieldContext ctx);
+	void enterSelectExpr(AQLParser.SelectExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#Field}.
+	 * Exit a parse tree produced by the {@code SelectExpr}
+	 * labeled alternative in {@link AQLParser#select_list}.
 	 * @param ctx the parse tree
 	 */
-	void exitField(@NotNull AQLParser.FieldContext ctx);
-
+	void exitSelectExpr(AQLParser.SelectExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#BasicFilter}.
+	 * Enter a parse tree produced by the {@code SelectElement}
+	 * labeled alternative in {@link AQLParser#select_element}.
 	 * @param ctx the parse tree
 	 */
-	void enterBasicFilter(@NotNull AQLParser.BasicFilterContext ctx);
+	void enterSelectElement(AQLParser.SelectElementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#BasicFilter}.
+	 * Exit a parse tree produced by the {@code SelectElement}
+	 * labeled alternative in {@link AQLParser#select_element}.
 	 * @param ctx the parse tree
 	 */
-	void exitBasicFilter(@NotNull AQLParser.BasicFilterContext ctx);
-
+	void exitSelectElement(AQLParser.SelectElementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#LimitExpr}.
+	 * Enter a parse tree produced by the {@code OrFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterLimitExpr(@NotNull AQLParser.LimitExprContext ctx);
+	void enterOrFilterExpr(AQLParser.OrFilterExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#LimitExpr}.
+	 * Exit a parse tree produced by the {@code OrFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitLimitExpr(@NotNull AQLParser.LimitExprContext ctx);
-
+	void exitOrFilterExpr(AQLParser.OrFilterExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#FloatLiteral}.
+	 * Enter a parse tree produced by the {@code NthChildFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterFloatLiteral(@NotNull AQLParser.FloatLiteralContext ctx);
+	void enterNthChildFilterExpr(AQLParser.NthChildFilterExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#FloatLiteral}.
+	 * Exit a parse tree produced by the {@code NthChildFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitFloatLiteral(@NotNull AQLParser.FloatLiteralContext ctx);
-
+	void exitNthChildFilterExpr(AQLParser.NthChildFilterExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#CurrentDateFunc}.
+	 * Enter a parse tree produced by the {@code SimpleFilter}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterCurrentDateFunc(@NotNull AQLParser.CurrentDateFuncContext ctx);
+	void enterSimpleFilter(AQLParser.SimpleFilterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#CurrentDateFunc}.
+	 * Exit a parse tree produced by the {@code SimpleFilter}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitCurrentDateFunc(@NotNull AQLParser.CurrentDateFuncContext ctx);
-
+	void exitSimpleFilter(AQLParser.SimpleFilterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#MvFilter}.
+	 * Enter a parse tree produced by the {@code AndFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterMvFilter(@NotNull AQLParser.MvFilterContext ctx);
+	void enterAndFilterExpr(AQLParser.AndFilterExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#MvFilter}.
+	 * Exit a parse tree produced by the {@code AndFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitMvFilter(@NotNull AQLParser.MvFilterContext ctx);
-
+	void exitAndFilterExpr(AQLParser.AndFilterExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#IntLiteral}.
+	 * Enter a parse tree produced by the {@code PandFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterIntLiteral(@NotNull AQLParser.IntLiteralContext ctx);
+	void enterPandFilterExpr(AQLParser.PandFilterExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#IntLiteral}.
+	 * Exit a parse tree produced by the {@code PandFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitIntLiteral(@NotNull AQLParser.IntLiteralContext ctx);
-
+	void exitPandFilterExpr(AQLParser.PandFilterExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#SelectElement}.
+	 * Enter a parse tree produced by the {@code NotFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterSelectElement(@NotNull AQLParser.SelectElementContext ctx);
+	void enterNotFilterExpr(AQLParser.NotFilterExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#SelectElement}.
+	 * Exit a parse tree produced by the {@code NotFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitSelectElement(@NotNull AQLParser.SelectElementContext ctx);
-
+	void exitNotFilterExpr(AQLParser.NotFilterExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#date_interval}.
+	 * Enter a parse tree produced by the {@code ParensFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterDate_interval(@NotNull AQLParser.Date_intervalContext ctx);
+	void enterParensFilterExpr(AQLParser.ParensFilterExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#date_interval}.
+	 * Exit a parse tree produced by the {@code ParensFilterExpr}
+	 * labeled alternative in {@link AQLParser#filter_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitDate_interval(@NotNull AQLParser.Date_intervalContext ctx);
-
+	void exitParensFilterExpr(AQLParser.ParensFilterExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#MonthsDiffFunc}.
+	 * Enter a parse tree produced by the {@code LimitExpr}
+	 * labeled alternative in {@link AQLParser#limit_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterMonthsDiffFunc(@NotNull AQLParser.MonthsDiffFuncContext ctx);
+	void enterLimitExpr(AQLParser.LimitExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#MonthsDiffFunc}.
+	 * Exit a parse tree produced by the {@code LimitExpr}
+	 * labeled alternative in {@link AQLParser#limit_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitMonthsDiffFunc(@NotNull AQLParser.MonthsDiffFuncContext ctx);
-
+	void exitLimitExpr(AQLParser.LimitExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#NthChildFilterExpr}.
+	 * Enter a parse tree produced by the {@code CrossTabExpr}
+	 * labeled alternative in {@link AQLParser#crosstab_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterNthChildFilterExpr(@NotNull AQLParser.NthChildFilterExprContext ctx);
+	void enterCrossTabExpr(AQLParser.CrossTabExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#NthChildFilterExpr}.
+	 * Exit a parse tree produced by the {@code CrossTabExpr}
+	 * labeled alternative in {@link AQLParser#crosstab_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitNthChildFilterExpr(@NotNull AQLParser.NthChildFilterExprContext ctx);
-
+	void exitCrossTabExpr(AQLParser.CrossTabExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#CrossTabExpr}.
+	 * Enter a parse tree produced by the {@code ReportExpr}
+	 * labeled alternative in {@link AQLParser#report_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterCrossTabExpr(@NotNull AQLParser.CrossTabExprContext ctx);
+	void enterReportExpr(AQLParser.ReportExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#CrossTabExpr}.
+	 * Exit a parse tree produced by the {@code ReportExpr}
+	 * labeled alternative in {@link AQLParser#report_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitCrossTabExpr(@NotNull AQLParser.CrossTabExprContext ctx);
-
+	void exitReportExpr(AQLParser.ReportExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#ReportExpr}.
+	 * Enter a parse tree produced by the {@code BasicFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void enterReportExpr(@NotNull AQLParser.ReportExprContext ctx);
+	void enterBasicFilter(AQLParser.BasicFilterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#ReportExpr}.
+	 * Exit a parse tree produced by the {@code BasicFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void exitReportExpr(@NotNull AQLParser.ReportExprContext ctx);
-
+	void exitBasicFilter(AQLParser.BasicFilterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#BoolLiteral}.
+	 * Enter a parse tree produced by the {@code MvFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void enterBoolLiteral(@NotNull AQLParser.BoolLiteralContext ctx);
+	void enterMvFilter(AQLParser.MvFilterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#BoolLiteral}.
+	 * Exit a parse tree produced by the {@code MvFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void exitBoolLiteral(@NotNull AQLParser.BoolLiteralContext ctx);
-
+	void exitMvFilter(AQLParser.MvFilterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#AggExpr}.
+	 * Enter a parse tree produced by the {@code StringCompFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void enterAggExpr(@NotNull AQLParser.AggExprContext ctx);
+	void enterStringCompFilter(AQLParser.StringCompFilterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#AggExpr}.
+	 * Exit a parse tree produced by the {@code StringCompFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void exitAggExpr(@NotNull AQLParser.AggExprContext ctx);
-
+	void exitStringCompFilter(AQLParser.StringCompFilterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#SelectExpr}.
+	 * Enter a parse tree produced by the {@code UnaryFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void enterSelectExpr(@NotNull AQLParser.SelectExprContext ctx);
+	void enterUnaryFilter(AQLParser.UnaryFilterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#SelectExpr}.
+	 * Exit a parse tree produced by the {@code UnaryFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void exitSelectExpr(@NotNull AQLParser.SelectExprContext ctx);
-
+	void exitUnaryFilter(AQLParser.UnaryFilterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#UnaryFilter}.
+	 * Enter a parse tree produced by the {@code BetweenFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void enterUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx);
+	void enterBetweenFilter(AQLParser.BetweenFilterContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#UnaryFilter}.
+	 * Exit a parse tree produced by the {@code BetweenFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
 	 */
-	void exitUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#StringLiteral}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringLiteral(@NotNull AQLParser.StringLiteralContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#StringLiteral}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringLiteral(@NotNull AQLParser.StringLiteralContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#QueryExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterQueryExpr(@NotNull AQLParser.QueryExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#QueryExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitQueryExpr(@NotNull AQLParser.QueryExprContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#NotFilterExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterNotFilterExpr(@NotNull AQLParser.NotFilterExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#NotFilterExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitNotFilterExpr(@NotNull AQLParser.NotFilterExprContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#ArithExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterArithExpr(@NotNull AQLParser.ArithExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#ArithExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitArithExpr(@NotNull AQLParser.ArithExprContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#PandFilterExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterPandFilterExpr(@NotNull AQLParser.PandFilterExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#PandFilterExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitPandFilterExpr(@NotNull AQLParser.PandFilterExprContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#OrFilterExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterOrFilterExpr(@NotNull AQLParser.OrFilterExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#OrFilterExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitOrFilterExpr(@NotNull AQLParser.OrFilterExprContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#BetweenFilter}.
-	 * @param ctx the parse tree
-	 */
-	void enterBetweenFilter(@NotNull AQLParser.BetweenFilterContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#BetweenFilter}.
-	 * @param ctx the parse tree
-	 */
-	void exitBetweenFilter(@NotNull AQLParser.BetweenFilterContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#SimpleFilter}.
-	 * @param ctx the parse tree
-	 */
-	void enterSimpleFilter(@NotNull AQLParser.SimpleFilterContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#SimpleFilter}.
-	 * @param ctx the parse tree
-	 */
-	void exitSimpleFilter(@NotNull AQLParser.SimpleFilterContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#ParensFilterExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterParensFilterExpr(@NotNull AQLParser.ParensFilterExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#ParensFilterExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitParensFilterExpr(@NotNull AQLParser.ParensFilterExprContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#StringCompFilter}.
-	 * @param ctx the parse tree
-	 */
-	void enterStringCompFilter(@NotNull AQLParser.StringCompFilterContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#StringCompFilter}.
-	 * @param ctx the parse tree
-	 */
-	void exitStringCompFilter(@NotNull AQLParser.StringCompFilterContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#AggFunc}.
-	 * @param ctx the parse tree
-	 */
-	void enterAggFunc(@NotNull AQLParser.AggFuncContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#AggFunc}.
-	 * @param ctx the parse tree
-	 */
-	void exitAggFunc(@NotNull AQLParser.AggFuncContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link AQLParser#YearsDiffFunc}.
-	 * @param ctx the parse tree
-	 */
-	void enterYearsDiffFunc(@NotNull AQLParser.YearsDiffFuncContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link AQLParser#YearsDiffFunc}.
-	 * @param ctx the parse tree
-	 */
-	void exitYearsDiffFunc(@NotNull AQLParser.YearsDiffFuncContext ctx);
-
+	void exitBetweenFilter(AQLParser.BetweenFilterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#literal_values}.
 	 * @param ctx the parse tree
 	 */
-	void enterLiteral_values(@NotNull AQLParser.Literal_valuesContext ctx);
+	void enterLiteral_values(AQLParser.Literal_valuesContext ctx);
 	/**
 	 * Exit a parse tree produced by {@link AQLParser#literal_values}.
 	 * @param ctx the parse tree
 	 */
-	void exitLiteral_values(@NotNull AQLParser.Literal_valuesContext ctx);
-
+	void exitLiteral_values(AQLParser.Literal_valuesContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#DateIntervalExpr}.
+	 * Enter a parse tree produced by the {@code StringLiteral}
+	 * labeled alternative in {@link AQLParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void enterDateIntervalExpr(@NotNull AQLParser.DateIntervalExprContext ctx);
+	void enterStringLiteral(AQLParser.StringLiteralContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#DateIntervalExpr}.
+	 * Exit a parse tree produced by the {@code StringLiteral}
+	 * labeled alternative in {@link AQLParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void exitDateIntervalExpr(@NotNull AQLParser.DateIntervalExprContext ctx);
-
+	void exitStringLiteral(AQLParser.StringLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#LiteralVal}.
+	 * Enter a parse tree produced by the {@code IntLiteral}
+	 * labeled alternative in {@link AQLParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void enterLiteralVal(@NotNull AQLParser.LiteralValContext ctx);
+	void enterIntLiteral(AQLParser.IntLiteralContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#LiteralVal}.
+	 * Exit a parse tree produced by the {@code IntLiteral}
+	 * labeled alternative in {@link AQLParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void exitLiteralVal(@NotNull AQLParser.LiteralValContext ctx);
-
+	void exitIntLiteral(AQLParser.IntLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#ParensArithExpr}.
+	 * Enter a parse tree produced by the {@code FloatLiteral}
+	 * labeled alternative in {@link AQLParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void enterParensArithExpr(@NotNull AQLParser.ParensArithExprContext ctx);
+	void enterFloatLiteral(AQLParser.FloatLiteralContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#ParensArithExpr}.
+	 * Exit a parse tree produced by the {@code FloatLiteral}
+	 * labeled alternative in {@link AQLParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void exitParensArithExpr(@NotNull AQLParser.ParensArithExprContext ctx);
-
+	void exitFloatLiteral(AQLParser.FloatLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#RoundFunc}.
+	 * Enter a parse tree produced by the {@code BoolLiteral}
+	 * labeled alternative in {@link AQLParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void enterRoundFunc(@NotNull AQLParser.RoundFuncContext ctx);
+	void enterBoolLiteral(AQLParser.BoolLiteralContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#RoundFunc}.
+	 * Exit a parse tree produced by the {@code BoolLiteral}
+	 * labeled alternative in {@link AQLParser#literal}.
 	 * @param ctx the parse tree
 	 */
-	void exitRoundFunc(@NotNull AQLParser.RoundFuncContext ctx);
-
+	void exitBoolLiteral(AQLParser.BoolLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link AQLParser#AndFilterExpr}.
+	 * Enter a parse tree produced by the {@code ArithExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterAndFilterExpr(@NotNull AQLParser.AndFilterExprContext ctx);
+	void enterArithExpr(AQLParser.ArithExprContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link AQLParser#AndFilterExpr}.
+	 * Exit a parse tree produced by the {@code ArithExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitAndFilterExpr(@NotNull AQLParser.AndFilterExprContext ctx);
+	void exitArithExpr(AQLParser.ArithExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code Field}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterField(AQLParser.FieldContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code Field}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitField(AQLParser.FieldContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code CurrentDateFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterCurrentDateFunc(AQLParser.CurrentDateFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code CurrentDateFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitCurrentDateFunc(AQLParser.CurrentDateFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AggExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterAggExpr(AQLParser.AggExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AggExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitAggExpr(AQLParser.AggExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ParensArithExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterParensArithExpr(AQLParser.ParensArithExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ParensArithExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitParensArithExpr(AQLParser.ParensArithExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MonthsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MonthsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code YearsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterYearsDiffFunc(AQLParser.YearsDiffFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code YearsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitYearsDiffFunc(AQLParser.YearsDiffFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code RoundFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterRoundFunc(AQLParser.RoundFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code RoundFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitRoundFunc(AQLParser.RoundFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code LiteralVal}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterLiteralVal(AQLParser.LiteralValContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code LiteralVal}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitLiteralVal(AQLParser.LiteralValContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code DateIntervalExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterDateIntervalExpr(AQLParser.DateIntervalExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DateIntervalExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code MinsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMinsDiffFunc(AQLParser.MinsDiffFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MinsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMinsDiffFunc(AQLParser.MinsDiffFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AggFunc}
+	 * labeled alternative in {@link AQLParser#agg_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterAggFunc(AQLParser.AggFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AggFunc}
+	 * labeled alternative in {@link AQLParser#agg_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitAggFunc(AQLParser.AggFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link AQLParser#date_interval}.
+	 * @param ctx the parse tree
+	 */
+	void enterDate_interval(AQLParser.Date_intervalContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#date_interval}.
+	 * @param ctx the parse tree
+	 */
+	void exitDate_interval(AQLParser.Date_intervalContext ctx);
 }

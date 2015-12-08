@@ -1,6 +1,5 @@
-// Generated from AQL.g4 by ANTLR 4.1
+// Generated from AQL.g4 by ANTLR 4.5.1
 package edu.common.dynamicextensions.query.antlr;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
@@ -14,289 +13,254 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 public class AQLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements AQLVisitor<T> {
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMinsDiffFunc(@NotNull AQLParser.MinsDiffFuncContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitQueryExpr(AQLParser.QueryExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitField(@NotNull AQLParser.FieldContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitSelectExpr(AQLParser.SelectExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBasicFilter(@NotNull AQLParser.BasicFilterContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitSelectElement(AQLParser.SelectElementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLimitExpr(@NotNull AQLParser.LimitExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitOrFilterExpr(AQLParser.OrFilterExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitFloatLiteral(@NotNull AQLParser.FloatLiteralContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitNthChildFilterExpr(AQLParser.NthChildFilterExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCurrentDateFunc(@NotNull AQLParser.CurrentDateFuncContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitSimpleFilter(AQLParser.SimpleFilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMvFilter(@NotNull AQLParser.MvFilterContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitAndFilterExpr(AQLParser.AndFilterExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIntLiteral(@NotNull AQLParser.IntLiteralContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitPandFilterExpr(AQLParser.PandFilterExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSelectElement(@NotNull AQLParser.SelectElementContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitNotFilterExpr(AQLParser.NotFilterExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDate_interval(@NotNull AQLParser.Date_intervalContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitParensFilterExpr(AQLParser.ParensFilterExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitMonthsDiffFunc(@NotNull AQLParser.MonthsDiffFuncContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitLimitExpr(AQLParser.LimitExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNthChildFilterExpr(@NotNull AQLParser.NthChildFilterExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitCrossTabExpr(AQLParser.CrossTabExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCrossTabExpr(@NotNull AQLParser.CrossTabExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitReportExpr(AQLParser.ReportExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitReportExpr(@NotNull AQLParser.ReportExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitBasicFilter(AQLParser.BasicFilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBoolLiteral(@NotNull AQLParser.BoolLiteralContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitMvFilter(AQLParser.MvFilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAggExpr(@NotNull AQLParser.AggExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitStringCompFilter(AQLParser.StringCompFilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSelectExpr(@NotNull AQLParser.SelectExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitUnaryFilter(AQLParser.UnaryFilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitBetweenFilter(AQLParser.BetweenFilterContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStringLiteral(@NotNull AQLParser.StringLiteralContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitLiteral_values(AQLParser.Literal_valuesContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitQueryExpr(@NotNull AQLParser.QueryExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitStringLiteral(AQLParser.StringLiteralContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitNotFilterExpr(@NotNull AQLParser.NotFilterExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitIntLiteral(AQLParser.IntLiteralContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitArithExpr(@NotNull AQLParser.ArithExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitFloatLiteral(AQLParser.FloatLiteralContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPandFilterExpr(@NotNull AQLParser.PandFilterExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitBoolLiteral(AQLParser.BoolLiteralContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitOrFilterExpr(@NotNull AQLParser.OrFilterExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitArithExpr(AQLParser.ArithExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBetweenFilter(@NotNull AQLParser.BetweenFilterContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitField(AQLParser.FieldContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSimpleFilter(@NotNull AQLParser.SimpleFilterContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitCurrentDateFunc(AQLParser.CurrentDateFuncContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitParensFilterExpr(@NotNull AQLParser.ParensFilterExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitAggExpr(AQLParser.AggExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStringCompFilter(@NotNull AQLParser.StringCompFilterContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitParensArithExpr(AQLParser.ParensArithExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAggFunc(@NotNull AQLParser.AggFuncContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitYearsDiffFunc(@NotNull AQLParser.YearsDiffFuncContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitYearsDiffFunc(AQLParser.YearsDiffFuncContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLiteral_values(@NotNull AQLParser.Literal_valuesContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitRoundFunc(AQLParser.RoundFuncContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDateIntervalExpr(@NotNull AQLParser.DateIntervalExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitLiteralVal(AQLParser.LiteralValContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitLiteralVal(@NotNull AQLParser.LiteralValContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitParensArithExpr(@NotNull AQLParser.ParensArithExprContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitMinsDiffFunc(AQLParser.MinsDiffFuncContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitRoundFunc(@NotNull AQLParser.RoundFuncContext ctx) { return visitChildren(ctx); }
-
+	@Override public T visitAggFunc(AQLParser.AggFuncContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitAndFilterExpr(@NotNull AQLParser.AndFilterExprContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDate_interval(AQLParser.Date_intervalContext ctx) { return visitChildren(ctx); }
 }

@@ -30,8 +30,8 @@ report_expr   : ID (LP SLITERAL (',' SLITERAL)* RP)? #ReportExpr
 filter        : arith_expr  OP   arith_expr          #BasicFilter
               | arith_expr  MOP  literal_values      #MvFilter
               | FIELD       SOP  SLITERAL            #StringCompFilter
-              | FIELD       UOP                      #UnaryFilter
-              | FIELD       BETWEEN LP arith_expr ',' arith_expr RP #BetweenFilter
+              | arith_expr  UOP                      #UnaryFilter
+              | arith_expr  BETWEEN LP arith_expr ',' arith_expr RP #BetweenFilter
               ;
               
 literal_values: '(' literal (',' literal)* ')'

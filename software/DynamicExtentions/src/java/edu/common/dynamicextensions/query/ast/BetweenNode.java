@@ -8,7 +8,7 @@ import java.util.Set;
 import edu.common.dynamicextensions.domain.nui.DataType;
 
 public class BetweenNode extends ExpressionNode implements Serializable {
-	private FieldNode lhs;
+	private ExpressionNode lhs;
 
 	private ExpressionNode minNode;
 
@@ -38,11 +38,11 @@ public class BetweenNode extends ExpressionNode implements Serializable {
 		return formNames.toArray(new String[0]);
 	}
 
-	public FieldNode getLhs() {
+	public ExpressionNode getLhs() {
 		return lhs;
 	}
 
-	public void setLhs(FieldNode lhs) {
+	public void setLhs(ExpressionNode lhs) {
 		this.lhs = lhs;
 	}
 
@@ -92,7 +92,7 @@ public class BetweenNode extends ExpressionNode implements Serializable {
 	@Override
 	public Set<FieldNode> getFields() {
 		Set<FieldNode> fields = new HashSet<FieldNode>();
-		fields.add(lhs);
+		fields.addAll(lhs.getFields());
 		fields.addAll(minNode.getFields());
 		fields.addAll(maxNode.getFields());
 		return fields;

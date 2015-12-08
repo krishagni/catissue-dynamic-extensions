@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
@@ -42,7 +41,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override 
-    public QueryExpressionNode visitQueryExpr(@NotNull AQLParser.QueryExprContext ctx) {  
+    public QueryExpressionNode visitQueryExpr(AQLParser.QueryExprContext ctx) {
     	QueryExpressionNode queryExpr = new QueryExpressionNode();
 
     	SelectListNode selectList = new SelectListNode();
@@ -68,7 +67,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }    
     
     @Override
-    public SelectListNode visitSelectExpr(@NotNull AQLParser.SelectExprContext ctx) { 
+    public SelectListNode visitSelectExpr(AQLParser.SelectExprContext ctx) {
     	SelectListNode list = new SelectListNode();    	
     	list.setDistinct(ctx.DISTINCT() != null);
     	
@@ -80,7 +79,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public LimitExprNode visitLimitExpr(@NotNull AQLParser.LimitExprContext ctx) {
+    public LimitExprNode visitLimitExpr(AQLParser.LimitExprContext ctx) {
     	LimitExprNode limitExpr = new LimitExprNode();
     	if (ctx.INT().size() == 2) {
     		limitExpr.setStartAt(Integer.parseInt(ctx.INT(0).getText()));
@@ -93,7 +92,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public ExpressionNode visitSelectElement(@NotNull AQLParser.SelectElementContext ctx) {
+    public ExpressionNode visitSelectElement(AQLParser.SelectElementContext ctx) {
     	ExpressionNode expr = (ExpressionNode)visit(ctx.arith_expr());
     	if (ctx.SLITERAL() != null) {
     		String text = ctx.SLITERAL().getText();
@@ -104,48 +103,48 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
 
     @Override
-    public FilterExpressionNode visitAndFilterExpr(@NotNull AQLParser.AndFilterExprContext ctx) {
+    public FilterExpressionNode visitAndFilterExpr(AQLParser.AndFilterExprContext ctx) {
         return FilterExpressionNode.andExpr(
         		(FilterNodeMarker)visit(ctx.filter_expr(0)), 
         		(FilterNodeMarker)visit(ctx.filter_expr(1)));
     }
 
     @Override
-    public Node visitOrFilterExpr(@NotNull AQLParser.OrFilterExprContext ctx) {
+    public Node visitOrFilterExpr(AQLParser.OrFilterExprContext ctx) {
         return FilterExpressionNode.orExpr(
         		(FilterNodeMarker)visit(ctx.filter_expr(0)), 
         		(FilterNodeMarker)visit(ctx.filter_expr(1)));
     }
     
     @Override
-    public Node visitPandFilterExpr(@NotNull AQLParser.PandFilterExprContext ctx) {
+    public Node visitPandFilterExpr(AQLParser.PandFilterExprContext ctx) {
     	return FilterExpressionNode.pAndExpr(
     			(FilterNodeMarker)visit(ctx.filter_expr(0)),
     			(FilterNodeMarker)visit(ctx.filter_expr(1)));
     }
     
     @Override
-    public Node visitNotFilterExpr(@NotNull AQLParser.NotFilterExprContext ctx) {
+    public Node visitNotFilterExpr(AQLParser.NotFilterExprContext ctx) {
         return FilterExpressionNode.notExpr((FilterNodeMarker)visit(ctx.filter_expr()));
     }
 
     @Override
-    public FilterExpressionNode visitParensFilterExpr(@NotNull AQLParser.ParensFilterExprContext ctx) {
+    public FilterExpressionNode visitParensFilterExpr(AQLParser.ParensFilterExprContext ctx) {
         return FilterExpressionNode.parenExpr((FilterNodeMarker)visit(ctx.filter_expr()));
     }
     
     @Override
-    public FilterExpressionNode visitNthChildFilterExpr(@NotNull AQLParser.NthChildFilterExprContext ctx) { 
+    public FilterExpressionNode visitNthChildFilterExpr(AQLParser.NthChildFilterExprContext ctx) { 
         return FilterExpressionNode.nthChildExpr((FilterNodeMarker)visit(ctx.filter_expr()));
     }
 
     @Override
-    public FilterExpressionNode visitSimpleFilter(@NotNull AQLParser.SimpleFilterContext ctx) {
+    public FilterExpressionNode visitSimpleFilter(AQLParser.SimpleFilterContext ctx) {
     	return FilterExpressionNode.identity((FilterNodeMarker)visit(ctx.filter()));
     }
     
     @Override
-    public FilterNode visitBasicFilter(@NotNull AQLParser.BasicFilterContext ctx) {
+    public FilterNode visitBasicFilter(AQLParser.BasicFilterContext ctx) {
     	FilterNode filter = new FilterNode();
     	filter.setLhs((ExpressionNode)visit(ctx.arith_expr(0)));
     	filter.setRhs((ExpressionNode)visit(ctx.arith_expr(1)));
@@ -154,7 +153,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public FilterNode visitMvFilter(@NotNull AQLParser.MvFilterContext ctx) {
+    public FilterNode visitMvFilter(AQLParser.MvFilterContext ctx) {
     	FilterNode filter = new FilterNode();
     	filter.setLhs((ExpressionNode)visit(ctx.arith_expr()));
     	filter.setRhs((ExpressionNode)visit(ctx.literal_values()));
@@ -163,7 +162,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public FilterNode visitStringCompFilter(@NotNull AQLParser.StringCompFilterContext ctx) {
+    public FilterNode visitStringCompFilter(AQLParser.StringCompFilterContext ctx) {
     	FilterNode filter = new FilterNode();
     	
     	FieldNode field = new FieldNode();
@@ -179,34 +178,28 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public FilterNode visitUnaryFilter(@NotNull AQLParser.UnaryFilterContext ctx) {
+    public FilterNode visitUnaryFilter(AQLParser.UnaryFilterContext ctx) {
     	FilterNode filter = new FilterNode();
-    	
-    	FieldNode field = new FieldNode();
-    	field.setName(ctx.FIELD().getText());
-    	filter.setLhs(field);
-    	
+    	filter.setLhs((ExpressionNode)visit(ctx.arith_expr()));
     	filter.setRelOp(RelationalOp.getBySymbol(ctx.UOP().getText()));
     	return filter;
     }
 
 	@Override
-	public FilterNode visitBetweenFilter(@NotNull AQLParser.BetweenFilterContext ctx) {
+	public FilterNode visitBetweenFilter(AQLParser.BetweenFilterContext ctx) {
 		FilterNode filter = new FilterNode();
 
-		BetweenNode betweenNode = new BetweenNode();	
-		FieldNode field = new FieldNode();
-		field.setName(ctx.FIELD().getText());
-		betweenNode.setLhs(field);
-		betweenNode.setMinNode((ExpressionNode)visit(ctx.arith_expr(0)));
-		betweenNode.setMaxNode((ExpressionNode)visit(ctx.arith_expr(1)));
+		BetweenNode betweenNode = new BetweenNode();
+		betweenNode.setLhs((ExpressionNode)visit(ctx.arith_expr(0)));
+		betweenNode.setMinNode((ExpressionNode)visit(ctx.arith_expr(1)));
+		betweenNode.setMaxNode((ExpressionNode)visit(ctx.arith_expr(2)));
 
 		filter.setRelOp(RelationalOp.BETWEEN);
 		filter.setLhs(betweenNode);
 		return filter;
 	}
     
-    public LiteralValueListNode visitLiteral_values(@NotNull AQLParser.Literal_valuesContext ctx) {
+    public LiteralValueListNode visitLiteral_values(AQLParser.Literal_valuesContext ctx) {
     	LiteralValueListNode literals = new LiteralValueListNode();
     	for (LiteralContext literalCtx : ctx.literal()) {
     		literals.addLiteralVal((LiteralValueNode)visit(literalCtx));
@@ -216,7 +209,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
 
     @Override
-    public ArithExpressionNode visitArithExpr(@NotNull AQLParser.ArithExprContext ctx) {
+    public ArithExpressionNode visitArithExpr(AQLParser.ArithExprContext ctx) {
     	ExpressionNode loperand = (ExpressionNode)visit(ctx.arith_expr(0));
     	ExpressionNode roperand = (ExpressionNode)visit(ctx.arith_expr(1));
     	ArithOp op = ArithOp.getBySymbol(ctx.ARITH_OP().getText());
@@ -229,7 +222,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
 
     @Override 
-    public ArithExpressionNode visitDateIntervalExpr(@NotNull AQLParser.DateIntervalExprContext ctx) {
+    public ArithExpressionNode visitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx) {
     	ExpressionNode loperand = (ExpressionNode)visit(ctx.arith_expr());
     	ExpressionNode roperand = (ExpressionNode)visit(ctx.date_interval());    	
     	ArithOp op = ArithOp.getBySymbol(ctx.ARITH_OP().getText());
@@ -242,43 +235,43 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
 
     @Override 
-    public ExpressionNode visitParensArithExpr(@NotNull AQLParser.ParensArithExprContext ctx) { 
+    public ExpressionNode visitParensArithExpr(AQLParser.ParensArithExprContext ctx) { 
     	return (ExpressionNode)visit(ctx.arith_expr()); 
     }
     
     @Override 
-    public DateDiffFuncNode visitMonthsDiffFunc(@NotNull AQLParser.MonthsDiffFuncContext ctx) { 
+    public DateDiffFuncNode visitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { 
     	ExpressionNode leftOperand = (ExpressionNode)visit(ctx.arith_expr(0));
     	ExpressionNode rightOperand = (ExpressionNode)visit(ctx.arith_expr(1));
     	return getDateDiffFuncNode(DiffType.MONTH, leftOperand, rightOperand);
     }
 
     @Override 
-    public DateDiffFuncNode visitYearsDiffFunc(@NotNull AQLParser.YearsDiffFuncContext ctx) {
+    public DateDiffFuncNode visitYearsDiffFunc(AQLParser.YearsDiffFuncContext ctx) {
     	ExpressionNode leftOperand = (ExpressionNode)visit(ctx.arith_expr(0));
     	ExpressionNode rightOperand = (ExpressionNode)visit(ctx.arith_expr(1));
     	return getDateDiffFuncNode(DiffType.YEAR, leftOperand, rightOperand);
     }
 
 	@Override
-	public DateDiffFuncNode visitMinsDiffFunc(@NotNull AQLParser.MinsDiffFuncContext ctx) {
+	public DateDiffFuncNode visitMinsDiffFunc(AQLParser.MinsDiffFuncContext ctx) {
 		ExpressionNode leftOperand = (ExpressionNode)visit(ctx.arith_expr(0));
 		ExpressionNode rightOperand = (ExpressionNode)visit(ctx.arith_expr(1));
 		return getDateDiffFuncNode(DiffType.MINUTES, leftOperand, rightOperand);
 	}
     
     @Override
-    public CurrentDateNode visitCurrentDateFunc(@NotNull AQLParser.CurrentDateFuncContext ctx) {
+    public CurrentDateNode visitCurrentDateFunc(AQLParser.CurrentDateFuncContext ctx) {
     	return new CurrentDateNode();
     }
     
     @Override
-    public AggregateNode visitAggExpr(@NotNull AQLParser.AggExprContext ctx) {
+    public AggregateNode visitAggExpr(AQLParser.AggExprContext ctx) {
     	return (AggregateNode)visit(ctx.agg_expr());
     }
     
     @Override
-    public AggregateNode visitAggFunc(@NotNull AQLParser.AggFuncContext ctx) {
+    public AggregateNode visitAggFunc(AQLParser.AggFuncContext ctx) {
     	AggregateNode countNode = new AggregateNode();
     	if (ctx.COUNT() != null) {
     		countNode.setAggFn(AGG_FN.COUNT);
@@ -304,7 +297,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	return countNode; 
     }
     
-    public RoundOffNode visitRoundFunc(@NotNull AQLParser.RoundFuncContext ctx) {
+    public RoundOffNode visitRoundFunc(AQLParser.RoundFuncContext ctx) {
     	RoundOffNode node = new RoundOffNode();
     	node.setExprNode((ExpressionNode)visit(ctx.arith_expr()));
     	node.setNoOfDigitsAfterDecimal(Integer.parseInt(ctx.INT().getText()));
@@ -312,42 +305,42 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override 
-    public FieldNode visitField(@NotNull AQLParser.FieldContext ctx) {
+    public FieldNode visitField(AQLParser.FieldContext ctx) {
     	FieldNode field = new FieldNode();
     	field.setName(ctx.FIELD().getText());
     	return field; 
     }    
         
     @Override
-    public LiteralValueNode visitStringLiteral(@NotNull AQLParser.StringLiteralContext ctx) {
+    public LiteralValueNode visitStringLiteral(AQLParser.StringLiteralContext ctx) {
     	LiteralValueNode value = new LiteralValueNode(DataType.STRING);
     	value.getValues().add(ctx.SLITERAL().getText());
     	return value;
     }
     
     @Override
-    public LiteralValueNode visitIntLiteral(@NotNull AQLParser.IntLiteralContext ctx) {
+    public LiteralValueNode visitIntLiteral(AQLParser.IntLiteralContext ctx) {
     	LiteralValueNode value = new LiteralValueNode(DataType.INTEGER);
     	value.getValues().add(Long.parseLong(ctx.INT().getText()));
     	return value;
     }
 
     @Override
-    public LiteralValueNode visitFloatLiteral(@NotNull AQLParser.FloatLiteralContext ctx) {
+    public LiteralValueNode visitFloatLiteral(AQLParser.FloatLiteralContext ctx) {
     	LiteralValueNode value = new LiteralValueNode(DataType.FLOAT);
     	value.getValues().add(Double.parseDouble(ctx.FLOAT().getText()));
     	return value;
     }
     
     @Override
-    public LiteralValueNode visitBoolLiteral(@NotNull AQLParser.BoolLiteralContext ctx) {
+    public LiteralValueNode visitBoolLiteral(AQLParser.BoolLiteralContext ctx) {
     	LiteralValueNode value = new LiteralValueNode(DataType.BOOLEAN);
     	value.getValues().add(Boolean.parseBoolean(ctx.BOOL().getText()));
     	return value;
     }
     
     @Override 
-    public DateIntervalNode visitDate_interval(@NotNull AQLParser.Date_intervalContext ctx) {
+    public DateIntervalNode visitDate_interval(AQLParser.Date_intervalContext ctx) {
     	DateIntervalNode di = new DateIntervalNode();
     	
     	di.setDays(diPart(ctx.DAY()));
@@ -357,7 +350,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public CrosstabNode visitCrossTabExpr(@NotNull AQLParser.CrossTabExprContext ctx) {
+    public CrosstabNode visitCrossTabExpr(AQLParser.CrossTabExprContext ctx) {
     	CrosstabNode crosstabSpec = new CrosstabNode();
     	crosstabSpec.setName(ctx.CROSSTAB().getText());
     	
@@ -382,7 +375,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public ResultPostProcNode visitReportExpr(@NotNull AQLParser.ReportExprContext ctx) {
+    public ResultPostProcNode visitReportExpr(AQLParser.ReportExprContext ctx) {
     	List<String> args = new ArrayList<String>();
     	if (ctx.SLITERAL() != null) {
     		for (TerminalNode tn : ctx.SLITERAL()) {
