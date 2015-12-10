@@ -32,7 +32,7 @@ import edu.common.dynamicextensions.napi.FormDataManager;
 import edu.common.dynamicextensions.ndao.JdbcDao;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
 import edu.common.dynamicextensions.ndao.ResultExtractor;
-import edu.common.dynamicextensions.nutility.DEApp;
+import edu.common.dynamicextensions.nutility.DeConfiguration;
 import edu.common.dynamicextensions.nutility.IoUtil;
 
 public class FormDataManagerImpl implements FormDataManager {
@@ -364,7 +364,7 @@ public class FormDataManagerImpl implements FormDataManager {
 						}
 						
 						FileControlValue fcv = new FileControlValue(rs.getString(1), rs.getString(2), rs.getString(3));
-						fcv.setPath(DEApp.getFileUploadDir() + File.separator + fcv.getFileId());
+						fcv.setPath(DeConfiguration.getInstance().fileUploadDir() + File.separator + fcv.getFileId());
 						return fcv;
 					}					
 				});		

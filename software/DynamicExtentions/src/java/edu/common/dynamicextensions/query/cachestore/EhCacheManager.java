@@ -3,6 +3,7 @@ package edu.common.dynamicextensions.query.cachestore;
 import java.io.InputStream;
 import java.util.UUID;
 
+import edu.common.dynamicextensions.nutility.DeConfiguration;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -16,7 +17,7 @@ public class EhCacheManager {
 	
 	private EhCacheManager() {
 		InputStream cfg = EhCacheManager.class.getResourceAsStream(QUERY_EHCACHE_CONFIG);
-		manager = new CacheManager(cfg);					
+		manager = new CacheManager(cfg);
 	}
 	
 	public static synchronized EhCacheManager getInstance() {
@@ -28,18 +29,23 @@ public class EhCacheManager {
 	}
 	
 	public Ehcache newCache() {
+		return newCache(DeConfiguration.getInstance().maxCacheElementsInMemory());
+	}
+
+	public Ehcache newCache(int maxElementsInMemory) {
 		String cacheId = UUID.randomUUID().toString();
-		Cache cache = new Cache(cacheId, //cache name
-				10000, //maximum elements in cache
-				true,  //overflow to disk ?
-				false, //eternal ?
-				600,   //time to live in seconds 
-				100,   //time to idle
-				false, //disk persistant ?
-				0);    //disk thread expiry in seconds
-		
+		Cache cache = new Cache(
+			cacheId,               // cache name
+			maxElementsInMemory,   // max elements in cache. any addition will cause eviction
+			true,                  // overflow to disk. evicted element to be written to disk
+			true,                  // do not expire disk elements
+			0L,                    // time to live in seconds. live forever until explicitly removed
+			0L,                    // time to idle in seconds. can be idle forever
+			false,                 // disk persistent. need to be persistent across multiple starts
+			0L);                   // disk thread expiry interval
+
 		manager.addCache(cache);
-		return manager.getCache(cacheId);		
+		return manager.getCache(cacheId);
 	}
 	
 	public void removeCache(Ehcache cache) {

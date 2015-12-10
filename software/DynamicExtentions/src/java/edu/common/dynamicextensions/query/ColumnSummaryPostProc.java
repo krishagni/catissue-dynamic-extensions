@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
-import edu.common.dynamicextensions.nutility.DEApp;
+import edu.common.dynamicextensions.nutility.DeConfiguration;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
 import edu.common.dynamicextensions.query.ast.SelectListNode;
@@ -61,8 +61,9 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 	}
 
 	@Override
-	public int processResultSet(ResultSet rs) {		
-		qrd = new QueryResultData(getResultColumns(queryExpr), DEApp.getDateFormat(), DEApp.getTimeFormat());
+	public int processResultSet(ResultSet rs) {
+		DeConfiguration cfg = DeConfiguration.getInstance();
+		qrd = new QueryResultData(getResultColumns(queryExpr), cfg.dateFormat(), cfg.timeFormat());
 		qrd.dataSource(rs);
 			
 		for (Object[] row : qrd.getRows()) {

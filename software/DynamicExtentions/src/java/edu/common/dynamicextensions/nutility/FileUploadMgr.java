@@ -34,8 +34,7 @@ public class FileUploadMgr {
 	}
 	
 	public String getFilePath(String fileId) {
-		String uploadDir = DEApp.getFileUploadDir();
-		return uploadDir + File.separator + fileId;
+		return DeConfiguration.getInstance().fileUploadDir() + File.separator + fileId;
 	}
 	
 	public void deleteFile(String fileId) {

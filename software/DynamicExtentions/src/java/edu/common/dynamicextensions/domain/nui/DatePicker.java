@@ -17,7 +17,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
-import edu.common.dynamicextensions.nutility.DEApp;
+import edu.common.dynamicextensions.nutility.DeConfiguration;
 import edu.common.dynamicextensions.nutility.Util;
 
 public class DatePicker extends Control implements Serializable {
@@ -92,13 +92,16 @@ public class DatePicker extends Control implements Serializable {
 		}
 		
 		try {			
-			String fmt = DEApp.getDateFormat();
+			String fmt = DeConfiguration.getInstance().dateFormat();
 			if (fmt == null) {
 				fmt = DEFAULT_DATE_FORMAT;
 			}
 			
 			if (format.contains("HH:mm") || format.contains("hh:mm")) {
-				String timeFormat = DEApp.getTimeFormat() == null ? DEFAULT_TIME_FORMAT : DEApp.getTimeFormat(); 
+				String timeFormat = DeConfiguration.getInstance().timeFormat();
+				if (StringUtils.isBlank(timeFormat)) {
+					timeFormat = DEFAULT_TIME_FORMAT;
+				}
 				fmt = fmt.concat(" "+ timeFormat);
 			}
 
