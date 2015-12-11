@@ -68,6 +68,10 @@ public class ResultColumn implements Serializable {
 	public boolean isPhi() {
 		return columnExpr.isPhi();
 	}
+
+	public boolean isSimpleExpr() {
+		return columnExpr instanceof FieldNode;
+	}
 	
 	public String toString() {
 		return getColumnLabel();
