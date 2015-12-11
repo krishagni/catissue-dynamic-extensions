@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
 import edu.common.dynamicextensions.ndao.ResultExtractor;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
+import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
 import edu.common.dynamicextensions.query.ast.SelectListNode;
 
@@ -80,6 +81,36 @@ public class Query {
         	ResultPostProcFactory factory = ResultPostProcManager.getInstance().getFactory(procName);
         	resultPostProc = factory.create(queryExpr);
         }        
+    }
+
+    public boolean isAggregateQuery() {
+        if (queryExpr == null || queryExpr.getSelectList() == null) {
+            return false;
+        }
+
+        return queryExpr.getSelectList().hasAggregateExpr();
+    }
+
+    public boolean isPhiResult(boolean onlyFields) {
+        if (queryExpr == null || queryExpr.getSelectList() == null) {
+            return false;
+        }
+
+        for (ExpressionNode element : queryExpr.getSelectList().getElements()) {
+            if (!element.isPhi()) {
+                continue;
+            }
+
+            if (!onlyFields || element instanceof FieldNode) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public String getResultProcessorName() {
+        return queryExpr != null && queryExpr.hasResultPostProc() ? queryExpr.getResultPostProcName() : null;
     }
 
     public long getCount() {
