@@ -198,6 +198,7 @@ public class QueryCompiler
         sfTree.setForeignKey(sfCtrl.getForeignKey());
         sfTree.setSubForm(true);
         sfTree.setExtnFk(sfCtrl.getExtnFkColumn());
+        sfTree.setFormIdCol(sfCtrl.getFormIdColumn());
         return sfTree;
     }
     

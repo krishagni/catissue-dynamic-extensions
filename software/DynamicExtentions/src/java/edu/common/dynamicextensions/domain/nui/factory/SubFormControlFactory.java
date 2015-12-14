@@ -36,6 +36,7 @@ public class SubFormControlFactory extends AbstractControlFactory {
 		subForm.setForeignKey(getTextValue(ele, "foreignKey"));
 		subForm.setPathLink(getBooleanValue(ele, "pathLink"));
 		subForm.setExtnFkColumn(getTextValue(ele, "extnFkCol"));
+		subForm.setFormIdColumn(getTextValue(ele, "formIdCol", "FORM_ID"));
 
 		ContainerParser parser = new ContainerParser(props.getProperty("pvDir"));
 		Container subContainer = parser.parse(ele, false);

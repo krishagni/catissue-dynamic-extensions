@@ -30,6 +30,8 @@ public class JoinTree
 	private boolean extensionForm;
 	
 	private String extnFk;
+
+	private String formIdCol;
 	
 	private Map<String, JoinTree> children = new HashMap<String, JoinTree>();	
 
@@ -145,6 +147,14 @@ public class JoinTree
 
 	public void setExtnFk(String extnFk) {
 		this.extnFk = extnFk;
+	}
+
+	public String getFormIdCol() {
+		return formIdCol;
+	}
+
+	public void setFormIdCol(String formIdCol) {
+		this.formIdCol = formIdCol;
 	}
 
 	public Collection<JoinTree> getChildren() {

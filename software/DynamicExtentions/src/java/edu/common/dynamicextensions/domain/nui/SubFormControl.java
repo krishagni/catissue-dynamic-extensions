@@ -48,10 +48,14 @@ public class SubFormControl extends Control implements Serializable {
 		
 	//
 	// If this sub-form is used as an entry point into extensions,
-	// then this attribute specifies DB column to use for indexing into
-	// extension form data table
+	// then formIdColumn and extnFkColumn together specify DB
+	// columns to use for indexing into extension form data table
+	// formIdColumn specifies form ID for which extnFkColumn value
+	// is meaningful
 	//
 	private String extnFkColumn;
+
+	private String formIdColumn = "FORM_ID";
 
 	public Container getSubContainer() {
 		return subContainer;
@@ -144,6 +148,14 @@ public class SubFormControl extends Control implements Serializable {
 		this.extnFkColumn = extnFkColumn;
 	}
 
+	public String getFormIdColumn() {
+		return formIdColumn == null ? "FORM_ID" : formIdColumn;
+	}
+
+	public void setFormIdColumn(String formIdColumn) {
+		this.formIdColumn = formIdColumn;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -157,6 +169,7 @@ public class SubFormControl extends Control implements Serializable {
 		result = prime * result	+ ((foreignKeyColumn == null) ? 0 : foreignKeyColumn.hashCode());
 		result = prime * result + (pathLink ? 1231 : 1237);
 		result = prime * result + (extnFkColumn == null ? 0 : extnFkColumn.hashCode());
+		result = prime * result + (formIdColumn == null ? 0 : formIdColumn.hashCode());
 		return result;
 	}
 
@@ -180,7 +193,8 @@ public class SubFormControl extends Control implements Serializable {
 			!StringUtils.equals(parentKeyColumn, other.parentKeyColumn) ||
 			!StringUtils.equals(foreignKeyColumn, other.foreignKeyColumn) || 
 			pathLink != other.pathLink ||
-			!StringUtils.equals(extnFkColumn, other.extnFkColumn)) {
+			!StringUtils.equals(extnFkColumn, other.extnFkColumn) ||
+			!StringUtils.equals(formIdColumn, other.formIdColumn)) {
 			
 			return false;
 		}

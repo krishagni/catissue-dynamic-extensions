@@ -309,6 +309,8 @@ public class FormDataManagerImpl implements FormDataManager {
 				String alias = "l" + lookup;
 				query.append(" left join ").append(lu.getTableName()).append(" ").append(alias)
 					.append(" on ").append(alias).append(".").append(lu.getLookupKey()).append(" = ").append("m.").append(lu.getParentKey());
+				
+				lookup++;
 			}
 		}
 		

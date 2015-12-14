@@ -108,7 +108,7 @@ public class QueryGenerator {
         if (queryExpr.getLimitExpr() != null) {
         	sql = addLimitClause(sql, queryExpr.getLimitExpr());
         }
-        
+
         return sql;
     }
 
@@ -239,7 +239,9 @@ public class QueryGenerator {
         	// Extension form
         	//
         	from.append(" on ").append(joinTree.getAlias()).append(".").append(joinTree.getForm().getPrimaryKey())
-        		.append(" = ").append(parentTree.getAlias()).append(".").append(parentTree.getExtnFk());
+        		.append(" = ").append(parentTree.getAlias()).append(".").append(parentTree.getExtnFk())
+        		.append(" and ").append(parentTree.getAlias()).append(".").append(parentTree.getFormIdCol())
+        		.append(" = ").append(joinTree.getFormId());
         } 
 
         for (JoinTree child : joinTree.getChildren()) {
