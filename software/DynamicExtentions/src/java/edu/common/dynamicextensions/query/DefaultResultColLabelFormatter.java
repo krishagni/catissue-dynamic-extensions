@@ -6,10 +6,17 @@ import java.util.Map;
 public class DefaultResultColLabelFormatter implements ResultColumnLabelFormatter {
 	private String separator = "# ";
 
+	private String instanceSeparator = " - ";
+
 	private Map<String, Integer> instanceCntMap = new HashMap<String, Integer>();
 	
 	public DefaultResultColLabelFormatter(String separator) {
+		this(separator, " - ");
+	}
+
+	public DefaultResultColLabelFormatter(String separator, String instanceSeparator) {
 		this.separator = separator;
+		this.instanceSeparator = instanceSeparator;
 	}
 
 	@Override
@@ -41,7 +48,7 @@ public class DefaultResultColLabelFormatter implements ResultColumnLabelFormatte
 		}
 				
 		if (instanceCnt > 0) {
-			result += separator + instanceCnt;
+			result += instanceSeparator + instanceCnt;
 		}
 
 		instanceCntMap.put(headingStr, instanceCnt + 1);
