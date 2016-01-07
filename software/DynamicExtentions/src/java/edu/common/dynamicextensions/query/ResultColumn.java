@@ -2,6 +2,7 @@ package edu.common.dynamicextensions.query;
 
 import java.io.Serializable;
 
+import edu.common.dynamicextensions.domain.nui.NumberField;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 
@@ -71,6 +72,20 @@ public class ResultColumn implements Serializable {
 
 	public boolean isSimpleExpr() {
 		return columnExpr instanceof FieldNode;
+	}
+
+	public int getScale() {
+		int precision = 0;
+		for (FieldNode field : columnExpr.getFields()) {
+			if (field.getCtrl() instanceof NumberField) {
+				NumberField numberField = (NumberField)field.getCtrl();
+				if (numberField.getNoOfDigitsAfterDecimal() > precision) {
+					precision = numberField.getNoOfDigitsAfterDecimal();
+				}
+			}
+		}
+
+		return precision;
 	}
 	
 	public String toString() {

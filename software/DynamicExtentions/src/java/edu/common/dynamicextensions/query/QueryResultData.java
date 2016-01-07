@@ -1,5 +1,6 @@
 package edu.common.dynamicextensions.query;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -205,14 +206,18 @@ public class QueryResultData {
             } else if (row[j] instanceof Date && sdf != null){
                 result[j] = sdf.format(row[j]);
             } else if (Util.isOraTimestamp(row[j])) {
-            	Date dateObj = Util.getDateFromOraTimestamp(row[j]);
-            	if (tsf != null) {
-            		result[j] = tsf.format(dateObj);
-            	} else if (sdf != null) {
-            		result[j] = sdf.format(dateObj);
-            	} else {
-            		result[j] = dateObj.toString();
-            	}            	            		
+				Date dateObj = Util.getDateFromOraTimestamp(row[j]);
+				if (tsf != null) {
+					result[j] = tsf.format(dateObj);
+				} else if (sdf != null) {
+					result[j] = sdf.format(dateObj);
+				} else {
+					result[j] = dateObj.toString();
+				}
+			} else if (row[j] instanceof Number) {
+				result[j] = new BigDecimal(((Number)row[j]).doubleValue())
+					.setScale(resultColumns.get(j).getScale(), BigDecimal.ROUND_HALF_UP)
+					.toString();
             } else {
             	result[j] = row[j].toString();
             }
