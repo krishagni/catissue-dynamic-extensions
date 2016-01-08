@@ -45,6 +45,8 @@ public class Container implements Serializable {
 	private static final String specialChars = "[+-/*(){}%. ]";
 	
 	private static Pattern notAllowed = Pattern.compile(specialChars, Pattern.CASE_INSENSITIVE);
+
+	private static final String primaryKeyCtrlName = "_?primary_key?_";
 			
 	private Long id;
 	
@@ -637,10 +639,18 @@ public class Container implements Serializable {
 	}
 	
 	public Control getControl(String name) {
+		if (name.equals(primaryKeyCtrlName)) {
+			return getPrimaryKeyControl();
+		}
+
 		return controlsMap.get(name);
 	}
 	
 	public Control getControlByUdn(String userDefName) {
+		if (userDefName.equals(primaryKeyCtrlName)) {
+			return getPrimaryKeyControl();
+		}
+
 		if (!userDefCtrlNames.contains(userDefName)) {
 			return null;
 		}
@@ -655,7 +665,17 @@ public class Container implements Serializable {
 		
 		return result;
 	}
-	
+
+	public NumberField getPrimaryKeyControl() {
+		NumberField field = new NumberField();
+		field.setName(primaryKeyCtrlName);
+		field.setUserDefinedName(primaryKeyCtrlName);
+		field.setContainer(this);
+		field.setDbColumnName(getPrimaryKey());
+		field.setCaption(getCaption() + " ID");
+		return field;
+	}
+
 	public Long save(UserContext userCtxt) {
 		JdbcDao jdbcDao = JdbcDaoFactory.getJdbcDao();
 		return save(userCtxt, jdbcDao);
@@ -1101,7 +1121,7 @@ public class Container implements Serializable {
 			}
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		Container c = new Container();
 		c.setName("Person Demographics");
