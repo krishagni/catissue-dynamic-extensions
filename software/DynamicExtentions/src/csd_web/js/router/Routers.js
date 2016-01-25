@@ -247,7 +247,9 @@ var Routers = {
       AdvancedControlPropertiesBizLogic.loadSkipRules(Main.formView.getFormModel());
       Main.formView.getFormModel().set({
         skipRules : model.get('skipRules'),
-        id : model.get('id')
+        id : model.get('id'),
+        caption: model.get('caption'),
+        formName: model.get('formName')
       });
       Main.advancedControlsView.setTableCss('formulaTable');
       // Main.mainTabBarView.loadFormSummary();
