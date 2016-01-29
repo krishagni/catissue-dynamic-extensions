@@ -347,6 +347,26 @@ public class FormData {
 		
 		errors.throwIfErrors();
 	}
+
+	public void maskPhiFieldValues() {
+		for (ControlValue cv : getFieldValues()) {
+			if (cv.getControl() instanceof SubFormControl) {
+				SubFormControl sf = (SubFormControl) cv.getControl();
+				List<FormData> sfDataList = new ArrayList<FormData>();
+				if (sf.isOneToOne()) {
+					sfDataList.add((FormData)cv.getValue());
+				} else {
+					sfDataList.addAll((List<FormData>)cv.getValue());
+				}
+
+				for (FormData sfData : sfDataList) {
+					sfData.maskPhiFieldValues();
+				}
+			} else if (cv.getControl().isPhi()) {
+				cv.setValue("###");
+			}
+		}
+	}
 	
 	private static boolean isUsingUdn(Map<String, Object> appData) {
 		if (appData == null) {
@@ -363,5 +383,5 @@ public class FormData {
 		}
 		
 		return false;
-	}	
+	}
 }

@@ -273,8 +273,19 @@ public class Container implements Serializable {
 		
 		return result;
 	}
-		
-	
+
+	public boolean hasPhiFields() {
+		boolean hasPhiFields = false;
+		for (Control control : getAllControls()) {
+			if (control.isPhi()) {
+				hasPhiFields = true;
+				break;
+			}
+		}
+
+		return hasPhiFields;
+	}
+
 	public String getUdnFormula(String shortCodeFormula) {
 		FormulaParser formulaParser = new FormulaParser();
 		String udnFormula = shortCodeFormula;
