@@ -117,31 +117,24 @@ public class FormData {
 		return fromValueMap(containerId, valueMap);
 	}
 
+	public static List<FormData> fromValueMap(Long containerId, List<Map<String, Object>> valueMapList) {
+		if (valueMapList.isEmpty()) {
+			return Collections.<FormData>emptyList();
+		}
+
+		Container container = getContainer(containerId, valueMapList.get(0));
+		List<FormData> formDataList = new ArrayList<FormData>();
+
+		for (Map<String, Object> valueMap : valueMapList) {
+			formDataList.add(prepareFormData(container, valueMap));
+		}
+
+		return formDataList;
+	}
+	
 	public static FormData fromValueMap(Long containerId, Map<String, Object> valueMap) {
-		if (valueMap.get("containerId") == null && containerId == null) {
-			throw new IllegalArgumentException("Input doesn't have mandatory property: containerId");
-		}
-				
-		if (containerId == null) {
-			containerId = ((Number)valueMap.get("containerId")).longValue();		
-        }
-
-		Container container = Container.getContainer(containerId);
-		if (container == null) {
-			throw new IllegalArgumentException("Input specifies invalid container id: " + containerId);
-		}
-		
-		valueMap.remove("containerId");
-		
-		Map<String, Object> appData = (Map<String, Object>)valueMap.get("appData");
-		boolean useUdn = isUsingUdn(appData);
-
-		FormData formData = getFormData(container, valueMap, useUdn, null);		
-		if (valueMap.get("recordId") != null) {
-			formData.setRecordId(((Number)valueMap.get("recordId")).longValue());
-		}
-		
-		return formData;
+		Container container = getContainer(containerId, valueMap);
+		return prepareFormData(container, valueMap);
 	}
 		
 	public static FormData getFormData(Container container, Map<String, Object> valueMap) {
@@ -383,5 +376,36 @@ public class FormData {
 		}
 		
 		return false;
+	}
+
+	private static Container getContainer(Long containerId, Map<String, Object> valueMap) {
+		if (valueMap.get("containerId") == null && containerId == null) {
+			throw new IllegalArgumentException("Input doesn't have mandatory property: containerId");
+		}
+
+		if (containerId == null) {
+			containerId = ((Number)valueMap.get("containerId")).longValue();
+		}
+
+		Container container = Container.getContainer(containerId);
+		if (container == null) {
+			throw new IllegalArgumentException("Input specifies invalid container id: " + containerId);
+		}
+
+		return container;
+	}
+
+	private static FormData prepareFormData(Container container, Map<String, Object> valueMap) {
+		valueMap.remove("containerId");
+
+		Map<String, Object> appData = (Map<String, Object>)valueMap.get("appData");
+		boolean useUdn = isUsingUdn(appData);
+
+		FormData formData = getFormData(container, valueMap, useUdn, null);
+		if (valueMap.get("recordId") != null) {
+			formData.setRecordId(((Number)valueMap.get("recordId")).longValue());
+		}
+
+		return formData;
 	}
 }
