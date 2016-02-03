@@ -85,6 +85,21 @@ public class QueryResultData {
         
         return labels;
     }
+
+	public String[] getColumnUrls() {
+		List<ResultColumn> screenedCols = resultColumns;
+		if (screener != null) {
+			screenedCols = screener.getScreenedResultColumns(resultColumns);
+		}
+
+		String[] urls = new String[screenedCols.size()];
+		int i = 0;
+		for (ResultColumn column : screenedCols) {
+			urls[i++] = column.getUrl();
+		}
+
+		return urls;
+	}
     
     public List<ResultColumn> getResultColumns() {
     	return screener != null ? screener.getScreenedResultColumns(resultColumns) : resultColumns;

@@ -58,6 +58,8 @@ public abstract class Control implements Comparable<Control>, Serializable {
 	
 	private boolean showInGrid;
 
+	private String recordUrl;
+
 	private String conceptCode;
 
 	private String conceptPreferredName;
@@ -201,6 +203,14 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	public void setShowInGrid(boolean showInGrid) {
 		this.showInGrid = showInGrid;
+	}
+
+	public String getRecordUrl() {
+		return recordUrl;
+	}
+
+	public void setRecordUrl(String recordUrl) {
+		this.recordUrl = recordUrl;
 	}
 
 	public String getDbColumnName() {

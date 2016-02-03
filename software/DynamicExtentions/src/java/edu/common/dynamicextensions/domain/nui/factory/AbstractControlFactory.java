@@ -43,6 +43,7 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		ctrl.setSequenceNumber(currentRow);
 		ctrl.setConceptCode(getTextValue(ctrlEle, "conceptCode", null));
 		ctrl.setxPos(xPos);
+		ctrl.setRecordUrl(getTextValue(ctrlEle, "recordUrl", null));
 		
 		String dbColumn = getTextValue(ctrlEle, "column");
 		if (dbColumn != null && !dbColumn.trim().isEmpty()) {

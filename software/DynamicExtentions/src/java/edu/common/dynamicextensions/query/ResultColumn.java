@@ -57,6 +57,14 @@ public class ResultColumn implements Serializable {
 		
 		return format(formatter, captions, instance);		
 	}
+
+	public String getUrl() {
+		if (columnExpr instanceof FieldNode) {
+			return ((FieldNode)columnExpr).getCtrl().getRecordUrl();
+		}
+
+		return null;
+	}
 	
 	public String[] getCaptions() {
 		if (!(columnExpr instanceof FieldNode)) {
