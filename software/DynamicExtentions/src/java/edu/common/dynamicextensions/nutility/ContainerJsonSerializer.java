@@ -25,10 +25,16 @@ public class ContainerJsonSerializer implements ContainerSerializer {
 		this.writer = writer;		
 	}
 	
-
 	@Override
 	public void serialize() {
-		Map<String, Object> containerProps = container.getProps();		
+		serialize(0);
+	}	
+
+	@Override
+	public void serialize(int maxPvListSize) {
+		container.setMaxPvListSize(maxPvListSize);
+
+		Map<String, Object> containerProps = container.getProps();
 		try {
 			String json = new Gson().toJson(containerProps);
 			if (out != null) {
@@ -39,5 +45,5 @@ public class ContainerJsonSerializer implements ContainerSerializer {
 		} catch (Exception e) {
 			throw new RuntimeException("Error writing to output stream");
 		}		
-	}	
+	}
 }

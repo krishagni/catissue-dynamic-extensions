@@ -68,6 +68,12 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 	}
 
 	public void serialize() {
+		serialize(0);
+	}
+
+	public void serialize(int maxPvListSize) {
+		container.setMaxPvListSize(maxPvListSize);
+
 		try {
 			emitContainerStart();
 									

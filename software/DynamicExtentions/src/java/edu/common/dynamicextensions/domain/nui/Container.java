@@ -93,6 +93,8 @@ public class Container implements Serializable {
 	private transient Date creationTime;
 
 	private transient Date lastUpdatedTime;
+	
+	private transient int maxPvListSize;
 
 	public void useAsDto() {
 		this.isDto = true;
@@ -224,6 +226,14 @@ public class Container implements Serializable {
 
 	public void setLastUpdatedTime(Date lastUpdatedTime) {
 		this.lastUpdatedTime = lastUpdatedTime;
+	}
+
+	public int getMaxPvListSize() {
+		return maxPvListSize;
+	}
+
+	public void setMaxPvListSize(int maxPvListSize) {
+		this.maxPvListSize = maxPvListSize;
 	}
 
 	public void setControls(Set<Control> controls) {

@@ -230,7 +230,14 @@ public abstract class SelectControl extends Control implements Serializable {
 		props.put("dataType", pvDataSrc.getDataType());
 		props.put("dateFormat", pvDataSrc.getDateFormat());
 		props.put("defaultValue", getDefaultValue());
+		
 		List<PermissibleValue> pvs = pvDataSrc.getPermissibleValues(Calendar.getInstance().getTime());
+
+		int maxPvs = getContainer().getMaxPvListSize();
+		if (maxPvs > 0 && pvs.size() > maxPvs) {
+			pvs = pvs.subList(0, maxPvs);
+		}
+
 		props.put("pvs", pvs);
 		props.put("pvOrdering", pvDataSrc.getOrdering().name());		
 	}
