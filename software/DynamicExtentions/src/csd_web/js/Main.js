@@ -15,7 +15,6 @@ var Main = {
     Templates.loadTemplateList();
     Utility.initializeFieldHandlerMap();
     Views.showBody();
-    Routers.initializeRouters();
     var form = new Models.Form();
     this.formView = Views.showForm('formDetailsDiv', form);
     this.treeView = new Views.TreeView({
@@ -36,6 +35,8 @@ var Main = {
       el : $('#advancedControlProperties'),
       model : null
     });
+
+    Routers.initializeRouters();
     // init design mode
 //    Main.designModeViewPointer = new Views.DesignMode({
 //      el : $("#design")
