@@ -13,18 +13,18 @@ public class QueryResultCsvExporter implements QueryResultExporter {
 	
 	private char fieldSeparator = CSVWriter.DEFAULT_SEPARATOR;
 
+	public QueryResultCsvExporter() {
+	}
+	
+	public QueryResultCsvExporter(char fieldSeparator) {
+		this.fieldSeparator = fieldSeparator;
+	}
+	
 	public char getFieldSeparator() {
 		return fieldSeparator;
 	}
 
 	public void setFieldSeparator(char fieldSeparator) {
-		this.fieldSeparator = fieldSeparator;
-	}
-
-	public QueryResultCsvExporter() {
-	}
-	
-	public QueryResultCsvExporter(char fieldSeparator) {
 		this.fieldSeparator = fieldSeparator;
 	}
 
