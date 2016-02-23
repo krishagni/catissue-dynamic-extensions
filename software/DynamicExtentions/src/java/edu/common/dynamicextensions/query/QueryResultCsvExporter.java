@@ -11,6 +11,23 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class QueryResultCsvExporter implements QueryResultExporter {
 	private static final String NULL_STR_MARKER = "\0\0\0\0\0";
 	
+	private char fieldSeparator = CSVWriter.DEFAULT_SEPARATOR;
+
+	public char getFieldSeparator() {
+		return fieldSeparator;
+	}
+
+	public void setFieldSeparator(char fieldSeparator) {
+		this.fieldSeparator = fieldSeparator;
+	}
+
+	public QueryResultCsvExporter() {
+	}
+	
+	public QueryResultCsvExporter(char fieldSeparator) {
+		this.fieldSeparator = fieldSeparator;
+	}
+
 	@Override
 	public QueryResponse export(String exportPath, Query query) {
 		return export(exportPath, query, null);
@@ -81,6 +98,6 @@ public class QueryResultCsvExporter implements QueryResultExporter {
 	}
 	
 	private CSVWriter getCsvWriter(OutputStream out) {
-		return new CSVWriter(new OutputStreamWriter(out));
+		return new CSVWriter(new OutputStreamWriter(out), getFieldSeparator());
 	}
 }
