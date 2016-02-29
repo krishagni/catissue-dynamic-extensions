@@ -60,6 +60,8 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	private String recordUrl;
 
+	private String showWhenExpr;
+
 	private String conceptCode;
 
 	private String conceptPreferredName;
@@ -211,6 +213,14 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	public void setRecordUrl(String recordUrl) {
 		this.recordUrl = recordUrl;
+	}
+
+	public String getShowWhenExpr() {
+		return showWhenExpr;
+	}
+
+	public void setShowWhenExpr(String showWhenExpr) {
+		this.showWhenExpr = showWhenExpr;
 	}
 
 	public String getDbColumnName() {
@@ -457,6 +467,7 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		ctrlProps.put("conceptDefinitionSource", getConceptDefinitionSource());
 		ctrlProps.put("conceptDefinition", getConceptDefinition());
 		ctrlProps.put("validationRules", getValidationRules());
+		ctrlProps.put("showWhen", getShowWhenExpr());
 		
 		getProps(ctrlProps);
 		return ctrlProps;
@@ -476,5 +487,6 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		writeCDataElement(writer, "toolTip",     getToolTip());
 		writeElement(writer, "showLabel",   showLabel());
 		writeElement(writer, "showInGrid",  showInGrid());
+		writeCDataElement(writer, "showWhen", getShowWhenExpr());
 	}	
 }

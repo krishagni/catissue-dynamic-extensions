@@ -83,7 +83,14 @@ public class ParserUtil {
 		}
 		
 		if (node.getFirstChild().getNodeType() == Node.TEXT_NODE || node.getFirstChild().getNodeType() == Node.CDATA_SECTION_NODE) {
-			return node.getFirstChild().getNodeValue();
+			StringBuilder text = new StringBuilder();
+
+			NodeList childNodes = node.getChildNodes();
+			for (int i = 0; i < childNodes.getLength(); ++i) {
+				text.append(childNodes.item(i).getNodeValue().trim());
+			}
+
+			return text.toString();
 		}
 		
 		throw new RuntimeException("Element " + node.getNodeName() + " is not a text element");
