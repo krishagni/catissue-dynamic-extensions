@@ -6,6 +6,7 @@ import static edu.common.dynamicextensions.nutility.ParserUtil.getTextValue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -49,6 +50,10 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		String dbColumn = getTextValue(ctrlEle, "column");
 		if (dbColumn != null && !dbColumn.trim().isEmpty()) {
 			ctrl.setDbColumnName(dbColumn.trim());
+		}
+
+		if (StringUtils.isNotBlank(ctrl.getShowWhenExpr())) {
+			ctrl.setMandatory(false);
 		}
 	} 	
 	
