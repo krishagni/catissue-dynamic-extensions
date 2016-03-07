@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
@@ -202,7 +203,7 @@ public class WideRowGenerator {
             
             FieldNode field = (FieldNode)element;
             String tabAlias = field.getTabAlias();
-            if (field.getCtrl() instanceof MultiSelectControl) {
+            if (field.getCtrl() instanceof MultiSelectControl || field.getCtrl() instanceof LookupControl) {
                 tabAliasIdMap.put(tabAlias, rs.getString(cols));
             } /*else if (!tabAliasIdMap.containsKey(tabAlias)) {
                 tabAliasIdMap.put(tabAlias, getTabAliasId(rs, tabAlias, startIdx, numCols));

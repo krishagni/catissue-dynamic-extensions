@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
@@ -265,7 +266,7 @@ public class ShallowWideRowGenerator {
             }
             
             FieldNode field = (FieldNode)element;
-            if (field.getCtrl() instanceof MultiSelectControl) {
+            if (field.getCtrl() instanceof MultiSelectControl || field.getCtrl() instanceof LookupControl) {
                 tabAliasIdMap.put(field.getTabAlias(), rs.getString(cols));
             }         
         }

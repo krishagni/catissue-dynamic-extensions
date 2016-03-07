@@ -170,7 +170,7 @@ public class QueryGenerator {
     		if (element instanceof FieldNode) {
     			FieldNode field = (FieldNode)element;
     			Control ctrl = field.getCtrl();
-    			if (ctrl instanceof MultiSelectControl) {
+    			if (ctrl instanceof MultiSelectControl || ctrl instanceof LookupControl) {
     				continue;
     			}
     			
