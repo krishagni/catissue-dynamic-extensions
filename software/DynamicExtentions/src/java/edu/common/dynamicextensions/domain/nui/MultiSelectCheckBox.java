@@ -8,10 +8,12 @@ import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
@@ -139,5 +141,21 @@ public class MultiSelectCheckBox extends SelectControl implements MultiSelectCon
 	@Override
 	public ValidationStatus validate(Object value) {
 		return validateMultiple(value);
-	}		
+	}
+
+	@Override
+	public String toDisplayValue(Object value) {
+		if (value == null) {
+			return null;
+		}
+
+		if (value.getClass().isArray()) {
+			return String.join(",", (String[])value);
+		}
+
+		//
+		// this should not happen
+		//
+		return value.toString();
+	}
 }

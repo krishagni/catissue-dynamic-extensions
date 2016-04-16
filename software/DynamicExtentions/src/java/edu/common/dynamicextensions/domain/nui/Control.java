@@ -334,6 +334,10 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	public abstract <T> T fromString(String value);
 
+	public String toDisplayValue(Object value) {
+		return toString(value);
+	}
+
 	public String toString(Object value) {
 		if (value == null) {
 			return null;

@@ -113,5 +113,21 @@ public class MultiSelectListBox extends ListBox implements MultiSelectControl, S
 	@Override
 	public ValidationStatus validate(Object value) {
 		return validateMultiple(value);
-	}		
+	}
+
+	@Override
+	public String toDisplayValue(Object value) {
+		if (value == null) {
+			return null;
+		}
+
+		if (value.getClass().isArray()) {
+			return String.join(",", (String[])value);
+		}
+
+		//
+		// this should not happen
+		//
+		return value.toString();
+	}
 }

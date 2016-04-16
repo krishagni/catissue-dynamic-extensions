@@ -112,7 +112,21 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 		
 		return ValidationStatus.OK;
 	}
-	
+
+	@Override
+	public String toDisplayValue(Object value) {
+		if (value == null) {
+			return null;
+		}
+
+		Long id = fromString(value.toString());
+		if (id == null) {
+			return null;
+		}
+
+		return getColumnValue(id);
+	}
+
 	private boolean isValid(Object value) {
 		return JdbcDaoFactory.getJdbcDao().getResultSet(
 				String.format(IS_KEY_EXISTS_SQL, getTableName(), getLookupKey()), 
@@ -135,6 +149,20 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 					@Override
 					public Long extract(ResultSet rs) throws SQLException {
 						return rs.next() ? rs.getLong(1) : null;						
+					}
+				});
+	}
+
+	private String getColumnValue(Long id) {
+		String query = String.format(GET_KEY_BY_ALT_KEY, getValueColumn(),  getTableName(), getLookupKey());
+		return JdbcDaoFactory.getJdbcDao().getResultSet(
+				query,
+				Collections.singletonList(id),
+				new ResultExtractor<String>() {
+					@Override
+					public String extract(ResultSet rs) throws SQLException {
+						rs.next();
+						return rs.getString(1);
 					}
 				});
 	}
