@@ -186,7 +186,7 @@ public class JoinTree
     public void addChildrenOf(JoinTree another) {
     	for (Map.Entry<String, JoinTree> childEntry : another.children.entrySet()) {
     		if (children.containsKey(childEntry.getKey())) {
-    			throw new RuntimeException("Bug! Bug!!!");
+				QueryException.throwCycleException();
     		}
     		
     		childEntry.getValue().setParent(this);
