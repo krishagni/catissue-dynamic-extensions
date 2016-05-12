@@ -121,6 +121,8 @@ public class DatePicker extends Control implements Serializable {
 	public String toString(Object value) {
 		if (value == null) {
 			return null;
+		} else if (value instanceof String) {
+			return (String)value;
 		}
 		
 		return "" + getDateObj(value).getTime();		
