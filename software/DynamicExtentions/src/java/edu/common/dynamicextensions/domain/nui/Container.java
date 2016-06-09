@@ -24,6 +24,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import edu.common.dynamicextensions.domain.nui.SkipCondition.RelationalOp;
 import edu.common.dynamicextensions.domain.nui.SkipRule.LogicalOp;
+import edu.common.dynamicextensions.napi.FormEventsNotifier;
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
 import edu.common.dynamicextensions.ndao.ContainerDao;
 import edu.common.dynamicextensions.ndao.JdbcDao;
@@ -744,12 +745,13 @@ public class Container implements Serializable {
 			
 			if (insert) {
 				dao.insert(userCtxt, this);
+				FormEventsNotifier.getInstance().notifyCreate(this);
 			} else {
 				dao.update(userCtxt, this);
+				FormEventsNotifier.getInstance().notifyUpdate(this);
 			}
 			
 			ContainerCache.getInstance().remove(id);
-						
 			return id;			
 		} catch (Exception e) {
 			throw new RuntimeException("Error saving container", e);
@@ -757,11 +759,26 @@ public class Container implements Serializable {
 	}
 	
 	public static boolean deleteContainer(Long id) {
-		return new ContainerDao(JdbcDaoFactory.getJdbcDao()).delete(id, false);
+		return deleteContainer(id, false);
 	}
 	
 	public static boolean softDeleteContainer(Long id) {
-		return new ContainerDao(JdbcDaoFactory.getJdbcDao()).delete(id, true);
+		return deleteContainer(id, true);
+	}
+
+	public static boolean deleteContainer(Long id, boolean softDelete) {
+		Container container = getContainer(id);
+		if (container == null) {
+			return false;
+		}
+
+
+		boolean deleted = new ContainerDao(JdbcDaoFactory.getJdbcDao()).delete(id, softDelete);
+		if (deleted) {
+			FormEventsNotifier.getInstance().notifyDelete(container);
+		}
+
+		return deleted;
 	}
 				
 	public static Container getContainer(Long id) {
@@ -770,7 +787,7 @@ public class Container implements Serializable {
 	
 	public static Container getContainer(JdbcDao jdbcDao, Long id) {
 		try {						
-			ContainerDao containerDao = new ContainerDao(jdbcDao);		
+			ContainerDao containerDao = new ContainerDao(jdbcDao);
 			return containerDao.getById(id);				
 		} catch (Exception e) {
 			throw new RuntimeException("Error obtaining container: " + id, e);
