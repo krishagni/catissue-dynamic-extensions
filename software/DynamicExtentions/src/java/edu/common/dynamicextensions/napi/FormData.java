@@ -78,7 +78,12 @@ public class FormData {
 	public Collection<ControlValue> getOrderedFieldValues() {
 		List<ControlValue> controlValues = new ArrayList<ControlValue>();
 		for (Control ctrl : getContainer().getOrderedControlList()) {
-			controlValues.add(fieldValues.get(ctrl.getName()));
+			ControlValue ctrlValue = fieldValues.get(ctrl.getName());
+			if (ctrlValue == null) {
+				continue;
+			}
+
+			controlValues.add(ctrlValue);
 		}
 		
 		return controlValues;
