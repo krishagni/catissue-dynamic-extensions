@@ -26,6 +26,7 @@ import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
+import edu.common.dynamicextensions.query.ast.OrderExprListNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.FilterExpressionNode;
@@ -35,6 +36,7 @@ import edu.common.dynamicextensions.query.ast.LimitExprNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueListNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueNode;
 import edu.common.dynamicextensions.query.ast.Node;
+import edu.common.dynamicextensions.query.ast.OrderExprNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
 import edu.common.dynamicextensions.query.ast.RoundOffNode;
 import edu.common.dynamicextensions.query.ast.SelectListNode;
@@ -100,13 +102,23 @@ public class QueryGenerator {
         String sql = new StringBuilder("select ").append(selectClause)
         	.append(" from ").append(fromClause)
         	.append(" where ").append(whereClause)
-        	.append(groupBy.isEmpty() ? "" : " group by ").append(groupBy)
-        	.toString();
-        
-        if (wideRowSupport && groupBy.isEmpty()) {
-        	sql = addOrderBy(sql, joinTree);
-        }
-        
+			.toString();
+
+		if (wideRowSupport) {
+			if (groupBy.isEmpty()) {
+				sql = addOrderBy(sql, joinTree);
+			}
+		} else {
+			String orderBy = buildOrderBy(queryExpr.getOrderExpr());
+			if (orderBy.length() > 0) {
+				sql += " order by " + orderBy;
+			}
+		}
+
+		if (groupBy.length() > 0) {
+			sql += " group by " + groupBy;
+		}
+
         if (queryExpr.getLimitExpr() != null) {
         	sql = addLimitClause(sql, queryExpr.getLimitExpr());
         }
@@ -329,7 +341,26 @@ public class QueryGenerator {
     	
     	return clause.toString();
     }
-    
+
+	private String buildOrderBy(OrderExprListNode orderList) {
+		StringBuilder orderBy = new StringBuilder();
+		if (orderList == null) {
+			return orderBy.toString();
+		}
+
+		for (OrderExprNode expr : orderList.getExprs()) {
+			orderBy.append(getExpressionNodeSql(expr.getExpr(), expr.getExpr().getType()))
+				.append(expr.isDescending() ? " desc " : " asc ")
+				.append(", ");
+		}
+
+		if (orderBy.length() != 0) {
+			orderBy.delete(orderBy.length() - 2, orderBy.length());
+		}
+
+		return orderBy.toString();
+	}
+
     private String buildGroupBy(SelectListNode selectList) {
     	StringBuilder groupBy = new StringBuilder();
     	if (!selectList.hasAggregateExpr()) {

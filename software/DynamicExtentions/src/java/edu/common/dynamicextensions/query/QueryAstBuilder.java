@@ -21,6 +21,7 @@ import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
+import edu.common.dynamicextensions.query.ast.OrderExprListNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.FilterExpressionNode;
@@ -31,6 +32,7 @@ import edu.common.dynamicextensions.query.ast.LimitExprNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueListNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueNode;
 import edu.common.dynamicextensions.query.ast.Node;
+import edu.common.dynamicextensions.query.ast.OrderExprNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
 import edu.common.dynamicextensions.query.ast.ResultPostProcNode;
 import edu.common.dynamicextensions.query.ast.RoundOffNode;
@@ -51,10 +53,13 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	} 
     	queryExpr.setSelectList(selectList);    	
     	queryExpr.setFilterExpr((FilterExpressionNode)visit(ctx.filter_expr()));
-    	
+
+		if (ctx.order_expr() != null) {
+			queryExpr.setOrderExpr((OrderExprListNode)visit(ctx.order_expr()));
+		}
+
     	if (ctx.limit_expr() != null) {
-    		LimitExprNode limitExpr = (LimitExprNode)visit(ctx.limit_expr());
-    		queryExpr.setLimitExpr(limitExpr);
+    		queryExpr.setLimitExpr((LimitExprNode)visit(ctx.limit_expr()));
     	}
     	
     	if (ctx.crosstab_expr() != null) {
@@ -78,7 +83,30 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	
     	return list;  
     }
-    
+
+	@Override
+	public OrderExprListNode visitOrderExpr(AQLParser.OrderExprContext ctx) {
+		List<OrderExprNode> exprs = new ArrayList<>();
+		for (int i = 0; i < ctx.order_element().size(); ++i) {
+			exprs.add((OrderExprNode)visit(ctx.order_element(i)));
+		}
+
+		OrderExprListNode orderBy = new OrderExprListNode();
+		orderBy.setExprs(exprs);
+		return orderBy;
+	}
+
+	@Override
+	public OrderExprNode visitOrderElement(AQLParser.OrderElementContext ctx) {
+		OrderExprNode expr = new OrderExprNode();
+		expr.setExpr((ExpressionNode)visit(ctx.arith_expr()));
+		if (ctx.ORD_DIR() != null) {
+			expr.setDescending(ctx.ORD_DIR().getText().equals("desc"));
+		}
+
+		return expr;
+	}
+
     @Override
     public LimitExprNode visitLimitExpr(AQLParser.LimitExprContext ctx) {
     	LimitExprNode limitExpr = new LimitExprNode();

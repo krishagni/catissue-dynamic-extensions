@@ -5,6 +5,8 @@ public class QueryExpressionNode implements Node {
 	private SelectListNode selectList;
 	
 	private FilterExpressionNode filterExpr;
+
+	private OrderExprListNode orderExpr;
 	
 	private LimitExprNode limitExpr;
 	
@@ -26,6 +28,14 @@ public class QueryExpressionNode implements Node {
 
 	public void setFilterExpr(FilterExpressionNode filterExpr) {
 		this.filterExpr = filterExpr;
+	}
+
+	public OrderExprListNode getOrderExpr() {
+		return orderExpr;
+	}
+
+	public void setOrderExpr(OrderExprListNode orderExpr) {
+		this.orderExpr = orderExpr;
 	}
 
 	public LimitExprNode getLimitExpr() {

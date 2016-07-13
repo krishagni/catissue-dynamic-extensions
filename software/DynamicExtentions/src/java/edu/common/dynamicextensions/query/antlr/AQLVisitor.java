@@ -81,6 +81,20 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParensFilterExpr(AQLParser.ParensFilterExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code OrderExpr}
+	 * labeled alternative in {@link AQLParser#order_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrderExpr(AQLParser.OrderExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code OrderElement}
+	 * labeled alternative in {@link AQLParser#order_element}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrderElement(AQLParser.OrderElementContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code LimitExpr}
 	 * labeled alternative in {@link AQLParser#limit_expr}.
 	 * @param ctx the parse tree

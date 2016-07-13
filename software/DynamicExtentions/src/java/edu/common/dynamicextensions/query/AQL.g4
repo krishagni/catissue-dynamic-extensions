@@ -1,6 +1,6 @@
 grammar AQL;
 
-query         : (SELECT select_list WHERE)? filter_expr limit_expr? (crosstab_expr | report_expr)? #QueryExpr
+query         : (SELECT select_list WHERE)? filter_expr order_expr? limit_expr? (crosstab_expr | report_expr)? #QueryExpr
               ;
       
 select_list   : DISTINCT? select_element (',' select_element)* #SelectExpr
@@ -16,6 +16,12 @@ filter_expr   : filter_expr AND filter_expr          #AndFilterExpr
               | NTHCHILD LP filter_expr RP           #NthChildFilterExpr
               | NOT filter_expr                      #NotFilterExpr
               | filter                               #SimpleFilter
+              ;
+
+order_expr    : ORDER order_element (',' order_element)*  #OrderExpr
+              ;
+
+order_element : arith_expr ORD_DIR?                  #OrderElement
               ;
 
 limit_expr    : LIMIT INT (',' INT)?                 #LimitExpr
@@ -85,6 +91,8 @@ MIN      : 'min';
 MAX      : 'max';
 AVG      : 'avg';
 DISTINCT : 'distinct';
+ORDER    : 'order by';
+ORD_DIR  : ('desc' | 'asc');
 LIMIT    : 'limit';
 CROSSTAB : 'crosstab';
 CONCAT   : 'concat';

@@ -226,9 +226,15 @@ public class QueryCompiler
     }
         
     private Map<String, JoinTree> analyzeExpr(QueryExpressionNode expr) {
-        Map<String, JoinTree> joinMap = new HashMap<String, JoinTree>();        
+        Map<String, JoinTree> joinMap = new HashMap<>();
+
         analyzeFilterNodeMarker(0, expr.getFilterExpr(), joinMap);
         expr.setSelectList(analyzeSelectList(expr.getSelectList(), joinMap));
+
+        if (expr.getOrderExpr() != null) {
+            expr.setOrderExpr(analyzeOrderExpr(expr.getOrderExpr(), joinMap));
+        }
+
         return joinMap;
     }
     
@@ -341,49 +347,71 @@ public class QueryCompiler
     }
     
     private SelectListNode analyzeSelectList(SelectListNode selectList, Map<String, JoinTree> joinMap) {
-        Map<ExpressionNode, Set<ExpressionNode>> selectElementMap = new LinkedHashMap<ExpressionNode, Set<ExpressionNode>>();
-        
-        for (ExpressionNode element : selectList.getElements()) {
-          selectElementMap.put(element, new LinkedHashSet<ExpressionNode>());
+        SelectListNode finalSelectList = new SelectListNode();
+        finalSelectList.setDistinct(selectList.isDistinct());
+        finalSelectList.getElements().addAll(analyzeProjOrderExprList(selectList.getElements(), joinMap));
+        return finalSelectList;
+    }
+
+    private OrderExprListNode analyzeOrderExpr(OrderExprListNode nodeList, Map<String, JoinTree> joinMap) {
+        List<OrderExprNode> finalExprs = new ArrayList<>();
+
+        for (OrderExprNode exprNode : nodeList.getExprs()) {
+            for (ExpressionNode expr : analyzeProjOrderExprList(Collections.singletonList(exprNode.getExpr()), joinMap)) {
+                OrderExprNode finalExpr = new OrderExprNode();
+                finalExpr.setDescending(exprNode.isDescending());
+                finalExpr.setExpr(expr);
+                finalExprs.add(finalExpr);
+            }
+        }
+
+        OrderExprListNode finalExprList = new OrderExprListNode();
+        finalExprList.setExprs(finalExprs);
+        return finalExprList;
+    }
+
+    private List<ExpressionNode> analyzeProjOrderExprList(List<ExpressionNode> exprs, Map<String, JoinTree> joinMap) {
+        Map<ExpressionNode, Set<ExpressionNode>> exprsMap = new LinkedHashMap<>();
+
+        for (ExpressionNode expr : exprs) {
+          exprsMap.put(expr, new LinkedHashSet<>());
         }
         
-        for (ExpressionNode element : selectElementMap.keySet()) {
+        for (ExpressionNode expr : exprsMap.keySet()) {
               for (int i = 0; i <= numQueries; ++i) {
-                  ExpressionNode selectNode = element.copy();
-                  if (analyzeSelectExpressionNode(i, selectNode, joinMap, true)) { // TODO: Fix area
-                      selectElementMap.get(element).add(selectNode);
+                  ExpressionNode selectOrderNode = expr.copy();
+                  if (analyzeSelectExpressionNode(i, selectOrderNode, joinMap, true)) { // TODO: Fix area
+                      exprsMap.get(expr).add(selectOrderNode);
                   }              
               }
         }
         
-        for (ExpressionNode element : selectElementMap.keySet()) {
-            if (selectElementMap.get(element).isEmpty()) {
-                ExpressionNode selectNode = element.copy();
-                analyzeSelectExpressionNode(0, selectNode, joinMap, false);
-                selectElementMap.get(element).add(selectNode);
+        for (ExpressionNode element : exprsMap.keySet()) {
+            if (exprsMap.get(element).isEmpty()) {
+                ExpressionNode selectOrderNode = element.copy();
+                analyzeSelectExpressionNode(0, selectOrderNode, joinMap, false);
+                exprsMap.get(element).add(selectOrderNode);
             }
         }
-        
-        SelectListNode finalSelectList = new SelectListNode();
-        finalSelectList.setDistinct(selectList.isDistinct());
 
-        boolean endOfElements = false;
-        while (!endOfElements) {
-            endOfElements = true;
+        List<ExpressionNode> result = new ArrayList<>();
+        boolean endOfNodes = false;
+        while (!endOfNodes) {
+            endOfNodes = true;
             
-            for (Set<ExpressionNode> expressionNodes : selectElementMap.values()) {
-                if (expressionNodes.isEmpty()) {
+            for (Set<ExpressionNode> exprNodes : exprsMap.values()) {
+                if (exprNodes.isEmpty()) {
                     continue;
                 }
                 
-                ExpressionNode element = expressionNodes.iterator().next();
-                expressionNodes.remove(element);
-                finalSelectList.addElement(element);
-                endOfElements = false;
+                ExpressionNode selectOrderNode = exprNodes.iterator().next();
+                exprNodes.remove(selectOrderNode);
+                result.add(selectOrderNode);
+                endOfNodes = false;
             }           
         }
         
-        return finalSelectList;     
+        return result;
     }
 
     private boolean analyzeSelectArithExpressionNode(int queryId, ArithExpressionNode expr, Map<String, JoinTree> joinMap, boolean failIfAbsent) {

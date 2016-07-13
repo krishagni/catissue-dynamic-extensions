@@ -128,6 +128,30 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitParensFilterExpr(AQLParser.ParensFilterExprContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code OrderExpr}
+	 * labeled alternative in {@link AQLParser#order_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderExpr(AQLParser.OrderExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code OrderExpr}
+	 * labeled alternative in {@link AQLParser#order_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderExpr(AQLParser.OrderExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code OrderElement}
+	 * labeled alternative in {@link AQLParser#order_element}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderElement(AQLParser.OrderElementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code OrderElement}
+	 * labeled alternative in {@link AQLParser#order_element}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderElement(AQLParser.OrderElementContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code LimitExpr}
 	 * labeled alternative in {@link AQLParser#limit_expr}.
 	 * @param ctx the parse tree
