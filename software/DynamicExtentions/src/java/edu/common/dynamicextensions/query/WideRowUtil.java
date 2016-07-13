@@ -1,7 +1,12 @@
 package edu.common.dynamicextensions.query;
 
-import edu.common.dynamicextensions.query.ast.ArithExpressionNode;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import edu.common.dynamicextensions.query.ast.AggregateNode;
+import edu.common.dynamicextensions.query.ast.ArithExpressionNode;
+import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
@@ -26,8 +31,16 @@ public class WideRowUtil {
     		DateDiffFuncNode dateDiffNode = (DateDiffFuncNode)exprNode;
     		return getTabAliasPk(rootNode, dateDiffNode.getLeftOperand(), dateDiffNode.getRightOperand());
     	} else if (exprNode instanceof AggregateNode) {
-    		AggregateNode aggNode = (AggregateNode)exprNode;
-    		return getTabAliasPk(rootNode, aggNode.getField());
+			AggregateNode aggNode = (AggregateNode) exprNode;
+			return getTabAliasPk(rootNode, aggNode.getField());
+		} else if (exprNode instanceof ConcatNode) {
+			ConcatNode concatNode = (ConcatNode) exprNode;
+			List<String> aliases = new ArrayList<>();
+			for (ExpressionNode arg : concatNode.getArgs()) {
+				aliases.addAll(Arrays.asList(getTabAliasPk(rootNode, arg)));
+			}
+
+			return aliases.toArray(new String[0]);
     	} else if (exprNode instanceof ArithExpressionNode) {
     		ArithExpressionNode arithExprNode = (ArithExpressionNode)exprNode;
     		return getTabAliasPk(rootNode, arithExprNode.getLeftOperand(), arithExprNode.getRightOperand());    		

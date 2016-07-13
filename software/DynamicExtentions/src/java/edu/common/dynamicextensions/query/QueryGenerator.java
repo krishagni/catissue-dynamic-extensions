@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -20,6 +21,7 @@ import edu.common.dynamicextensions.query.ast.AggregateNode;
 import edu.common.dynamicextensions.query.ast.ArithExpressionNode;
 import edu.common.dynamicextensions.query.ast.ArithExpressionNode.ArithOp;
 import edu.common.dynamicextensions.query.ast.BetweenNode;
+import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
@@ -523,7 +525,9 @@ public class QueryGenerator {
     	} else if (exprNode instanceof CurrentDateNode) {
     		result = getCurrentDateSql();
     	} else if (exprNode instanceof AggregateNode) {
-    		result = getAggregateSql((AggregateNode)exprNode);
+			result = getAggregateSql((AggregateNode) exprNode);
+		} else if (exprNode instanceof ConcatNode) {
+			result = getConcatSql((ConcatNode)exprNode);
     	} else if (exprNode instanceof BetweenNode) {
 			BetweenNode betweenNode = (BetweenNode)exprNode;
 			result = getBetweenNodeSql(betweenNode);
@@ -702,6 +706,20 @@ public class QueryGenerator {
 		aggSql.append(getFieldNodeSql(aggNode.getField())).append(")");
 		return aggSql.toString();
     }
+
+	private String getConcatSql(ConcatNode concatNode) {
+		StringBuilder sql = new StringBuilder();
+		StringBuilder closingParenthesis = new StringBuilder();
+
+		List<ExpressionNode> args = concatNode.getArgs();
+		for (int i = 0; i < args.size() - 1; ++i) {
+			sql.append("concat(").append(getExpressionNodeSql(args.get(i), DataType.STRING)).append(", ");
+			closingParenthesis.append(")");
+		}
+
+		sql.append(getExpressionNodeSql(args.get(args.size() - 1), DataType.STRING)).append(closingParenthesis);
+		return sql.toString();
+	}
     
     private String addLimitClause(String sql, LimitExprNode limitExpr) {
     	return addLimitClause(sql, limitExpr.getStartAt(), limitExpr.getNumRecords());

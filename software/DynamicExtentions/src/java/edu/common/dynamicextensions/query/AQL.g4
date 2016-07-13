@@ -51,12 +51,16 @@ arith_expr    : arith_expr ARITH_OP arith_expr               #ArithExpr
               | MINS_BTWN LP arith_expr ',' arith_expr RP    #MinsDiffFunc
               | CURR_DATE LP RP                              #CurrentDateFunc
               | agg_expr                                     #AggExpr
+              | concat_expr                                  #ConcatExpr
               | ROUND LP arith_expr ',' INT RP               #RoundFunc
               | FIELD                                        #Field              
               | literal                                      #LiteralVal              
               ;	 
 
 agg_expr      : (COUNT|SUM|MIN|MAX|AVG) LP DISTINCT? FIELD RP #AggFunc
+              ;
+
+concat_expr   : CONCAT LP arith_expr ',' arith_expr (',' arith_expr)* RP #ConcatFunc
               ;
           
 date_interval : YEAR MONTH? DAY?
@@ -83,6 +87,7 @@ AVG      : 'avg';
 DISTINCT : 'distinct';
 LIMIT    : 'limit';
 CROSSTAB : 'crosstab';
+CONCAT   : 'concat';
 OR       : 'or';
 AND      : 'and';
 PAND     : 'pand';

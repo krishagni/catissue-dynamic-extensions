@@ -15,6 +15,7 @@ import edu.common.dynamicextensions.query.ast.AggregateNode.AGG_FN;
 import edu.common.dynamicextensions.query.ast.ArithExpressionNode;
 import edu.common.dynamicextensions.query.ast.ArithExpressionNode.ArithOp;
 import edu.common.dynamicextensions.query.ast.BetweenNode;
+import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.CrosstabNode;
 import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
@@ -296,6 +297,21 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	countNode.setField(field);    	
     	return countNode; 
     }
+
+	@Override
+	public ConcatNode visitConcatExpr(AQLParser.ConcatExprContext ctx) {
+		return (ConcatNode)visit(ctx.concat_expr());
+	}
+
+	@Override
+	public ConcatNode visitConcatFunc(AQLParser.ConcatFuncContext ctx) {
+		ConcatNode concatNode = new ConcatNode();
+		for (int i = 0; i < ctx.arith_expr().size(); ++i) {
+			concatNode.addArg((ExpressionNode)visit(ctx.arith_expr(i)));
+		}
+
+		return concatNode;
+	}
     
     public RoundOffNode visitRoundFunc(AQLParser.RoundFuncContext ctx) {
     	RoundOffNode node = new RoundOffNode();

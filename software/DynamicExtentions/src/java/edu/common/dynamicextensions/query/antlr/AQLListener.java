@@ -294,6 +294,18 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitArithExpr(AQLParser.ArithExprContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ConcatExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterConcatExpr(AQLParser.ConcatExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ConcatExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitConcatExpr(AQLParser.ConcatExprContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code Field}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
@@ -425,6 +437,18 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAggFunc(AQLParser.AggFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ConcatFunc}
+	 * labeled alternative in {@link AQLParser#concat_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterConcatFunc(AQLParser.ConcatFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ConcatFunc}
+	 * labeled alternative in {@link AQLParser#concat_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitConcatFunc(AQLParser.ConcatFuncContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#date_interval}.
 	 * @param ctx the parse tree

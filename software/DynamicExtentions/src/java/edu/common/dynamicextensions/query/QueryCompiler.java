@@ -332,7 +332,12 @@ public class QueryCompiler
 			analyzeExpressionNode(queryId, ((RoundOffNode)exprNode).getExprNode(), joinMap);
 		} else if (exprNode instanceof AggregateNode) {
 			analyzeField(queryId, ((AggregateNode)exprNode).getField(), joinMap);
-		}
+		} else if (exprNode instanceof ConcatNode) {
+            ConcatNode concatNode = (ConcatNode)exprNode;
+            for (ExpressionNode arg : concatNode.getArgs()) {
+                analyzeExpressionNode(queryId, arg, joinMap);
+            }
+        }
     }
     
     private SelectListNode analyzeSelectList(SelectListNode selectList, Map<String, JoinTree> joinMap) {
@@ -389,6 +394,17 @@ public class QueryCompiler
         
         return (result || !failIfAbsent);               
     }
+
+    private boolean analyzeSelectConcatExpressionNode(int queryId, ConcatNode concatNode, Map<String, JoinTree> joinMap, boolean failIfAbsent) {
+        for (ExpressionNode arg : concatNode.getArgs()) {
+            boolean result = analyzeSelectExpressionNode(queryId, arg, joinMap, failIfAbsent);
+            if (!result && failIfAbsent) {
+                return false;
+            }
+        }
+
+        return true;
+    }
     
     private boolean analyzeSelectDateDiffFuncNode(int queryId, DateDiffFuncNode dateDiff, Map<String, JoinTree> joinMap, boolean failIfAbsent) {
         boolean result = analyzeSelectExpressionNode(queryId, dateDiff.getLeftOperand(), joinMap, failIfAbsent);
@@ -409,7 +425,9 @@ public class QueryCompiler
         } else if (exprNode instanceof AggregateNode) {
         	return analyzeField(queryId, ((AggregateNode)exprNode).getField(), joinMap, failIfAbsent);
         } else if (exprNode instanceof RoundOffNode) {
-        	return analyzeSelectExpressionNode(queryId, ((RoundOffNode)exprNode).getExprNode(), joinMap, failIfAbsent);
+            return analyzeSelectExpressionNode(queryId, ((RoundOffNode) exprNode).getExprNode(), joinMap, failIfAbsent);
+        } else if (exprNode instanceof ConcatNode) {
+            return analyzeSelectConcatExpressionNode(queryId, (ConcatNode)exprNode, joinMap, failIfAbsent);
         } else {
             return !failIfAbsent; // literal nodes
         }

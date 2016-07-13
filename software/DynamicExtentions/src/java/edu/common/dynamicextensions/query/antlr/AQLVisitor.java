@@ -178,6 +178,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArithExpr(AQLParser.ArithExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code ConcatExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConcatExpr(AQLParser.ConcatExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code Field}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
@@ -254,6 +261,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAggFunc(AQLParser.AggFuncContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ConcatFunc}
+	 * labeled alternative in {@link AQLParser#concat_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConcatFunc(AQLParser.ConcatFuncContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link AQLParser#date_interval}.
 	 * @param ctx the parse tree
