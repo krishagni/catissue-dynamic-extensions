@@ -37,7 +37,10 @@ public class WideRowUtil {
 			ConcatNode concatNode = (ConcatNode) exprNode;
 			List<String> aliases = new ArrayList<>();
 			for (ExpressionNode arg : concatNode.getArgs()) {
-				aliases.addAll(Arrays.asList(getTabAliasPk(rootNode, arg)));
+				String[] tabAliasPk = getTabAliasPk(rootNode, arg);
+				if (tabAliasPk != null) {
+					aliases.addAll(Arrays.asList(tabAliasPk));
+				}
 			}
 
 			return aliases.toArray(new String[0]);
