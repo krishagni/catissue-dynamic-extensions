@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -371,26 +372,26 @@ public class QueryCompiler
     }
 
     private List<ExpressionNode> analyzeProjOrderExprList(List<ExpressionNode> exprs, Map<String, JoinTree> joinMap) {
-        Map<ExpressionNode, Set<ExpressionNode>> exprsMap = new LinkedHashMap<>();
+        List<Set<ExpressionNode>> clonedExprsList = new ArrayList<>();
 
-        for (ExpressionNode expr : exprs) {
-          exprsMap.put(expr, new LinkedHashSet<>());
+        for (int i = 0; i < exprs.size(); ++i) {
+            clonedExprsList.add(new LinkedHashSet<>());
         }
-        
-        for (ExpressionNode expr : exprsMap.keySet()) {
-              for (int i = 0; i <= numQueries; ++i) {
-                  ExpressionNode selectOrderNode = expr.copy();
-                  if (analyzeSelectExpressionNode(i, selectOrderNode, joinMap, true)) { // TODO: Fix area
-                      exprsMap.get(expr).add(selectOrderNode);
-                  }              
-              }
+
+        for (int exprIdx = 0; exprIdx < exprs.size(); ++exprIdx) {
+            for (int i = 0; i <= numQueries; ++i) {
+                ExpressionNode selectOrderNode = exprs.get(exprIdx).copy();
+                if (analyzeSelectExpressionNode(i, selectOrderNode, joinMap, true)) { // TODO: Fix area
+                    clonedExprsList.get(exprIdx).add(selectOrderNode);
+                }
+            }
         }
-        
-        for (ExpressionNode element : exprsMap.keySet()) {
-            if (exprsMap.get(element).isEmpty()) {
-                ExpressionNode selectOrderNode = element.copy();
+
+        for (int exprIdx = 0; exprIdx < exprs.size(); ++exprIdx) {
+            if (clonedExprsList.get(exprIdx).isEmpty()) {
+                ExpressionNode selectOrderNode = exprs.get(exprIdx).copy();
                 analyzeSelectExpressionNode(0, selectOrderNode, joinMap, false);
-                exprsMap.get(element).add(selectOrderNode);
+                clonedExprsList.get(exprIdx).add(selectOrderNode);
             }
         }
 
@@ -399,13 +400,14 @@ public class QueryCompiler
         while (!endOfNodes) {
             endOfNodes = true;
             
-            for (Set<ExpressionNode> exprNodes : exprsMap.values()) {
+            for (Set<ExpressionNode> exprNodes : clonedExprsList) {
                 if (exprNodes.isEmpty()) {
                     continue;
                 }
-                
-                ExpressionNode selectOrderNode = exprNodes.iterator().next();
-                exprNodes.remove(selectOrderNode);
+
+                Iterator<ExpressionNode> iter = exprNodes.iterator();
+                ExpressionNode selectOrderNode = iter.next();
+                iter.remove();
                 result.add(selectOrderNode);
                 endOfNodes = false;
             }           

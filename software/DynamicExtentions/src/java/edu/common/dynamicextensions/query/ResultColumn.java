@@ -3,6 +3,7 @@ package edu.common.dynamicextensions.query;
 import java.io.Serializable;
 
 import edu.common.dynamicextensions.domain.nui.NumberField;
+import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 
@@ -79,7 +80,7 @@ public class ResultColumn implements Serializable {
 	}
 
 	public boolean isSimpleExpr() {
-		return columnExpr instanceof FieldNode;
+		return isSimpleExpr(columnExpr);
 	}
 
 	public int getScale() {
@@ -98,6 +99,19 @@ public class ResultColumn implements Serializable {
 	
 	public String toString() {
 		return getColumnLabel();
+	}
+
+	private boolean isSimpleExpr(ExpressionNode expr) {
+		if (expr instanceof FieldNode) {
+			return true;
+		} else if (expr instanceof ConcatNode) {
+			ExpressionNode field = ((ConcatNode) expr).getArgs().stream()
+				.filter(arg -> isSimpleExpr(arg))
+				.findFirst().orElse(null);
+			return field != null;
+		} else {
+			return false;
+		}
 	}
 	
 	private String format(ResultColumnLabelFormatter formatter, String[] captions, int instance) {
