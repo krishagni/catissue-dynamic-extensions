@@ -130,6 +130,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMvFilter(AQLParser.MvFilterContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code ConcatCompFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConcatCompFilter(AQLParser.ConcatCompFilterContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code StringCompFilter}
 	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree

@@ -220,6 +220,18 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterConcatCompFilter(AQLParser.ConcatCompFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConcatCompFilter(AQLParser.ConcatCompFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStringCompFilter(AQLParser.StringCompFilterContext ctx) { }
 	/**
 	 * {@inheritDoc}

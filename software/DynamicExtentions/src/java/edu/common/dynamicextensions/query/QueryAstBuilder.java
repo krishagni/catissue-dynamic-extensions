@@ -21,7 +21,6 @@ import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
-import edu.common.dynamicextensions.query.ast.OrderExprListNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.FilterExpressionNode;
@@ -32,6 +31,7 @@ import edu.common.dynamicextensions.query.ast.LimitExprNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueListNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueNode;
 import edu.common.dynamicextensions.query.ast.Node;
+import edu.common.dynamicextensions.query.ast.OrderExprListNode;
 import edu.common.dynamicextensions.query.ast.OrderExprNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
 import edu.common.dynamicextensions.query.ast.ResultPostProcNode;
@@ -189,7 +189,20 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	filter.setRelOp(RelationalOp.getBySymbol(ctx.MOP().getText()));
     	return filter;    	
     }
-    
+
+	@Override
+	public FilterNode visitConcatCompFilter(AQLParser.ConcatCompFilterContext ctx) {
+		FilterNode filter = new FilterNode();
+		filter.setLhs((ExpressionNode)visit(ctx.concat_expr()));
+
+		LiteralValueNode value = new LiteralValueNode(DataType.STRING);
+		value.getValues().add(ctx.SLITERAL().getText());
+		filter.setRhs(value);
+
+		filter.setRelOp(RelationalOp.getBySymbol(ctx.SOP().getText()));
+		return filter;
+	}
+
     @Override
     public FilterNode visitStringCompFilter(AQLParser.StringCompFilterContext ctx) {
     	FilterNode filter = new FilterNode();

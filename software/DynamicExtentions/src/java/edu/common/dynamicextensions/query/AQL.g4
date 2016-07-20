@@ -35,6 +35,7 @@ report_expr   : ID (LP SLITERAL (',' SLITERAL)* RP)? #ReportExpr
 
 filter        : arith_expr  OP   arith_expr          #BasicFilter
               | arith_expr  MOP  literal_values      #MvFilter
+              | concat_expr SOP  SLITERAL            #ConcatCompFilter
               | FIELD       SOP  SLITERAL            #StringCompFilter
               | arith_expr  UOP                      #UnaryFilter
               | arith_expr  BETWEEN LP arith_expr ',' arith_expr RP #BetweenFilter

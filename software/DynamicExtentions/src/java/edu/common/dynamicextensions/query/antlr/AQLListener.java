@@ -212,6 +212,18 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitMvFilter(AQLParser.MvFilterContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ConcatCompFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void enterConcatCompFilter(AQLParser.ConcatCompFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ConcatCompFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void exitConcatCompFilter(AQLParser.ConcatCompFilterContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code StringCompFilter}
 	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
