@@ -742,9 +742,10 @@ public class QueryGenerator {
 		StringBuilder sql = new StringBuilder();
 		StringBuilder closingParenthesis = new StringBuilder();
 
+		String concatFn = DbSettingsFactory.isOracle() ? "de_concat_if_not_null(": "concat(";
 		List<ExpressionNode> args = concatNode.getArgs();
 		for (int i = 0; i < args.size() - 1; ++i) {
-			sql.append("concat(").append(getExpressionNodeSql(args.get(i), DataType.STRING)).append(", ");
+			sql.append(concatFn).append(getExpressionNodeSql(args.get(i), DataType.STRING)).append(", ");
 			closingParenthesis.append(")");
 		}
 
@@ -777,7 +778,7 @@ public class QueryGenerator {
     private String getOracleDateDiffSql(DiffType diffType, String loperand, String roperand) {
     	switch (diffType) {
     		case YEAR:
-    			return "(months_between(" + loperand + ", " + roperand + ") / 12)";
+    			return "trunc(months_between(" + loperand + ", " + roperand + ") / 12)";
 			
     		case MONTH:
     			return "months_between(" + loperand + ", " + roperand + ")";
