@@ -6,7 +6,7 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
-  <changeSet author="vpawar" id="Function to concatenate only if both arguments are non null">
+  <changeSet author="vpawar" id="Function to concatenate only if both arguments are non null" dbms="oracle">
     <sql endDelimiter="//">
       create or replace function de_concat_if_not_null(arg1 in varchar2, arg2 in varchar2)
       return varchar2 is
