@@ -472,9 +472,12 @@ public class QueryCompiler
         String[] captions = new String[fieldNameParts.length];
         
         String formName = fieldNameParts[0];
-    	String formLookupName = formName.equals(rootFormName) ? "0." + formName : queryId + "." + formName;    	
+        if (formName.equals(rootFormName)) {
+            queryId = 0;
+        }
+
+    	String formLookupName = queryId + "." + formName;
     	JoinTree formTree = joinMap.get(formLookupName);
-    	
     	if (formTree == null) {
     		for (Map.Entry<String, JoinTree> jt : joinMap.entrySet()) {
     			if (!jt.getKey().endsWith("." + formName)) {
@@ -513,9 +516,9 @@ public class QueryCompiler
         }
         
         if (!fieldNameParts[1].equals("extensions") && !fieldNameParts[1].equals("customFields") && (ctrl instanceof SubFormControl) && fieldNameParts.length > 2) {
-        	formTree = analyzeSubFormFields(queryId, formTree, fieldNameParts, 1, captions, failIfAbsent);
+        	formTree = analyzeSubFormFields(queryId, formTree, fieldNameParts, 1, captions, false /*failIfAbsent*/);
         } else if ((fieldNameParts[1].equals("extensions") || fieldNameParts[1].equals("customFields")) && (ctrl instanceof SubFormControl) && fieldNameParts.length > 3) {
-        	formTree = analyzeExtensionFields(queryId, joinMap, formTree, fieldNameParts, captions, failIfAbsent);
+        	formTree = analyzeExtensionFields(queryId, joinMap, formTree, fieldNameParts, captions, false /*failIfAbsent*/);
         } 
         
         if (formTree == null && failIfAbsent) {
