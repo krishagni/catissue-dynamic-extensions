@@ -3,6 +3,7 @@ package edu.common.dynamicextensions.query;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
+import edu.common.dynamicextensions.query.ast.DateRangeFuncNode;
 import edu.common.dynamicextensions.query.ast.OrderExprListNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
@@ -552,7 +554,9 @@ public class QueryGenerator {
     	} else if (exprNode instanceof ArithExpressionNode) {
     		result = getArithExpressionNodeSql((ArithExpressionNode)exprNode);    		
     	} else if (exprNode instanceof DateDiffFuncNode) {
-    		result = getDateDiffFuncNodeSql((DateDiffFuncNode)exprNode);
+			result = getDateDiffFuncNodeSql((DateDiffFuncNode) exprNode);
+		} else if (exprNode instanceof DateRangeFuncNode) {
+			result = getDateRangeFuncNodeSql((DateRangeFuncNode) exprNode);
     	} else if (exprNode instanceof CurrentDateNode) {
     		result = getCurrentDateSql();
     	} else if (exprNode instanceof AggregateNode) {
@@ -695,7 +699,52 @@ public class QueryGenerator {
 		String roperand = getExpressionNodeSql(dateDiff.getRightOperand(), DataType.DATE);
 		return getDateDiffSql(dateDiff.getDiffType(), loperand, roperand);
     }
-    
+
+	private String getDateRangeFuncNodeSql(DateRangeFuncNode range) {
+		int monthsRange = 0;
+
+		Calendar cal = Calendar.getInstance();
+		switch (range.getRangeType()) {
+			case LAST_CAL_QTR:
+				cal.set(Calendar.MONTH, (cal.get(Calendar.MONTH) / 3) * 3);
+				// fall through to next case
+
+			case LAST_QTR:
+				cal.set(Calendar.DAY_OF_MONTH, 1);
+				monthsRange = -3 * range.getRange();
+				break;
+
+			case LAST_CAL_MONTH:
+				cal.set(Calendar.DAY_OF_MONTH, 1);
+				// fall through to next case
+
+			case LAST_MONTH:
+				monthsRange = -1 * range.getRange();
+				break;
+		}
+
+		cal.add(Calendar.MONTH, monthsRange);
+		Date from = cal.getTime();
+
+		cal.add(Calendar.MONTH, -monthsRange);
+		cal.add(Calendar.DATE, -1);
+		Date to = cal.getTime();
+
+		SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+
+		LiteralValueNode minNode = new LiteralValueNode(DataType.STRING);
+		minNode.setValues(Collections.singletonList("\"" + sdf.format(from) + "\""));
+
+		LiteralValueNode maxNode = new LiteralValueNode(DataType.STRING);
+		maxNode.setValues(Collections.singletonList("\"" + sdf.format(to) + "\""));
+
+		BetweenNode node = new BetweenNode();
+		node.setLhs(range.getDateExpr());
+		node.setMinNode(minNode);
+		node.setMaxNode(maxNode);
+		return getBetweenNodeSql(node);
+	}
+
     private String getCurrentDateSql() {
     	if (DbSettingsFactory.getProduct().equals("Oracle")) {
     		return "sysdate";

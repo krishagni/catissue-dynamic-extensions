@@ -151,6 +151,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitUnaryFilter(AQLParser.UnaryFilterContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code DateRangeFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDateRangeFilter(AQLParser.DateRangeFilterContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code BetweenFilter}
 	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
@@ -275,6 +282,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMinsDiffFunc(AQLParser.MinsDiffFuncContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DateRangeFunc}
+	 * labeled alternative in {@link AQLParser#date_range}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDateRangeFunc(AQLParser.DateRangeFuncContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code AggFunc}
 	 * labeled alternative in {@link AQLParser#agg_expr}.

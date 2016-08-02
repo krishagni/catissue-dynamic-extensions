@@ -21,6 +21,7 @@ import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
+import edu.common.dynamicextensions.query.ast.DateRangeFuncNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.FilterExpressionNode;
@@ -227,6 +228,13 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	return filter;
     }
 
+	public FilterNode visitDateRangeFilter(AQLParser.DateRangeFilterContext ctx) {
+		FilterNode filter = new FilterNode();
+		filter.setLhs((ExpressionNode)visit(ctx.date_range()));
+		filter.setRelOp(RelationalOp.BETWEEN);
+		return filter;
+	}
+
 	@Override
 	public FilterNode visitBetweenFilter(AQLParser.BetweenFilterContext ctx) {
 		FilterNode filter = new FilterNode();
@@ -311,7 +319,20 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     public AggregateNode visitAggExpr(AQLParser.AggExprContext ctx) {
     	return (AggregateNode)visit(ctx.agg_expr());
     }
-    
+
+	@Override
+	public DateRangeFuncNode visitDateRangeFunc(AQLParser.DateRangeFuncContext ctx) {
+		DateRangeFuncNode func = new DateRangeFuncNode();
+		func.setDateExpr((ExpressionNode)visit(ctx.arith_expr()));
+		func.setRangeType(DateRangeFuncNode.RangeType.from(ctx.ID().getText()));
+
+		if (ctx.INT() != null) {
+			func.setRange(Integer.parseInt(ctx.INT().getText()));
+		}
+
+		return func;
+	}
+
     @Override
     public AggregateNode visitAggFunc(AQLParser.AggFuncContext ctx) {
     	AggregateNode countNode = new AggregateNode();

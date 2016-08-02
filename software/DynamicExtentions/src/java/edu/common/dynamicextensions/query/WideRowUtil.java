@@ -10,6 +10,7 @@ import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
+import edu.common.dynamicextensions.query.ast.DateRangeFuncNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueListNode;
@@ -28,8 +29,11 @@ public class WideRowUtil {
     		FieldNode fieldNode = (FieldNode)exprNode;
     		return new String[] {fieldNode.getTabAlias(), fieldNode.getCtrl().getContainer().getPrimaryKey()};
     	} else if (exprNode instanceof DateDiffFuncNode) {
-    		DateDiffFuncNode dateDiffNode = (DateDiffFuncNode)exprNode;
-    		return getTabAliasPk(rootNode, dateDiffNode.getLeftOperand(), dateDiffNode.getRightOperand());
+			DateDiffFuncNode dateDiffNode = (DateDiffFuncNode) exprNode;
+			return getTabAliasPk(rootNode, dateDiffNode.getLeftOperand(), dateDiffNode.getRightOperand());
+		} else if (exprNode instanceof DateRangeFuncNode) {
+			DateRangeFuncNode dateRangeNode = (DateRangeFuncNode) exprNode;
+			return getTabAliasPk(rootNode, dateRangeNode.getDateExpr());
     	} else if (exprNode instanceof AggregateNode) {
 			AggregateNode aggNode = (AggregateNode) exprNode;
 			return getTabAliasPk(rootNode, aggNode.getField());

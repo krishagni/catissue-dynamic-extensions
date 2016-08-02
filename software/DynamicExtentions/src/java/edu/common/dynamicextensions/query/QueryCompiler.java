@@ -320,6 +320,10 @@ public class QueryCompiler
         analyzeExpressionNode(queryId, dateDiff.getRightOperand(), joinMap);
     }
 
+    private void analyzeDateRangeFuncNode(int queryId, DateRangeFuncNode dateRange, Map<String, JoinTree> joinMap) {
+        analyzeExpressionNode(queryId, dateRange.getDateExpr(), joinMap);
+    }
+
 	private void analyzeBetweenNode(int queryId, BetweenNode between, Map<String, JoinTree> joinMap) {
 		analyzeExpressionNode(queryId, between.getLhs(), joinMap);
 		analyzeExpressionNode(queryId, between.getMinNode(), joinMap);
@@ -332,7 +336,9 @@ public class QueryCompiler
         } else if (exprNode instanceof ArithExpressionNode) {
             analyzeArithExpressionNode(queryId, (ArithExpressionNode)exprNode, joinMap);
         } else if (exprNode instanceof DateDiffFuncNode) {
-            analyzeDateDiffFuncNode(queryId, (DateDiffFuncNode)exprNode, joinMap);
+            analyzeDateDiffFuncNode(queryId, (DateDiffFuncNode) exprNode, joinMap);
+        } else if (exprNode instanceof DateRangeFuncNode) {
+            analyzeDateRangeFuncNode(queryId, (DateRangeFuncNode) exprNode, joinMap);
         } else if (exprNode instanceof BetweenNode) {
 			analyzeBetweenNode(queryId, (BetweenNode)exprNode, joinMap);
 		} else if (exprNode instanceof RoundOffNode) {

@@ -38,6 +38,7 @@ filter        : arith_expr  OP   arith_expr          #BasicFilter
               | concat_expr SOP  SLITERAL            #ConcatCompFilter
               | FIELD       SOP  SLITERAL            #StringCompFilter
               | arith_expr  UOP                      #UnaryFilter
+              | date_range                           #DateRangeFilter
               | arith_expr  BETWEEN LP arith_expr ',' arith_expr RP #BetweenFilter
               ;
               
@@ -64,6 +65,9 @@ arith_expr    : arith_expr ARITH_OP arith_expr               #ArithExpr
               | literal                                      #LiteralVal              
               ;	 
 
+date_range    : DATE_RANGE LP arith_expr ',' ID (',' INT)? RP #DateRangeFunc
+              ;
+
 agg_expr      : (COUNT|SUM|MIN|MAX|AVG) LP DISTINCT? FIELD RP #AggFunc
               ;
 
@@ -86,6 +90,7 @@ MTHS_BTWN: 'months_between';
 YRS_BTWN:  'years_between';
 CURR_DATE: 'current_date';
 MINS_BTWN: 'minutes_between';
+DATE_RANGE: 'date_range';
 COUNT    : 'count';
 SUM      : 'sum';
 MIN      : 'min';

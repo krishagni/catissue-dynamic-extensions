@@ -248,6 +248,18 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitUnaryFilter(AQLParser.UnaryFilterContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code DateRangeFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void enterDateRangeFilter(AQLParser.DateRangeFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DateRangeFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void exitDateRangeFilter(AQLParser.DateRangeFilterContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code BetweenFilter}
 	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
@@ -461,6 +473,18 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMinsDiffFunc(AQLParser.MinsDiffFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code DateRangeFunc}
+	 * labeled alternative in {@link AQLParser#date_range}.
+	 * @param ctx the parse tree
+	 */
+	void enterDateRangeFunc(AQLParser.DateRangeFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DateRangeFunc}
+	 * labeled alternative in {@link AQLParser#date_range}.
+	 * @param ctx the parse tree
+	 */
+	void exitDateRangeFunc(AQLParser.DateRangeFuncContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code AggFunc}
 	 * labeled alternative in {@link AQLParser#agg_expr}.

@@ -256,6 +256,18 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDateRangeFilter(AQLParser.DateRangeFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDateRangeFilter(AQLParser.DateRangeFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterBetweenFilter(AQLParser.BetweenFilterContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -467,6 +479,18 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMinsDiffFunc(AQLParser.MinsDiffFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDateRangeFunc(AQLParser.DateRangeFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDateRangeFunc(AQLParser.DateRangeFuncContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
