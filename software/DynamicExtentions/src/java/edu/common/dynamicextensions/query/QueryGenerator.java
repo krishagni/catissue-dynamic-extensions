@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
@@ -106,19 +107,21 @@ public class QueryGenerator {
         	.append(" where ").append(whereClause)
 			.toString();
 
+		String orderBy = null;
 		if (wideRowSupport) {
-			if (groupBy.isEmpty()) {
-				sql = addOrderBy(sql, joinTree);
+			if (StringUtils.isBlank(groupBy)) {
+				orderBy = joinTree.getAlias() + "." + joinTree.getForm().getPrimaryKey();
 			}
 		} else {
-			String orderBy = buildOrderBy(queryExpr.getOrderExpr());
-			if (orderBy.length() > 0) {
-				sql += " order by " + orderBy;
-			}
+			orderBy = buildOrderBy(queryExpr.getOrderExpr());
 		}
 
-		if (groupBy.length() > 0) {
+		if (StringUtils.isNotBlank(groupBy)) {
 			sql += " group by " + groupBy;
+		}
+
+		if (StringUtils.isNotBlank(orderBy)) {
+			sql += " order by " + orderBy;
 		}
 
         if (queryExpr.getLimitExpr() != null) {
@@ -136,8 +139,8 @@ public class QueryGenerator {
             result = dataSql;          
         } else {
         	String orderedQuery = dataSql;
-        	if (!wideRowSupport) {
-        		orderedQuery = addOrderBy(dataSql, joinTree);
+        	if (!wideRowSupport && queryExpr.getOrderExpr() == null) {
+        		orderedQuery += " order by " + joinTree.getAlias() + "." + joinTree.getForm().getPrimaryKey();
         	}
         	
         	result = addLimitClause(orderedQuery, start, numRows);
@@ -384,13 +387,6 @@ public class QueryGenerator {
     	return groupBy.toString(); 
     }
     
-    private String addOrderBy(String dataSql, JoinTree joinTree) {
-        return new StringBuilder(dataSql)
-        	.append(" order by ")
-        	.append(joinTree.getAlias()).append(".").append(joinTree.getForm().getPrimaryKey())
-        	.toString();	
-    }
-
     private String buildFilter(FilterNode filter) {
     	if (!isValidFilter(filter)) {
     		throw new RuntimeException("Invalid filter"); // add more info here
