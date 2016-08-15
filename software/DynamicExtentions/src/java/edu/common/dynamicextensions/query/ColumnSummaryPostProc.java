@@ -15,13 +15,15 @@ import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
 import edu.common.dynamicextensions.query.ast.SelectListNode;
 
 public class ColumnSummaryPostProc implements ResultPostProc {
-	private Map<Integer, BigDecimal> columnTotals = new HashMap<Integer, BigDecimal>();
+	private Map<Integer, BigDecimal> columnTotals = new HashMap<>();
 	
-	private Map<Integer, BigDecimal> columnAvgs = new HashMap<Integer, BigDecimal>();
+	private Map<Integer, BigDecimal> columnAvgs = new HashMap<>();
 	
 	private QueryExpressionNode queryExpr;
 	
 	private QueryResultData qrd;
+
+	private List<Object[]> rows = new ArrayList<>();
 	
 	public ColumnSummaryPostProc(QueryExpressionNode queryExpr) {
 		this.queryExpr = queryExpr;
@@ -95,8 +97,9 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 				row[i] = columnAvgs.get(i + 1).divide(numRows, 2, RoundingMode.HALF_UP);
 			}
 		}
-		
-		qrd.getRows().add(row);
+
+		rows = qrd.getRows();
+		rows.add(row); // summary row
 		return qrd.getDbRowsCount();
 	}
 
@@ -107,7 +110,7 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 
 	@Override
 	public List<Object[]> getRows() {
-		return qrd.getRows();
+		return rows;
 	}
 
 	@Override
@@ -118,6 +121,9 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 		columnTotals = null;
 		columnAvgs.clear();
 		columnAvgs = null;
+		rows.clear();
+		rows = null;
+
 	}
 
     private List<ResultColumn> getResultColumns(QueryExpressionNode queryExpr) {
