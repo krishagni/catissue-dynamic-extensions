@@ -46,7 +46,7 @@ import edu.common.dynamicextensions.query.ast.SelectListNode;
 
 public class QueryGenerator {
 	
-	private static String LIMIT_QUERY = "select * from (select tab.*, rownum rnum from (%s) tab where rownum < %d) where rnum >= %d";
+	private static String LIMIT_QUERY = "select * from (select tab.*, rownum rnum from (%s) tab where rownum <= %d) where rnum >= %d";
 	
 	private boolean wideRowSupport;
 	
@@ -804,7 +804,7 @@ public class QueryGenerator {
     
     private String addLimitClause(String sql, int start, int numRows) {
     	if (DbSettingsFactory.getProduct().equals("Oracle")) {
-    		return String.format(LIMIT_QUERY, sql, start + numRows, start);
+    		return String.format(LIMIT_QUERY, sql, start + numRows, start + 1);
     	} else {
     		return sql + " limit " + start + ", " + numRows;
     	}
