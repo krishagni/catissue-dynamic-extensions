@@ -6,11 +6,15 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.nutility.Util;
+import edu.common.dynamicextensions.query.ast.AggregateNode;
+import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 
 public class QueryResultData {
@@ -111,7 +115,8 @@ public class QueryResultData {
        
     public void dataSource(ResultSet rs) {
     	List<Object[]> rows = new ArrayList<Object[]>();
-    	
+
+		Map<Integer, BigDecimal> cumulative = new HashMap<>();
     	try {
         	int columnCount = rs.getMetaData().getColumnCount();
         	if (columnCount == resultColumns.size() + 1 && DbSettingsFactory.isOracle()) {
@@ -121,10 +126,23 @@ public class QueryResultData {
             while (rs.next()) {
                 Object[] row = new Object[columnCount];
                 for (int i = 0; i < columnCount; ++i) {
+					ExpressionNode expr = resultColumns.get(i).getExpression();
                     row[i] = rs.getObject(i + 1);
                     if (row[i] instanceof Date) {
-                    	row[i] = rs.getTimestamp(i + 1);
-                    }
+						row[i] = rs.getTimestamp(i + 1);
+                    } else if (expr instanceof AggregateNode && ((AggregateNode) expr).isCumulative()) {
+						BigDecimal existing = cumulative.get(i);
+						if (existing == null) {
+							existing = BigDecimal.ZERO;
+						}
+
+						if (row[i] != null) {
+							existing = existing.add(new BigDecimal(row[i].toString()));
+						}
+
+						row[i] = existing;
+						cumulative.put(i, existing);
+					}
                 }
                 
                 if (screener != null) {
@@ -135,8 +153,11 @@ public class QueryResultData {
             }    		
     	} catch (Exception e) {
     		throw new RuntimeException("Error traversing result set", e);
-    	}
-    	
+    	} finally {
+    		cumulative.clear();
+			cumulative = null;
+		}
+
     	this.rows = rows;
     	this.dbRowsCount = this.rows.size();
     }

@@ -68,7 +68,7 @@ arith_expr    : arith_expr ARITH_OP arith_expr               #ArithExpr
 date_range    : DATE_RANGE LP arith_expr ',' ID (',' INT)? RP #DateRangeFunc
               ;
 
-agg_expr      : (COUNT|SUM|MIN|MAX|AVG) LP DISTINCT? FIELD RP #AggFunc
+agg_expr      : (COUNT|CCOUNT|SUM|CSUM|MIN|MAX|AVG) LP DISTINCT? FIELD RP #AggFunc
               ;
 
 concat_expr   : CONCAT LP arith_expr ',' arith_expr (',' arith_expr)* RP #ConcatFunc
@@ -92,7 +92,9 @@ CURR_DATE: 'current_date';
 MINS_BTWN: 'minutes_between';
 DATE_RANGE: 'date_range';
 COUNT    : 'count';
+CCOUNT   : 'c_count';
 SUM      : 'sum';
+CSUM     : 'c_sum';
 MIN      : 'min';
 MAX      : 'max';
 AVG      : 'avg';

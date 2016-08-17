@@ -8,9 +8,13 @@ import edu.common.dynamicextensions.domain.nui.DataType;
 
 public class AggregateNode extends ExpressionNode implements Serializable {	
 	private static final long serialVersionUID = 2686666253832434643L;
-	
+
+	//
+	// CCOUNT and CSUM is supported in plain mode that does not have
+	// any post processing of results
+	//
 	public static enum AGG_FN {
-		COUNT, SUM, MIN, MAX, AVG
+		COUNT, CCOUNT, SUM, CSUM, MIN, MAX, AVG
 	};
 	
 	private AGG_FN aggFn;
@@ -66,6 +70,10 @@ public class AggregateNode extends ExpressionNode implements Serializable {
 	@Override
 	public String[] getFormNames() {
 		return field.getFormNames();
+	}
+
+	public boolean isCumulative() {
+		return aggFn == AGG_FN.CCOUNT || aggFn == AGG_FN.CSUM;
 	}
 	
 	@Override

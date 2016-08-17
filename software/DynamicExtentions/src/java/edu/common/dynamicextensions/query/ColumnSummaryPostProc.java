@@ -67,8 +67,9 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 		DeConfiguration cfg = DeConfiguration.getInstance();
 		qrd = new QueryResultData(getResultColumns(queryExpr), cfg.dateFormat(), cfg.timeFormat());
 		qrd.dataSource(rs);
-			
-		for (Object[] row : qrd.getRows()) {
+
+		rows = qrd.getRows();
+		for (Object[] row : rows) {
 			for (int columnIdx : columnTotals.keySet()) {
 				Number num = (Number)row[columnIdx - 1];
 				if (num == null) {
@@ -98,7 +99,6 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 			}
 		}
 
-		rows = qrd.getRows();
 		rows.add(row); // summary row
 		return qrd.getDbRowsCount();
 	}

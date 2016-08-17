@@ -337,9 +337,13 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     public AggregateNode visitAggFunc(AQLParser.AggFuncContext ctx) {
     	AggregateNode countNode = new AggregateNode();
     	if (ctx.COUNT() != null) {
-    		countNode.setAggFn(AGG_FN.COUNT);
+			countNode.setAggFn(AGG_FN.COUNT);
+		} else if (ctx.CCOUNT() != null) {
+			countNode.setAggFn(AGG_FN.CCOUNT);
     	} else if (ctx.SUM() != null) {
-    		countNode.setAggFn(AGG_FN.SUM);
+			countNode.setAggFn(AGG_FN.SUM);
+		} else if (ctx.CSUM() != null) {
+			countNode.setAggFn(AGG_FN.CSUM);
     	} else if (ctx.MIN() != null) {
     		countNode.setAggFn(AGG_FN.MIN);
     	} else if (ctx.MAX() != null) {

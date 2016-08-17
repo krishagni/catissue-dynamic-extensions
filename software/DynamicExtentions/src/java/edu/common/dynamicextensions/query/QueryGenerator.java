@@ -755,10 +755,12 @@ public class QueryGenerator {
 		StringBuilder aggSql = new StringBuilder();
 		switch (aggNode.getAggFn()) {
 			case COUNT:
+			case CCOUNT:
 				aggSql.append("count(");
 				break;
 
 			case SUM:
+			case CSUM:
 				aggSql.append("sum(");
 				break;
 
