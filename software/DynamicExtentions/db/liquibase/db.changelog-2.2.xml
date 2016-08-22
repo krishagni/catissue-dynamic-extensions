@@ -21,4 +21,11 @@
       //
     </sql>
   </changeSet>
+
+  <changeSet author="vpawar" id="Index to fasten lookup of forms by name">
+    <createIndex tableName="DYEXTN_CONTAINERS" indexName="DE_FORM_NAME_IDX">
+      <column name="NAME"/>
+      <column name="DELETED_ON"/>
+    </createIndex>
+  </changeSet>
 </databaseChangeLog>
