@@ -1,11 +1,13 @@
 
 package edu.wustl.dynamicextensions.formdesigner.mapper;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import edu.common.dynamicextensions.domain.nui.DataType;
@@ -21,6 +24,7 @@ import edu.common.dynamicextensions.domain.nui.PvDataSource;
 import edu.common.dynamicextensions.domain.nui.PvDataSource.Ordering;
 import edu.common.dynamicextensions.domain.nui.PvVersion;
 import edu.wustl.dynamicextensions.formdesigner.utility.CSDConstants;
+import edu.wustl.dynamicextensions.formdesigner.utility.Utility;
 
 public class PvMapper {
 
@@ -83,7 +87,9 @@ public class PvMapper {
 		List<PermissibleValue> pvList = new ArrayList<PermissibleValue>();
 		if (pvFile != null) {
 			File file = new File(System.getProperty("java.io.tmpdir"), pvFile);
-			CSVReader csvReader = new CSVReader(new FileReader(file)); // TODO: Change here
+			BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
+			InputStreamReader isr = new InputStreamReader(bin, Utility.detectFileCharset(bin));
+			CSVReader csvReader = new CSVReader(isr); // TODO: Change here
 			String[] option;
 			
 			// Escape the header Row
@@ -94,7 +100,12 @@ public class PvMapper {
 				pv.setValue(option[0].isEmpty() ? null : option[0]);
 				pvList.add(pv);
 			}
+
+			if (csvReader != null) {
+				csvReader.close();
+			}
 		}
+
 		return pvList;
 	}
 
