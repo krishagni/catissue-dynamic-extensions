@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
@@ -25,6 +27,8 @@ import edu.common.dynamicextensions.query.ast.FilterExpressionNode.Op;
 
 public class QueryCompiler
 {
+	private static final Logger logger = Logger.getLogger(QueryCompiler.class);
+
     private int tabCnt;
     
     private String rootFormName;
@@ -57,10 +61,15 @@ public class QueryCompiler
     }
     
     public void compile() {
-        QueryParser queryParser = new QueryParser(query);
-        queryExpr = queryParser.getQueryAst();
-        addRestrictions();
-        queryJoinTree = buildJoinTree(queryExpr);
+		try {
+			QueryParser queryParser = new QueryParser(query);
+			queryExpr = queryParser.getQueryAst();
+			addRestrictions();
+			queryJoinTree = buildJoinTree(queryExpr);
+		} catch (Exception e) {
+			logger.info("Error compiling query: " + query, e);
+			throw e;
+		}
     }
 
     public QueryExpressionNode getQueryExpr() {
