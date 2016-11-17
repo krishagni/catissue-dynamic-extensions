@@ -8,6 +8,8 @@ import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
 import java.io.Serializable;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -90,30 +92,39 @@ public class DatePicker extends Control implements Serializable {
 		if (value == null || value.trim().isEmpty()) {
 			return null;
 		}
-		
-		try {			
-			String fmt = DeConfiguration.getInstance().dateFormat();
-			if (fmt == null) {
-				fmt = DEFAULT_DATE_FORMAT;
-			}
-			
-			if (format.contains("HH:mm") || format.contains("hh:mm")) {
-				String timeFormat = DeConfiguration.getInstance().timeFormat();
-				if (StringUtils.isBlank(timeFormat)) {
-					timeFormat = DEFAULT_TIME_FORMAT;
-				}
-				fmt = fmt.concat(" "+ timeFormat);
-			}
 
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(fmt);
-			simpleDateFormat.setLenient(false);
-			return simpleDateFormat.parse(value);
-		} catch (Exception e) {
+		String fmt = DeConfiguration.getInstance().dateFormat();
+		if (fmt == null) {
+			fmt = DEFAULT_DATE_FORMAT;
+		}
+
+		if (format.contains("HH:mm") || format.contains("hh:mm")) {
+			String timeFormat = DeConfiguration.getInstance().timeFormat();
+			if (StringUtils.isBlank(timeFormat)) {
+				timeFormat = DEFAULT_TIME_FORMAT;
+			}
+			fmt = fmt.concat(" "+ timeFormat);
+		}
+
+		value = value.trim();
+		if (value.endsWith("Z")) {
 			try {
-				return new Date(Long.parseLong(value)); 
-			} catch (Exception e1) {
-				throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + format, e);
-			}			
+				return Date.from(Instant.parse(value));
+			} catch (DateTimeParseException dtpe) {
+				throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + fmt, dtpe);
+			}
+		} else {
+			try {
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(fmt);
+				simpleDateFormat.setLenient(false);
+				return simpleDateFormat.parse(value);
+			} catch (Exception e) {
+				try {
+					return new Date(Long.parseLong(value));
+				} catch (Exception e1) {
+					throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + fmt, e);
+				}
+			}
 		}
 	}
 	
