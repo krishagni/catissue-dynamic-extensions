@@ -1,13 +1,11 @@
 
 package edu.wustl.dynamicextensions.formdesigner.mapper;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -24,7 +22,6 @@ import edu.common.dynamicextensions.domain.nui.PvDataSource;
 import edu.common.dynamicextensions.domain.nui.PvDataSource.Ordering;
 import edu.common.dynamicextensions.domain.nui.PvVersion;
 import edu.wustl.dynamicextensions.formdesigner.utility.CSDConstants;
-import edu.wustl.dynamicextensions.formdesigner.utility.Utility;
 
 public class PvMapper {
 
@@ -87,9 +84,7 @@ public class PvMapper {
 		List<PermissibleValue> pvList = new ArrayList<PermissibleValue>();
 		if (pvFile != null) {
 			File file = new File(System.getProperty("java.io.tmpdir"), pvFile);
-			BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
-			InputStreamReader isr = new InputStreamReader(bin, Utility.detectFileCharset(bin));
-			CSVReader csvReader = new CSVReader(isr); // TODO: Change here
+			CSVReader csvReader = new CSVReader(new FileReader(file)); // TODO: Change here
 			String[] option;
 			
 			// Escape the header Row

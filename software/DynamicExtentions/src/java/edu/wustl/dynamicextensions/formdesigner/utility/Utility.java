@@ -5,15 +5,10 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.tika.parser.txt.CharsetDetector;
-import org.apache.tika.parser.txt.CharsetMatch;
 
 import edu.common.dynamicextensions.util.DirOperationsUtility;
 import edu.common.dynamicextensions.util.ZipUtility;
@@ -74,30 +69,6 @@ public class Utility {
 		}
 		if(unZip){
 			ZipUtility.extractZipToDestination(completeFileName, tempDirName);
-		}
-	}
-
-	public static String detectFileCharset(String file) {
-		InputStream in = null;
-		try {
-			in = new BufferedInputStream(new FileInputStream(file));
-			return detectFileCharset(in);
-		} catch (IOException ioe) {
-			throw new RuntimeException("Error detecting charset", ioe);
-		} finally {
-			IOUtils.closeQuietly(in);
-		}
-	}
-
-	public static String detectFileCharset(InputStream in) {
-		try {
-			CharsetDetector detector = new CharsetDetector();
-			detector.setText(in);
-
-			CharsetMatch match = detector.detect();
-			return match != null ? match.getName() : "UTF-8";
-		} catch (IOException ioe) {
-			throw new RuntimeException("Error detecting charset", ioe);
 		}
 	}
 }
