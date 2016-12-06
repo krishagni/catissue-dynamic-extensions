@@ -23,6 +23,8 @@ public interface FormDataManager {
 	public Long saveOrUpdateFormData(UserContext userCtxt, FormData formData, JdbcDao jdbcDao);
 
 	public void deleteFormData(UserContext userCtxt, Long containerId, Long recordId);
+	
+	public void anonymize(UserContext userCtxt, Container form, Long recordId);
 
 	public FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName);
 	

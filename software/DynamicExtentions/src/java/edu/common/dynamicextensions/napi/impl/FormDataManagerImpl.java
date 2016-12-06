@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import edu.common.dynamicextensions.domain.nui.Container;
@@ -201,6 +203,17 @@ public class FormDataManagerImpl implements FormDataManager {
 
 	}
 	
+	@Override
+	public void anonymize(UserContext userCtxt, Container form, Long recordId) {
+		FormData formData = getFormData(form, recordId);
+		if (formData == null) {
+			return;
+		}
+
+		anonymize(formData);
+		saveOrUpdateFormData(userCtxt, formData);
+	}
+	
 	private List<FormData> getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Long identifier) 
 	throws Exception {
 		final List<Control> simpleCtrls = new ArrayList<Control>();
@@ -366,7 +379,7 @@ public class FormDataManagerImpl implements FormDataManager {
 						}
 						
 						FileControlValue fcv = new FileControlValue(rs.getString(1), rs.getString(2), rs.getString(3));
-						fcv.setPath(DeConfiguration.getInstance().fileUploadDir() + File.separator + fcv.getFileId());
+						fcv.setPath(filePath(fcv.getFileId()));
 						return fcv;
 					}					
 				});		
@@ -706,5 +719,33 @@ public class FormDataManagerImpl implements FormDataManager {
 		}
 		
 		return ctrl.showInGrid();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void anonymize(FormData formData) {
+		formData.getFieldValues().forEach(ctrlValue -> {
+			Control ctrl = ctrlValue.getControl();
+			if (ctrl instanceof SubFormControl) {
+				SubFormControl sfCtrl = (SubFormControl) ctrl;
+				if (sfCtrl.isOneToOne()) {
+					anonymize((FormData) ctrlValue.getValue());
+				} else {
+					((List<FormData>) ctrlValue.getValue()).forEach(this::anonymize);
+				}
+			} else if (ctrl.isPhi()) {
+				if (ctrl instanceof FileUploadControl) {
+					FileControlValue fcv = (FileControlValue)ctrlValue.getValue();
+					if (fcv != null && StringUtils.isNotBlank(fcv.getFileId())) {
+						FileUtils.deleteQuietly(new File(filePath(fcv.getFileId())));
+					}
+				}
+
+				ctrlValue.setValue(null);
+			}
+		});
+	}
+
+	private String filePath(String fileId) {
+		return DeConfiguration.getInstance().fileUploadDir() + File.separator + fileId;
 	}
 }
