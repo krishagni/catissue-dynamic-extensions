@@ -12,7 +12,17 @@ import edu.common.dynamicextensions.domain.nui.DataType;
 public class ConcatNode extends ExpressionNode implements Serializable {
 	private static final long serialVersionUID = -285272789497508681L;
 
+	private String separator;
+
 	private List<ExpressionNode> args = new ArrayList<>();
+
+	public String getSeparator() {
+		return separator;
+	}
+
+	public void setSeparator(String separator) {
+		this.separator = separator;
+	}
 
 	public List<ExpressionNode> getArgs() {
 		return args;
@@ -35,6 +45,7 @@ public class ConcatNode extends ExpressionNode implements Serializable {
 	public ExpressionNode copy() {
 		ConcatNode copy = new ConcatNode();
 		super.copy(this, copy);
+		copy.setSeparator(getSeparator());
 		copy.setArgs(getArgs().stream().map(arg -> arg.copy()).collect(Collectors.toList()));
 		return copy;
 	}

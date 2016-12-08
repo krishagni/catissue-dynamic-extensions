@@ -137,6 +137,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitConcatCompFilter(AQLParser.ConcatCompFilterContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code ConcatWsCompFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConcatWsCompFilter(AQLParser.ConcatWsCompFilterContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code StringCompFilter}
 	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
@@ -206,6 +213,27 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArithExpr(AQLParser.ArithExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code MonthsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RoundFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRoundFunc(AQLParser.RoundFuncContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DateIntervalExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code ConcatExpr}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
@@ -241,13 +269,6 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParensArithExpr(AQLParser.ParensArithExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code MonthsDiffFunc}
-	 * labeled alternative in {@link AQLParser#arith_expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code YearsDiffFunc}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
@@ -255,12 +276,12 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitYearsDiffFunc(AQLParser.YearsDiffFuncContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code RoundFunc}
+	 * Visit a parse tree produced by the {@code ConcatWsExpr}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitRoundFunc(AQLParser.RoundFuncContext ctx);
+	T visitConcatWsExpr(AQLParser.ConcatWsExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code LiteralVal}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
@@ -268,13 +289,6 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLiteralVal(AQLParser.LiteralValContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code DateIntervalExpr}
-	 * labeled alternative in {@link AQLParser#arith_expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code MinsDiffFunc}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
@@ -303,6 +317,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitConcatFunc(AQLParser.ConcatFuncContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ConcatWsFunc}
+	 * labeled alternative in {@link AQLParser#concat_ws_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConcatWsFunc(AQLParser.ConcatWsFuncContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link AQLParser#date_interval}.
 	 * @param ctx the parse tree

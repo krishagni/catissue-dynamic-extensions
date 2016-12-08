@@ -786,18 +786,39 @@ public class QueryGenerator {
     }
 
 	private String getConcatSql(ConcatNode concatNode) {
+		String concatFn = "", exprSeparator = ", ", paren = ")";
+
 		StringBuilder sql = new StringBuilder();
 		StringBuilder closingParenthesis = new StringBuilder();
-
-		String concatFn = DbSettingsFactory.isOracle() ? "de_concat_if_not_null(": "concat(";
 		List<ExpressionNode> args = concatNode.getArgs();
-		for (int i = 0; i < args.size() - 1; ++i) {
-			sql.append(concatFn).append(getExpressionNodeSql(args.get(i), DataType.STRING)).append(", ");
-			closingParenthesis.append(")");
+
+		if (concatNode.getSeparator() != null) {
+			String separator = "'" + StringEscapeUtils.escapeSql(removeQuotes(concatNode.getSeparator())) + "'";
+			if (DbSettingsFactory.isOracle()) {
+				concatFn = "concat(de_concat_if_not_null(";
+				exprSeparator = ", " + separator + "), ";
+
+				if (args.size() == 1) {
+					sql.append("concat(");
+					closingParenthesis.append(",").append(separator).append(")");
+				}
+			} else {
+				sql.append("concat_ws(").append(separator).append(", ");
+				closingParenthesis.append(")");
+				paren = "";
+			}
+		} else {
+			concatFn = DbSettingsFactory.isOracle() ? "de_concat_if_not_null(": "concat(";
 		}
 
-		sql.append(getExpressionNodeSql(args.get(args.size() - 1), DataType.STRING)).append(closingParenthesis);
-		return sql.toString();
+		for (int i = 0; i < args.size() - 1; ++i) {
+			sql.append(concatFn).append(getExpressionNodeSql(args.get(i), DataType.STRING)).append(exprSeparator);
+			closingParenthesis.append(paren);
+		}
+
+		return sql.append(getExpressionNodeSql(args.get(args.size() - 1), DataType.STRING))
+			.append(closingParenthesis)
+			.toString();
 	}
     
     private String addLimitClause(String sql, LimitExprNode limitExpr) {

@@ -33,13 +33,14 @@ crosstab_expr : CROSSTAB LP LP row+=INT (',' row+=INT)* RP ',' col=INT ',' LP va
 report_expr   : ID (LP SLITERAL (',' SLITERAL)* RP)? #ReportExpr
               ; 
 
-filter        : arith_expr  OP   arith_expr          #BasicFilter
-              | arith_expr  MOP  literal_values      #MvFilter
-              | concat_expr SOP  SLITERAL            #ConcatCompFilter
-              | FIELD       SOP  SLITERAL            #StringCompFilter
-              | arith_expr  UOP                      #UnaryFilter
-              | date_range                           #DateRangeFilter
-              | arith_expr  BETWEEN LP arith_expr ',' arith_expr RP #BetweenFilter
+filter        : arith_expr     OP   arith_expr          #BasicFilter
+              | arith_expr     MOP  literal_values      #MvFilter
+              | concat_expr    SOP  SLITERAL            #ConcatCompFilter
+              | concat_ws_expr SOP  SLITERAL            #ConcatWsCompFilter
+              | FIELD          SOP  SLITERAL            #StringCompFilter
+              | arith_expr     UOP                      #UnaryFilter
+              | date_range                              #DateRangeFilter
+              | arith_expr     BETWEEN LP arith_expr ',' arith_expr RP #BetweenFilter
               ;
               
 literal_values: '(' literal (',' literal)* ')'
@@ -60,6 +61,7 @@ arith_expr    : arith_expr ARITH_OP arith_expr               #ArithExpr
               | CURR_DATE LP RP                              #CurrentDateFunc
               | agg_expr                                     #AggExpr
               | concat_expr                                  #ConcatExpr
+              | concat_ws_expr                               #ConcatWsExpr
               | ROUND LP arith_expr ',' INT RP               #RoundFunc
               | FIELD                                        #Field              
               | literal                                      #LiteralVal              
@@ -72,6 +74,9 @@ agg_expr      : (COUNT|CCOUNT|SUM|CSUM|MIN|MAX|AVG) LP DISTINCT? FIELD RP #AggFu
               ;
 
 concat_expr   : CONCAT LP arith_expr ',' arith_expr (',' arith_expr)* RP #ConcatFunc
+              ;
+
+concat_ws_expr: CONCAT_WS LP SLITERAL ',' arith_expr (',' arith_expr)* RP #ConcatWsFunc
               ;
           
 date_interval : YEAR MONTH? DAY?
@@ -104,6 +109,7 @@ ORD_DIR  : ('desc' | 'asc');
 LIMIT    : 'limit';
 CROSSTAB : 'crosstab';
 CONCAT   : 'concat';
+CONCAT_WS: 'concat_ws';
 OR       : 'or';
 AND      : 'and';
 PAND     : 'pand';

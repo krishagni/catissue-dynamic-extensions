@@ -232,6 +232,18 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterConcatWsCompFilter(AQLParser.ConcatWsCompFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConcatWsCompFilter(AQLParser.ConcatWsCompFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterStringCompFilter(AQLParser.StringCompFilterContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -352,6 +364,42 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRoundFunc(AQLParser.RoundFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRoundFunc(AQLParser.RoundFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDateIntervalExpr(AQLParser.DateIntervalExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterConcatExpr(AQLParser.ConcatExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -412,18 +460,6 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterYearsDiffFunc(AQLParser.YearsDiffFuncContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -436,13 +472,13 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRoundFunc(AQLParser.RoundFuncContext ctx) { }
+	@Override public void enterConcatWsExpr(AQLParser.ConcatWsExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRoundFunc(AQLParser.RoundFuncContext ctx) { }
+	@Override public void exitConcatWsExpr(AQLParser.ConcatWsExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -455,18 +491,6 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLiteralVal(AQLParser.LiteralValContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDateIntervalExpr(AQLParser.DateIntervalExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -515,6 +539,18 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitConcatFunc(AQLParser.ConcatFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterConcatWsFunc(AQLParser.ConcatWsFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitConcatWsFunc(AQLParser.ConcatWsFuncContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

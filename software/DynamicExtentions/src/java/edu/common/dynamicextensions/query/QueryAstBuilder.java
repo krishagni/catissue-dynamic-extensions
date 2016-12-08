@@ -204,6 +204,19 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 		return filter;
 	}
 
+	@Override
+	public FilterNode visitConcatWsCompFilter(AQLParser.ConcatWsCompFilterContext ctx) {
+		FilterNode filter = new FilterNode();
+		filter.setLhs((ExpressionNode)visit(ctx.concat_ws_expr()));
+
+		LiteralValueNode value = new LiteralValueNode(DataType.STRING);
+		value.getValues().add(ctx.SLITERAL().getText());
+		filter.setRhs(value);
+
+		filter.setRelOp(RelationalOp.getBySymbol(ctx.SOP().getText()));
+		return filter;
+	}
+
     @Override
     public FilterNode visitStringCompFilter(AQLParser.StringCompFilterContext ctx) {
     	FilterNode filter = new FilterNode();
@@ -372,6 +385,22 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 	@Override
 	public ConcatNode visitConcatFunc(AQLParser.ConcatFuncContext ctx) {
 		ConcatNode concatNode = new ConcatNode();
+		for (int i = 0; i < ctx.arith_expr().size(); ++i) {
+			concatNode.addArg((ExpressionNode)visit(ctx.arith_expr(i)));
+		}
+
+		return concatNode;
+	}
+
+	@Override
+	public ConcatNode visitConcatWsExpr(AQLParser.ConcatWsExprContext ctx) {
+		return (ConcatNode)visit(ctx.concat_ws_expr());
+	}
+
+	@Override
+	public ConcatNode visitConcatWsFunc(AQLParser.ConcatWsFuncContext ctx) {
+		ConcatNode concatNode = new ConcatNode();
+		concatNode.setSeparator(ctx.SLITERAL().getText());
 		for (int i = 0; i < ctx.arith_expr().size(); ++i) {
 			concatNode.addArg((ExpressionNode)visit(ctx.arith_expr(i)));
 		}

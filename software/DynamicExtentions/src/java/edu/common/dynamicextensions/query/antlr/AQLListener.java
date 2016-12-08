@@ -224,6 +224,18 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitConcatCompFilter(AQLParser.ConcatCompFilterContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ConcatWsCompFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void enterConcatWsCompFilter(AQLParser.ConcatWsCompFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ConcatWsCompFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void exitConcatWsCompFilter(AQLParser.ConcatWsCompFilterContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code StringCompFilter}
 	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
@@ -342,6 +354,42 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitArithExpr(AQLParser.ArithExprContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code MonthsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code MonthsDiffFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code RoundFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterRoundFunc(AQLParser.RoundFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code RoundFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitRoundFunc(AQLParser.RoundFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code DateIntervalExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterDateIntervalExpr(AQLParser.DateIntervalExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DateIntervalExpr}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ConcatExpr}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
@@ -402,18 +450,6 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitParensArithExpr(AQLParser.ParensArithExprContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code MonthsDiffFunc}
-	 * labeled alternative in {@link AQLParser#arith_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code MonthsDiffFunc}
-	 * labeled alternative in {@link AQLParser#arith_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code YearsDiffFunc}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
@@ -426,17 +462,17 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitYearsDiffFunc(AQLParser.YearsDiffFuncContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code RoundFunc}
+	 * Enter a parse tree produced by the {@code ConcatWsExpr}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterRoundFunc(AQLParser.RoundFuncContext ctx);
+	void enterConcatWsExpr(AQLParser.ConcatWsExprContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code RoundFunc}
+	 * Exit a parse tree produced by the {@code ConcatWsExpr}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitRoundFunc(AQLParser.RoundFuncContext ctx);
+	void exitConcatWsExpr(AQLParser.ConcatWsExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code LiteralVal}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
@@ -449,18 +485,6 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLiteralVal(AQLParser.LiteralValContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code DateIntervalExpr}
-	 * labeled alternative in {@link AQLParser#arith_expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterDateIntervalExpr(AQLParser.DateIntervalExprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code DateIntervalExpr}
-	 * labeled alternative in {@link AQLParser#arith_expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitDateIntervalExpr(AQLParser.DateIntervalExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code MinsDiffFunc}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
@@ -509,6 +533,18 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitConcatFunc(AQLParser.ConcatFuncContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ConcatWsFunc}
+	 * labeled alternative in {@link AQLParser#concat_ws_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterConcatWsFunc(AQLParser.ConcatWsFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ConcatWsFunc}
+	 * labeled alternative in {@link AQLParser#concat_ws_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitConcatWsFunc(AQLParser.ConcatWsFuncContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#date_interval}.
 	 * @param ctx the parse tree
