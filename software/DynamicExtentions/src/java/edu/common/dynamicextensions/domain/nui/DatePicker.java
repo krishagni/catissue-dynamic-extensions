@@ -75,11 +75,14 @@ public class DatePicker extends Control implements Serializable {
 		this.defaultDateType = defaultDateType;
 	}
 
+	public boolean isDateTimeFmt() {
+		return format.contains("HH:mm") || format.contains("hh:mm");
+	}
+
 	@Override
 	public List<ColumnDef> getColumnDefs() {
 		return Collections.singletonList(ColumnDef.get(getDbColumnName(), ColumnTypeHelper.getDateColType()));
 	}
-	
 	
 	@Override
 	public DataType getDataType() {
@@ -98,7 +101,7 @@ public class DatePicker extends Control implements Serializable {
 			fmt = DEFAULT_DATE_FORMAT;
 		}
 
-		if (format.contains("HH:mm") || format.contains("hh:mm")) {
+		if (isDateTimeFmt()) {
 			String timeFormat = DeConfiguration.getInstance().timeFormat();
 			if (StringUtils.isBlank(timeFormat)) {
 				timeFormat = DEFAULT_TIME_FORMAT;
