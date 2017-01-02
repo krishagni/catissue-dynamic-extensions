@@ -707,9 +707,13 @@ public class Container implements Serializable {
 		throwExceptionIfDto();
 		
 		try {
+			boolean insert = (id == null);
+			if (!insert) {
+				FormEventsNotifier.getInstance().notifyPreUpdate(this);
+			}
+
 			executeDDLWithoutTxn(jdbcDao);
 			
-			boolean insert = (id == null);			
 			int numIds = 0;
 			List<Container> subContainers = getAllSubContainers();
 			

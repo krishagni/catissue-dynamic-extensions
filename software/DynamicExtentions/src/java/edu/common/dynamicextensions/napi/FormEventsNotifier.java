@@ -31,6 +31,10 @@ public class FormEventsNotifier {
 	public void notifyCreate(Container form) {
 		listeners.forEach(listener -> listener.onCreate(form));
 	}
+	
+	public void notifyPreUpdate(Container form) {
+		listeners.forEach(listener -> listener.preUpdate(form));
+	}
 
 	public void notifyUpdate(Container form) {
 		listeners.forEach(listener -> listener.onUpdate(form));

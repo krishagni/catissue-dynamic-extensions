@@ -47,6 +47,7 @@ public class ContainerFacade {
 
 	public void updateContainer(Properties containerProps) throws Exception {
 		Container containerFromUI = containerMapper.propertiesToContainer(containerProps, null);
+		container.setManagedTables(false);
 		container.editContainer(containerFromUI);
 		//containerMapper.propertiesToContainer(containerProps, container, null);
 	}
