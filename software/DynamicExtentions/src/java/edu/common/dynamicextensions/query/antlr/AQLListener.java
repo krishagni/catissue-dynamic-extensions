@@ -354,6 +354,18 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitArithExpr(AQLParser.ArithExprContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code DateFmtFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterDateFmtFunc(AQLParser.DateFmtFuncContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code DateFmtFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitDateFmtFunc(AQLParser.DateFmtFuncContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code MonthsDiffFunc}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree

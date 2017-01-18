@@ -220,6 +220,13 @@ public class AQLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements AQ
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitDateFmtFunc(AQLParser.DateFmtFuncContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

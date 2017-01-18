@@ -20,6 +20,7 @@ import edu.common.dynamicextensions.query.ast.CrosstabNode;
 import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
+import edu.common.dynamicextensions.query.ast.DateFormatFuncNode;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
 import edu.common.dynamicextensions.query.ast.DateRangeFuncNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
@@ -301,6 +302,16 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     public ExpressionNode visitParensArithExpr(AQLParser.ParensArithExprContext ctx) { 
     	return (ExpressionNode)visit(ctx.arith_expr()); 
     }
+
+    @Override
+    public DateFormatFuncNode visitDateFmtFunc(AQLParser.DateFmtFuncContext ctx) {
+		DateFormatFuncNode expr = new DateFormatFuncNode();
+		expr.setDateExpr((ExpressionNode) visit(ctx.arith_expr()));
+
+		String formatText = ctx.SLITERAL().getText();
+		expr.setFormat(formatText.substring(1, formatText.length() - 1)); // remove quotes
+		return expr;
+	}
     
     @Override 
     public DateDiffFuncNode visitMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { 

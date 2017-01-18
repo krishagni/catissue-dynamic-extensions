@@ -213,6 +213,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArithExpr(AQLParser.ArithExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code DateFmtFunc}
+	 * labeled alternative in {@link AQLParser#arith_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDateFmtFunc(AQLParser.DateFmtFuncContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code MonthsDiffFunc}
 	 * labeled alternative in {@link AQLParser#arith_expr}.
 	 * @param ctx the parse tree

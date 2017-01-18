@@ -95,13 +95,13 @@ public class DateDiffFuncNode extends ExpressionNode implements Serializable {
 		
 		if (leftOperand == null && other.leftOperand != null) {
 			return false;
-		} else if (!leftOperand.equals(other.leftOperand)) {
+		} else if (leftOperand != null && !leftOperand.equals(other.leftOperand)) {
 			return false;
 		} 
 		
 		if (rightOperand == null && other.rightOperand != null) {
 			return false;
-		} else if (!rightOperand.equals(other.rightOperand)) {
+		} else if (rightOperand != null && !rightOperand.equals(other.rightOperand)) {
 			return false;
 		}
 		

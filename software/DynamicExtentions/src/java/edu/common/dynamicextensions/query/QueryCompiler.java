@@ -323,7 +323,11 @@ public class QueryCompiler
         analyzeExpressionNode(queryId, expr.getLeftOperand(), joinMap);
         analyzeExpressionNode(queryId, expr.getRightOperand(), joinMap);        
     }
-    
+
+    private void analyzeDateFormatFuncNode(int queryId, DateFormatFuncNode dateFmt, Map<String, JoinTree> joinMap) {
+		analyzeExpressionNode(queryId, dateFmt.getDateExpr(), joinMap);
+	}
+
     private void analyzeDateDiffFuncNode(int queryId, DateDiffFuncNode dateDiff, Map<String, JoinTree> joinMap) {
         analyzeExpressionNode(queryId, dateDiff.getLeftOperand(), joinMap);
         analyzeExpressionNode(queryId, dateDiff.getRightOperand(), joinMap);
@@ -343,7 +347,9 @@ public class QueryCompiler
         if (exprNode instanceof FieldNode) {
             analyzeField(queryId, (FieldNode)exprNode, joinMap);
         } else if (exprNode instanceof ArithExpressionNode) {
-            analyzeArithExpressionNode(queryId, (ArithExpressionNode)exprNode, joinMap);
+			analyzeArithExpressionNode(queryId, (ArithExpressionNode) exprNode, joinMap);
+		} else if (exprNode instanceof DateFormatFuncNode) {
+			analyzeDateFormatFuncNode(queryId, (DateFormatFuncNode) exprNode, joinMap);
         } else if (exprNode instanceof DateDiffFuncNode) {
             analyzeDateDiffFuncNode(queryId, (DateDiffFuncNode) exprNode, joinMap);
         } else if (exprNode instanceof DateRangeFuncNode) {
@@ -450,7 +456,12 @@ public class QueryCompiler
 
         return true;
     }
-    
+
+    private boolean analyzeDateFormatFuncNode(int queryId, DateFormatFuncNode dateFmt, Map<String, JoinTree> joinMap, boolean failIfAbsent) {
+		boolean result = analyzeSelectExpressionNode(queryId, dateFmt.getDateExpr(), joinMap, failIfAbsent);
+		return result || !failIfAbsent;
+	}
+
     private boolean analyzeSelectDateDiffFuncNode(int queryId, DateDiffFuncNode dateDiff, Map<String, JoinTree> joinMap, boolean failIfAbsent) {
         boolean result = analyzeSelectExpressionNode(queryId, dateDiff.getLeftOperand(), joinMap, failIfAbsent);
         if (result || !failIfAbsent) {
@@ -464,7 +475,9 @@ public class QueryCompiler
         if (exprNode instanceof FieldNode) {
             return analyzeField(queryId, (FieldNode)exprNode, joinMap, failIfAbsent);
         } else if (exprNode instanceof ArithExpressionNode) {
-            return analyzeSelectArithExpressionNode(queryId, (ArithExpressionNode)exprNode, joinMap, failIfAbsent);
+			return analyzeSelectArithExpressionNode(queryId, (ArithExpressionNode) exprNode, joinMap, failIfAbsent);
+		} else if (exprNode instanceof DateFormatFuncNode) {
+			return analyzeDateFormatFuncNode(queryId, (DateFormatFuncNode) exprNode, joinMap, failIfAbsent);
         } else if (exprNode instanceof DateDiffFuncNode) {
             return analyzeSelectDateDiffFuncNode(queryId, (DateDiffFuncNode)exprNode, joinMap, failIfAbsent);
         } else if (exprNode instanceof AggregateNode) {

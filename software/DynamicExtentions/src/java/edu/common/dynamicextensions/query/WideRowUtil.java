@@ -9,6 +9,7 @@ import edu.common.dynamicextensions.query.ast.ArithExpressionNode;
 import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
+import edu.common.dynamicextensions.query.ast.DateFormatFuncNode;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
 import edu.common.dynamicextensions.query.ast.DateRangeFuncNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
@@ -26,8 +27,11 @@ public class WideRowUtil {
     		exprNode instanceof CurrentDateNode) {
     		return null;
     	} else if (exprNode instanceof FieldNode) {
-    		FieldNode fieldNode = (FieldNode)exprNode;
-    		return new String[] {fieldNode.getTabAlias(), fieldNode.getCtrl().getContainer().getPrimaryKey()};
+			FieldNode fieldNode = (FieldNode) exprNode;
+			return new String[]{fieldNode.getTabAlias(), fieldNode.getCtrl().getContainer().getPrimaryKey()};
+		} else if (exprNode instanceof DateFormatFuncNode) {
+			DateFormatFuncNode dateFormatNode = (DateFormatFuncNode) exprNode;
+			return getTabAliasPk(rootNode, dateFormatNode.getDateExpr());
     	} else if (exprNode instanceof DateDiffFuncNode) {
 			DateDiffFuncNode dateDiffNode = (DateDiffFuncNode) exprNode;
 			return getTabAliasPk(rootNode, dateDiffNode.getLeftOperand(), dateDiffNode.getRightOperand());

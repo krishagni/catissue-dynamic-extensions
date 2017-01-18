@@ -55,6 +55,7 @@ literal       : SLITERAL                             #StringLiteral
 arith_expr    : arith_expr ARITH_OP arith_expr               #ArithExpr
               | arith_expr ARITH_OP date_interval            #DateIntervalExpr
               | LP arith_expr RP                             #ParensArithExpr
+              | DATE_FMT LP arith_expr ',' SLITERAL RP       #DateFmtFunc
               | MTHS_BTWN LP arith_expr ',' arith_expr RP    #MonthsDiffFunc
               | YRS_BTWN LP arith_expr ',' arith_expr RP     #YearsDiffFunc
               | MINS_BTWN LP arith_expr ',' arith_expr RP    #MinsDiffFunc
@@ -91,6 +92,7 @@ SELECT   : 'select';
 WHERE    : 'where';
 NTHCHILD : 'nthchild';
 BETWEEN  : 'between';
+DATE_FMT : 'date_format';
 MTHS_BTWN: 'months_between';
 YRS_BTWN:  'years_between';
 CURR_DATE: 'current_date';

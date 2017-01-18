@@ -364,6 +364,18 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDateFmtFunc(AQLParser.DateFmtFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDateFmtFunc(AQLParser.DateFmtFuncContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterMonthsDiffFunc(AQLParser.MonthsDiffFuncContext ctx) { }
 	/**
 	 * {@inheritDoc}

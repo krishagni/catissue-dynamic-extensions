@@ -5,9 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -27,6 +31,7 @@ import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.CurrentDateNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
 import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
+import edu.common.dynamicextensions.query.ast.DateFormatFuncNode;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
 import edu.common.dynamicextensions.query.ast.DateRangeFuncNode;
 import edu.common.dynamicextensions.query.ast.OrderExprListNode;
@@ -46,8 +51,42 @@ import edu.common.dynamicextensions.query.ast.SelectListNode;
 
 public class QueryGenerator {
 	
-	private static String LIMIT_QUERY = "select * from (select tab.*, rownum rnum from (%s) tab where rownum <= %d) where rnum >= %d";
-	
+	private static final String LIMIT_QUERY = "select * from (select tab.*, rownum rnum from (%s) tab where rownum <= %d) where rnum >= %d";
+
+	private static final Pattern DATE_FMT_PATTERN = Pattern.compile("%(.+?)%");
+
+	private static final Map<String, String> MYSQL_DATE_FMTS = new HashMap<String, String>() {
+		{
+			put("year4", "%Y");
+			put("year2", "%y");
+			put("month2", "%m");
+			put("month3", "%b");
+			put("month", "%M");
+			put("month_day", "%d");
+			put("hour", "%H");
+			put("hour12", "%h");
+			put("minute", "%i");
+			put("second", "%s");
+			put("meridian", "%p");
+		}
+	};
+
+	private static final Map<String, String> ORACLE_DATE_FMTS = new HashMap<String, String>() {
+		{
+			put("year4", "YYYY");
+			put("year2", "YY");
+			put("month2", "MM");
+			put("month3", "MON");
+			put("month", "MONTH");
+			put("month_day", "DD");
+			put("hour", "HH24");
+			put("hour12", "HH12");
+			put("minute", "MI");
+			put("second", "SS");
+			put("meridian", "AM");
+		}
+	};
+
 	private boolean wideRowSupport;
 	
 	private boolean ic;
@@ -548,7 +587,9 @@ public class QueryGenerator {
     		
     		result = "(" + literals.toString() + ")";    		    		
     	} else if (exprNode instanceof ArithExpressionNode) {
-    		result = getArithExpressionNodeSql((ArithExpressionNode)exprNode);    		
+			result = getArithExpressionNodeSql((ArithExpressionNode) exprNode);
+		} else if (exprNode instanceof DateFormatFuncNode) {
+			result = getDateFormatFuncNodeSql((DateFormatFuncNode) exprNode);
     	} else if (exprNode instanceof DateDiffFuncNode) {
 			result = getDateDiffFuncNodeSql((DateDiffFuncNode) exprNode);
 		} else if (exprNode instanceof DateRangeFuncNode) {
@@ -689,7 +730,44 @@ public class QueryGenerator {
 		
 		return "(" + expr + ")";    	
     }
-    
+
+    private String getDateFormatFuncNodeSql(DateFormatFuncNode dateFmt) {
+		String dateExprSql = getExpressionNodeSql(dateFmt.getDateExpr(), DataType.DATE);
+		if (DbSettingsFactory.isMySQL()) {
+			return getMySqlDateFormatSql(dateExprSql, dateFmt.getFormat());
+		} else if (DbSettingsFactory.isOracle()) {
+			return getOracleDateFormatSql(dateExprSql, dateFmt.getFormat());
+		} else {
+			return dateExprSql;
+		}
+	}
+
+	private String getMySqlDateFormatSql(String inputExpr, String format) {
+		return "date_format(" + inputExpr + ", " + getDbDateFormatString(format, MYSQL_DATE_FMTS) + ")";
+	}
+
+	private String getOracleDateFormatSql(String inputExpr, String format) {
+		return "to_char(" + inputExpr + ", " + getDbDateFormatString(format, ORACLE_DATE_FMTS) + ")";
+	}
+
+	private String getDbDateFormatString(String inputFormat, Map<String, String> dbFormats) {
+		Matcher matcher = DATE_FMT_PATTERN.matcher(inputFormat);
+		StringBuilder result = new StringBuilder("'");
+		int lastIdx = 0;
+
+		while (matcher.find()) {
+			String dateFmt = dbFormats.get(matcher.group(1));
+			if (dateFmt == null) {
+				dateFmt = matcher.group(0);
+			}
+
+			result.append(inputFormat.substring(lastIdx, matcher.start())).append(dateFmt);
+			lastIdx = matcher.end();
+		}
+
+		return result.append(inputFormat.substring(lastIdx)).append("'").toString();
+	}
+
     private String getDateDiffFuncNodeSql(DateDiffFuncNode dateDiff) {    	
     	String loperand = getExpressionNodeSql(dateDiff.getLeftOperand(), DataType.DATE);
 		String roperand = getExpressionNodeSql(dateDiff.getRightOperand(), DataType.DATE);
