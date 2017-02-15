@@ -2,7 +2,9 @@ package edu.common.dynamicextensions.query;
 
 import java.io.Serializable;
 
+import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.NumberField;
+import edu.common.dynamicextensions.domain.nui.StringTextField;
 import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
@@ -60,11 +62,17 @@ public class ResultColumn implements Serializable {
 	}
 
 	public String getUrl() {
+		String url = null;
 		if (columnExpr instanceof FieldNode) {
-			return ((FieldNode)columnExpr).getCtrl().getRecordUrl();
+			Control ctrl = ((FieldNode)columnExpr).getCtrl();
+			if (ctrl instanceof StringTextField && ((StringTextField) ctrl).isUrl()) {
+				url = "true";
+			} else if (ctrl.getRecordUrl() != null) {
+				url = ctrl.getRecordUrl();
+			}
 		}
 
-		return null;
+		return url;
 	}
 	
 	public String[] getCaptions() {
