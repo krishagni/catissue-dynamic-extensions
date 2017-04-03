@@ -775,7 +775,7 @@ public class QueryGenerator {
     }
 
 	private String getDateRangeFuncNodeSql(DateRangeFuncNode range) {
-		int monthsRange = 0;
+		int monthsRange = 0, daysRange = 0, dayOffset = -1;
 
 		Calendar cal = Calendar.getInstance();
 		switch (range.getRangeType()) {
@@ -795,16 +795,49 @@ public class QueryGenerator {
 			case LAST_MONTH:
 				monthsRange = -1 * range.getRange();
 				break;
+
+			case LAST_WEEK:
+				cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+				daysRange = -7 * range.getRange();
+				break;
+
+			case CURRENT_WEEK:
+				int dow = cal.get(Calendar.DAY_OF_WEEK);
+				cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+				dayOffset = (dow - Calendar.SUNDAY);
+				break;
+
+			case LAST_DAYS:
+				daysRange = -1 * range.getRange();
+				break;
+
+			case TODAY:
+				dayOffset = 0;
+				break;
+
+			case YESTERDAY:
+				daysRange = -1;
+				break;
 		}
 
 		cal.add(Calendar.MONTH, monthsRange);
+		cal.add(Calendar.DATE, daysRange);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
 		Date from = cal.getTime();
 
 		cal.add(Calendar.MONTH, -monthsRange);
-		cal.add(Calendar.DATE, -1);
+		cal.add(Calendar.DATE, -daysRange);
+		cal.add(Calendar.DATE, dayOffset);
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		cal.set(Calendar.MILLISECOND, 999);
 		Date to = cal.getTime();
 
-		SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+		SimpleDateFormat sdf = new SimpleDateFormat(dateTimeFormat);
 
 		LiteralValueNode minNode = new LiteralValueNode(DataType.STRING);
 		minNode.setValues(Collections.singletonList("\"" + sdf.format(from) + "\""));
@@ -816,6 +849,7 @@ public class QueryGenerator {
 		node.setLhs(range.getDateExpr());
 		node.setMinNode(minNode);
 		node.setMaxNode(maxNode);
+
 		return getBetweenNodeSql(node);
 	}
 

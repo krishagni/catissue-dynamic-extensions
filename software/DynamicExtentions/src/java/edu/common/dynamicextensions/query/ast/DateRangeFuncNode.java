@@ -14,7 +14,17 @@ public class DateRangeFuncNode extends ExpressionNode implements Serializable {
 
 		LAST_CAL_MONTH("last_cal_month"),
 
-		LAST_MONTH("last_month");
+		LAST_MONTH("last_month"),
+
+		LAST_WEEK("last_week"),
+
+		CURRENT_WEEK("current_week"),
+
+		LAST_DAYS("last_days"),
+
+		YESTERDAY("yesterday"),
+
+		TODAY("today");
 
 		private String type;
 
