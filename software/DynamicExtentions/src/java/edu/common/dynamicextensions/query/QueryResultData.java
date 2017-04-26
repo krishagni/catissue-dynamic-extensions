@@ -20,7 +20,9 @@ import edu.common.dynamicextensions.query.ast.FieldNode;
 public class QueryResultData {
     private ResultColumnLabelFormatter formatter = new DefaultResultColLabelFormatter("# ");
     
-    private List<ResultColumn> resultColumns;
+    private List<ResultColumn> resultColumns = null;
+
+	private List<ResultColumn> screenedColumns = null;
     
     private List<Object[]> rows = null;
     
@@ -30,7 +32,7 @@ public class QueryResultData {
 
     private SimpleDateFormat tsf = null;
     
-    private QueryResultScreener screener;
+    private QueryResultScreener screener = null;
     
     private int dbRowsCount;
         	
@@ -76,11 +78,7 @@ public class QueryResultData {
     }
     
     public String[] getColumnLabels() {
-        List<ResultColumn> screenedCols = resultColumns;
-        if (screener != null) {
-            screenedCols = screener.getScreenedResultColumns(resultColumns);
-        }
-
+        List<ResultColumn> screenedCols = getResultColumns();
         String[] labels = new String[screenedCols.size()];
         int i = 0;
         for (ResultColumn column : screenedCols) {
@@ -91,11 +89,7 @@ public class QueryResultData {
     }
 
 	public String[] getColumnUrls() {
-		List<ResultColumn> screenedCols = resultColumns;
-		if (screener != null) {
-			screenedCols = screener.getScreenedResultColumns(resultColumns);
-		}
-
+		List<ResultColumn> screenedCols = getResultColumns();
 		String[] urls = new String[screenedCols.size()];
 		int i = 0;
 		for (ResultColumn column : screenedCols) {
@@ -106,7 +100,16 @@ public class QueryResultData {
 	}
     
     public List<ResultColumn> getResultColumns() {
-    	return screener != null ? screener.getScreenedResultColumns(resultColumns) : resultColumns;
+		if (screenedColumns != null) {
+			return screenedColumns;
+		}
+
+		screenedColumns = resultColumns;
+		if (screener != null) {
+			screenedColumns = screener.getScreenedResultColumns(resultColumns);
+		}
+
+		return screenedColumns;
     }
     
     public void dataSource(List<Object[]> rows) {
@@ -252,7 +255,7 @@ public class QueryResultData {
 				}
 			} else if (row[j] instanceof Number) {
 				result[j] = new BigDecimal(((Number)row[j]).doubleValue())
-					.setScale(resultColumns.get(j).getScale(), BigDecimal.ROUND_HALF_UP)
+					.setScale(getResultColumns().get(j).getScale(), BigDecimal.ROUND_HALF_UP)
 					.toString();
             } else {
             	result[j] = row[j].toString();
