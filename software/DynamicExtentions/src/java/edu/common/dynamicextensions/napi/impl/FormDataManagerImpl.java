@@ -25,6 +25,8 @@ import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.PageBreak;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.UserContext;
+import edu.common.dynamicextensions.domain.nui.ValidationErrors;
+import edu.common.dynamicextensions.domain.nui.ValidationStatus;
 import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FileControlValue;
 import edu.common.dynamicextensions.napi.FormAuditManager;
@@ -51,6 +53,8 @@ public class FormDataManagerImpl implements FormDataManager {
 	private static final String GET_FILE_CONTROL_VALUES = "SELECT %s, %s, %s from %s where IDENTIFIER = ?";
 
 	private boolean auditEnable = true;
+
+	private String activeRecordsJoinSql;
 	
 	public FormDataManagerImpl(boolean auditEnable) {
 		this.auditEnable = auditEnable;
@@ -58,7 +62,15 @@ public class FormDataManagerImpl implements FormDataManager {
 	
 	public FormDataManagerImpl() { 
 	}
-	
+
+	public void setAuditEnable(boolean auditEnable) {
+		this.auditEnable = auditEnable;
+	}
+
+	public void setActiveRecordsJoinSql(String activeRecordsJoinSql) {
+		this.activeRecordsJoinSql = activeRecordsJoinSql;
+	}
+
 	@Override
 	public FormDataFilterManager getFilterMgr() {
 		return FormDataFilterManagerImpl.getInstance();
@@ -172,6 +184,8 @@ public class FormDataManagerImpl implements FormDataManager {
 	@Override
 	public Long saveOrUpdateFormData(UserContext userCtxt, FormData formData, JdbcDao jdbcDao) {
 		try {
+			ensureUniqueConstraints(jdbcDao, formData);
+
 			formData = getFilterMgr().executePreFilters(userCtxt, formData);
 			
 			String operation = formData.getRecordId() == null ? "INSERT" : "UPDATE";
@@ -213,8 +227,18 @@ public class FormDataManagerImpl implements FormDataManager {
 		anonymize(formData);
 		saveOrUpdateFormData(userCtxt, formData);
 	}
-	
-	private List<FormData> getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Long identifier) 
+
+	@Override
+	public List<Long> getRecordIds(Container container, String ctrlName, Object value, boolean useUdn) {
+		Control ctrl = useUdn ? container.getControlByUdn(ctrlName, "\\.") : container.getControl(ctrlName, "\\.");
+		if (ctrl == null) {
+			throw new IllegalArgumentException("No such control: " + ctrlName);
+		}
+
+		return getRecordIds(JdbcDaoFactory.getJdbcDao(), ctrl, value, (ctrlName.split("\\.").length > 1));
+	}
+
+	private List<FormData> getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Long identifier)
 	throws Exception {
 		final List<Control> simpleCtrls = new ArrayList<Control>();
 		final List<Control> multiSelectCtrls = new ArrayList<Control>();
@@ -747,5 +771,77 @@ public class FormDataManagerImpl implements FormDataManager {
 
 	private String filePath(String fileId) {
 		return DeConfiguration.getInstance().fileUploadDir() + File.separator + fileId;
+	}
+
+	private void ensureUniqueConstraints(final JdbcDao jdbcDao, FormData formData) {
+		boolean useUdn = formData.isUsingUdn();
+
+		ValidationErrors errors = new ValidationErrors();
+		for (Control ctrl : formData.getContainer().getUniqueControls()) {
+			ControlValue cv = formData.getFieldValue(ctrl.getName());
+			if (cv == null || cv.getValue() == null) {
+				//
+				// no (new) value specified
+				//
+				continue;
+			}
+
+			List<Long> recIds = getRecordIds(jdbcDao, ctrl, cv.getValue(), false);
+			if (CollectionUtils.isEmpty(recIds)) {
+				//
+				// no records found with this value
+				//
+				continue;
+			}
+
+			if (recIds.size() == 1 && recIds.get(0).equals(formData.getRecordId())) {
+				//
+				// only one record found with field value and the record is same as that being updated
+				//
+				continue;
+			}
+
+			errors.addError(useUdn ? ctrl.getUserDefinedName() : ctrl.getCaption(), ValidationStatus.VALUE_NOT_UNIQUE);
+		}
+
+		errors.throwIfErrors();
+	}
+
+	private List<Long> getRecordIds(final JdbcDao jdbcDao, Control ctrl, Object value, boolean sfField) {
+		String valueTabAlias = "pf";
+
+		StringBuilder sql = new StringBuilder("select ")
+			.append(sfField ? "pf.parent_record_id" : "pf.identifier")
+			.append(" from ").append(ctrl.getContainer().getDbTableName()).append(" pf ");
+
+		if (ctrl instanceof MultiSelectControl) {
+			MultiSelectControl msCtrl = (MultiSelectControl) ctrl;
+			sql.append(" inner join ").append(msCtrl.getTableName()).append(" ms on ms.record_id = pf.identifier");
+			valueTabAlias = "ms";
+		}
+
+		if (StringUtils.isNotBlank(activeRecordsJoinSql)) {
+			String joinSql = String.format(activeRecordsJoinSql, "pf", sfField ? "parent_record_id" : "identifier");
+			sql.append(" inner join ").append(joinSql);
+		}
+
+		String valueColumnName = ctrl.getDbColumnName();
+		Object valueObj = value instanceof String ? ctrl.fromString((String)value) : value;
+		if (ctrl instanceof FileUploadControl) {
+			valueColumnName += "_NAME";
+			valueObj = value;
+		}
+
+		sql.append(" where ").append(valueTabAlias).append(".").append(valueColumnName).append(" = ?");
+		return jdbcDao.getResultSet(sql.toString(), Collections.singletonList(valueObj),
+			(rs) -> {
+				List<Long> recordIds = new ArrayList<>();
+				while (rs.next()) {
+					recordIds.add(rs.getLong(1));
+				}
+
+				return recordIds;
+			}
+		);
 	}
 }

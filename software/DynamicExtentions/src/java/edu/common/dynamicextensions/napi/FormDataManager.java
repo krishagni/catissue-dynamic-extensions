@@ -29,4 +29,6 @@ public interface FormDataManager {
 	public FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName);
 	
 	public FormDataFilterManager getFilterMgr();
+
+	public List<Long> getRecordIds(Container container, String ctrlName, Object value, boolean useUdn);
 }

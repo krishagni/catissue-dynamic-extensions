@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -1187,6 +1188,16 @@ public class Container implements Serializable {
 		final List<Control> controls = new ArrayList<Control>(getControls());
 		java.util.Collections.sort(controls);
 		return controls;
+	}
+
+	public List<Control> getUniqueControls() {
+		return getOrderedControlList().stream()
+			.filter(ctrl -> ctrl.isUnique() &&
+				!(ctrl instanceof SubFormControl) &&
+				!(ctrl instanceof MultiSelectControl) &&
+				!(ctrl instanceof PageBreak) &&
+				!(ctrl instanceof Label))
+			.collect(Collectors.toList());
 	}
 
 	private void initLogs() {

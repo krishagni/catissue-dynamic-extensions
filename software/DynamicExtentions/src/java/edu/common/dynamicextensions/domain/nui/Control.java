@@ -22,7 +22,7 @@ import edu.common.dynamicextensions.nui.ValidationRuleNames;
 public abstract class Control implements Comparable<Control>, Serializable {
 	private static final long serialVersionUID = -1079013546686251896L;
 
-	public static enum LabelPosition {
+	public enum LabelPosition {
 		LEFT_SIDE, TOP
 	};
 
@@ -139,16 +139,19 @@ public abstract class Control implements Comparable<Control>, Serializable {
 	}
 
 	public boolean isMandatory() {
-		ValidationRule rule = getValidationRule(ValidationRuleNames.REQUIRED);
-		return rule != null;
+		return isRuleEnabled(ValidationRuleNames.REQUIRED);
 	}
 
 	public void setMandatory(boolean mandatory) {
-		if (mandatory) {
-			addValidationRule(ValidationRuleNames.REQUIRED, null);
-		} else {
-			removeValidationRule(ValidationRuleNames.REQUIRED);
-		}
+		enableRule(mandatory, ValidationRuleNames.REQUIRED);
+	}
+
+	public boolean isUnique() {
+		return isRuleEnabled(ValidationRuleNames.UNIQUE);
+	}
+
+	public void setUnique(boolean unique) {
+		enableRule(unique, ValidationRuleNames.UNIQUE);
 	}
 
 	public int getSequenceNumber() {
@@ -492,5 +495,17 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		writeElement(writer, "showLabel",   showLabel());
 		writeElement(writer, "showInGrid",  showInGrid());
 		writeCDataElement(writer, "showWhen", getShowWhenExpr());
-	}	
+	}
+
+	private boolean isRuleEnabled(String ruleName) {
+		return (getValidationRule(ruleName) != null);
+	}
+
+	private void enableRule(boolean enable, String ruleName) {
+		if (enable) {
+			addValidationRule(ruleName, null);
+		} else {
+			removeValidationRule(ruleName);
+		}
+	}
 }

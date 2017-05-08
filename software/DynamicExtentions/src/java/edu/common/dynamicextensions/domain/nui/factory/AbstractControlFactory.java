@@ -39,6 +39,7 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		ctrl.setToolTip(getTextValue(ctrlEle, "toolTip", ""));
 		ctrl.setPhi(getBooleanValue(ctrlEle, "phi"));
 		ctrl.setMandatory(getBooleanValue(ctrlEle, "mandatory"));
+		ctrl.setUnique(getBooleanValue(ctrlEle, "unique"));
 		ctrl.setShowInGrid(getBooleanValue(ctrlEle, "showInGrid"));
 		ctrl.setShowLabel(getBooleanValue(ctrlEle, "showLabel", true));
 		ctrl.setSequenceNumber(currentRow);
