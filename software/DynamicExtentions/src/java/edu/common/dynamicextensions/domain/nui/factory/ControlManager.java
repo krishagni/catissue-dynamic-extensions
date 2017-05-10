@@ -26,6 +26,7 @@ public class ControlManager {
 		registerFactory(MultiSelectCheckboxFactory.getInstance());
 		registerFactory(RadioButtonFactory.getInstance());
 		registerFactory(SubFormControlFactory.getInstance());
+		registerFactory(LinkControlFactory.getInstance());
 	}
 	
 	public void registerFactory(ControlFactory factory) {

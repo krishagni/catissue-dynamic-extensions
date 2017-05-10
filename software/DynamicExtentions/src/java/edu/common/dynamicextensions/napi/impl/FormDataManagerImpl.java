@@ -20,6 +20,7 @@ import edu.common.dynamicextensions.domain.nui.ControlValueCrud;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
 import edu.common.dynamicextensions.domain.nui.Label;
+import edu.common.dynamicextensions.domain.nui.LinkControl;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.PageBreak;
@@ -185,6 +186,7 @@ public class FormDataManagerImpl implements FormDataManager {
 	public Long saveOrUpdateFormData(UserContext userCtxt, FormData formData, JdbcDao jdbcDao) {
 		try {
 			ensureUniqueConstraints(jdbcDao, formData);
+			ensureLinkConstraints(jdbcDao, formData.getContainer(), formData);
 
 			formData = getFilterMgr().executePreFilters(userCtxt, formData);
 			
@@ -411,18 +413,18 @@ public class FormDataManagerImpl implements FormDataManager {
 	
 	private Long saveOrUpdateFormData(JdbcDao jdbcDao, FormData formData, Long parentRecId)
 	throws Exception {
-		List<Control> simpleCtrls = new ArrayList<Control>();
-		List<Control> multiSelectCtrls = new ArrayList<Control>();
-		List<Control> subFormCtrls = new ArrayList<Control>();
+		List<Control> simpleCtrls = new ArrayList<>();
+		List<Control> multiSelectCtrls = new ArrayList<>();
+		List<Control> subFormCtrls = new ArrayList<>();
 
 		Container container = formData.getContainer();
 		Long recordId = formData.getRecordId();
-		List<InputStream> inputStreams = new ArrayList<InputStream>();
+		List<InputStream> inputStreams = new ArrayList<>();
 		
 		segregateControls(container, simpleCtrls, multiSelectCtrls, subFormCtrls);
 		
 		String upsertSql = buildUpsertSql(simpleCtrls, subFormCtrls, container.getDbTableName(), recordId, parentRecId);
-		List<Object> params = new ArrayList<Object>();
+		List<Object> params = new ArrayList<>();
 
 		try {
 			for (Control ctrl : simpleCtrls) {
@@ -505,7 +507,7 @@ public class FormDataManagerImpl implements FormDataManager {
 				
 				List<FormData> subFormsData = null;
 				if (subFormCtrl.isOneToOne() && subFormVal != null) {
-					subFormsData = new ArrayList<FormData>();
+					subFormsData = new ArrayList<>();
 					subFormsData.add((FormData)subFormVal.getValue());
 				} else if (subFormVal != null) {
 					subFormsData = (List<FormData>) subFormVal.getValue();
@@ -516,7 +518,7 @@ public class FormDataManagerImpl implements FormDataManager {
 				}
 				
 				String sfTableName = subFormCtrl.getSubContainer().getDbTableName();
-				Set<Long> currentSfIds = new HashSet<Long>();				
+				Set<Long> currentSfIds = new HashSet<>();
 				for (FormData subFormData : subFormsData) {
 					Long subFormRecId = saveOrUpdateFormData(jdbcDao, subFormData, recordId);
 					subFormData.setRecordId(subFormRecId);
@@ -524,7 +526,7 @@ public class FormDataManagerImpl implements FormDataManager {
 				}
 		
 				Set<Long> persistedSfIds = getPersistedSfIds(jdbcDao, sfTableName, formData.getRecordId());
-				List<Long> deletedSfData = new ArrayList<Long>();
+				List<Long> deletedSfData = new ArrayList<>();
 				
 				for (Long persistedId : persistedSfIds) {
 					if (!currentSfIds.contains(persistedId)) {
@@ -537,9 +539,7 @@ public class FormDataManagerImpl implements FormDataManager {
 				}
 			}
 		} finally {
-			for (InputStream inputStream : inputStreams) {
-				IoUtil.close(inputStream);
-			}
+			inputStreams.forEach(IoUtil::close);
 		}
 		
 		return recordId;		
@@ -774,8 +774,6 @@ public class FormDataManagerImpl implements FormDataManager {
 	}
 
 	private void ensureUniqueConstraints(final JdbcDao jdbcDao, FormData formData) {
-		boolean useUdn = formData.isUsingUdn();
-
 		ValidationErrors errors = new ValidationErrors();
 		for (Control ctrl : formData.getContainer().getUniqueControls()) {
 			ControlValue cv = formData.getFieldValue(ctrl.getName());
@@ -801,7 +799,39 @@ public class FormDataManagerImpl implements FormDataManager {
 				continue;
 			}
 
-			errors.addError(useUdn ? ctrl.getUserDefinedName() : ctrl.getCaption(), ValidationStatus.VALUE_NOT_UNIQUE);
+			errors.addError(ctrl.getCaption(), ValidationStatus.VALUE_NOT_UNIQUE);
+		}
+
+		errors.throwIfErrors();
+	}
+
+	private void ensureLinkConstraints(final JdbcDao jdbcDao, Container form, FormData formData) {
+		ValidationErrors errors = new ValidationErrors();
+		for (Control ctrl : formData.getContainer().getOrderedControlList()) {
+			ControlValue cv = formData.getFieldValue(ctrl.getName());
+			if (cv.getValue() == null) {
+				continue;
+			}
+
+			if (ctrl instanceof SubFormControl) {
+				SubFormControl sfCtrl = (SubFormControl) ctrl;
+				try {
+					if (sfCtrl.isOneToOne()) {
+						ensureLinkConstraints(jdbcDao, sfCtrl.getSubContainer(), (FormData)cv.getValue());
+					} else {
+						List<FormData> sfDataList = (List<FormData>)cv.getValue();
+						sfDataList.forEach(sfData -> ensureLinkConstraints(jdbcDao, sfCtrl.getSubContainer(), sfData));
+					}
+				} catch (ValidationErrors ve) {
+					errors.addErrors(ve.getErrors());
+				}
+			} else if (ctrl instanceof LinkControl) {
+				LinkControl linkCtrl = (LinkControl) ctrl;
+				Container linkedForm = Container.getContainer(linkCtrl.getFormName());
+				if (!isValidRecord(jdbcDao, linkedForm, cv.getValue())) {
+					errors.addError(linkCtrl.getCaption(), ValidationStatus.INVALID_VALUE);
+				}
+			}
 		}
 
 		errors.throwIfErrors();
@@ -843,5 +873,27 @@ public class FormDataManagerImpl implements FormDataManager {
 				return recordIds;
 			}
 		);
+	}
+
+	private boolean isValidRecord(final JdbcDao jdbcDao, Container form, Object value) {
+		if (value == null || value.toString().trim().isEmpty()) {
+			return true;
+		}
+
+		try {
+			Long recordId = (value instanceof Long) ? (Long) value : Long.parseLong(value.toString());
+
+			StringBuilder sql = new StringBuilder("select t.identifier from ")
+				.append(form.getDbTableName()).append(" t ");
+			if (StringUtils.isNotBlank(activeRecordsJoinSql)) {
+				String joinSql = String.format(activeRecordsJoinSql, "t", "identifier");
+				sql.append(" inner join ").append(joinSql);
+			}
+
+			sql.append(" where t.identifier = ?");
+			return jdbcDao.getResultSet(sql.toString(), Collections.singletonList(recordId), ResultSet::next);
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }
