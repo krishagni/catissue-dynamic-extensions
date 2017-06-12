@@ -233,23 +233,46 @@ public class ShallowWideRowGenerator {
     }
     
     private void initTableJoinPath(JoinTree joinTree, List<String> path) {
+		if (tabJoinPath.containsKey(joinTree.getAlias())) {
+			return;
+		}
+
         String tabAlias = joinTree.getAlias();
-        path = new ArrayList<String>(path);
+        path = new ArrayList<>(path);
         path.add(tabAlias);
         
         tabJoinPath.put(tabAlias, path.toArray(new String[0]));
         
         if (joinTree.isMultiSelect()) {
         	tabWideRowMode.put(tabAlias, WideRowMode.DEEP);
-        } else if (mode == WideRowMode.DEEP && (joinTree.isSubForm() || joinTree.isExtensionForm())) {
+        } else if (mode == WideRowMode.DEEP && (joinTree.isSubForm() || joinTree.isNonTopLevelExtensionForm())) {
         	tabWideRowMode.put(tabAlias, WideRowMode.DEEP);
         } else {
         	tabWideRowMode.put(tabAlias, WideRowMode.SHALLOW);
         }
         
         for (JoinTree childTree : joinTree.getChildren()) {
+			if (childTree.getLinkedTrees().size() != 0) {
+				continue;
+			}
+
             initTableJoinPath(childTree, path);
         }
+
+        //
+		// TODO: added for link control
+		//
+        for (JoinTree linkedFrom : joinTree.getLinkedFromTrees()) {
+			initTableJoinPath(linkedFrom, path);
+
+			for (JoinTree linkedTo : linkedFrom.getLinkedTrees().values()) {
+				initTableJoinPath(linkedTo, path);
+			}
+
+			if (linkedFrom.getParent() != null) {
+				initTableJoinPath(linkedFrom.getParent(), path);
+			}
+		}
     }
     
     private Map<String, String> getTabAliasIdMap(ResultSet rs) 

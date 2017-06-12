@@ -20,6 +20,7 @@ import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
+import edu.common.dynamicextensions.domain.nui.LinkControl;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
@@ -117,7 +118,8 @@ public class QueryGenerator {
         	String fromClause  = buildFromClause(joinTree);
         	String whereClause = buildWhereClause(queryExpr.getFilterExpr());
         	String activeClause = buildActiveCond(joinTree);
-        	whereClause = and(whereClause, activeClause);
+			String linkClause = buildLinkCond(joinTree);
+			whereClause = and(and(whereClause, activeClause), linkClause);
         	
         	String alias = joinTree.getAlias();
         	String pk = joinTree.getForm().getPrimaryKey();
@@ -138,9 +140,10 @@ public class QueryGenerator {
         String fromClause  = buildFromClause(joinTree);
         String whereClause = buildWhereClause(queryExpr.getFilterExpr());        
         String activeClause = buildActiveCond(joinTree);
+		String linkClause = buildLinkCond(joinTree);
         String groupBy = buildGroupBy(queryExpr.getSelectList());
-        
-        whereClause = and(whereClause, activeClause);        
+
+		whereClause = and(and(whereClause, activeClause), linkClause);
         String sql = new StringBuilder("select ").append(selectClause)
         	.append(" from ").append(fromClause)
         	.append(" where ").append(whereClause)
@@ -385,6 +388,37 @@ public class QueryGenerator {
     	
     	return clause.toString();
     }
+
+    private String buildLinkCond(JoinTree joinTree) {
+		StringBuilder clause = new StringBuilder();
+
+		for (Map.Entry<LinkControl, JoinTree> lte : joinTree.getLinkedTrees().entrySet()) {
+			LinkControl linkCtrl = lte.getKey();
+			JoinTree linkedTree = lte.getValue();
+
+			if (clause.length() != 0) {
+				clause.append(" AND ");
+			}
+
+			clause.append(joinTree.getAlias()).append(".").append(linkCtrl.getDbColumnName()).append(" = ")
+				.append(linkedTree.getAlias()).append(".").append(linkedTree.getForm().getPrimaryKey());
+		}
+
+		for (JoinTree childTree : joinTree.getChildren()) {
+			String childTreeClause = buildLinkCond(childTree);
+			if (childTreeClause.isEmpty()) {
+				continue;
+			}
+
+			if (clause.length() != 0) {
+				clause.append(" AND ");
+			}
+
+			clause.append(childTreeClause);
+		}
+
+		return clause.toString();
+	}
 
 	private String buildOrderBy(OrderExprListNode orderList) {
 		StringBuilder orderBy = new StringBuilder();

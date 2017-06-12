@@ -3,11 +3,9 @@ package edu.common.dynamicextensions.query;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,13 +15,30 @@ import org.apache.log4j.Logger;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
+import edu.common.dynamicextensions.domain.nui.LinkControl;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.napi.VersionedContainer;
 import edu.common.dynamicextensions.napi.impl.VersionedContainerImpl;
-import edu.common.dynamicextensions.query.ast.*;
+import edu.common.dynamicextensions.query.ast.AggregateNode;
+import edu.common.dynamicextensions.query.ast.ArithExpressionNode;
+import edu.common.dynamicextensions.query.ast.BetweenNode;
+import edu.common.dynamicextensions.query.ast.ConcatNode;
+import edu.common.dynamicextensions.query.ast.DateDiffFuncNode;
+import edu.common.dynamicextensions.query.ast.DateFormatFuncNode;
+import edu.common.dynamicextensions.query.ast.DateRangeFuncNode;
+import edu.common.dynamicextensions.query.ast.ExpressionNode;
+import edu.common.dynamicextensions.query.ast.FieldNode;
+import edu.common.dynamicextensions.query.ast.FilterExpressionNode;
 import edu.common.dynamicextensions.query.ast.FilterExpressionNode.Op;
+import edu.common.dynamicextensions.query.ast.FilterNode;
+import edu.common.dynamicextensions.query.ast.FilterNodeMarker;
+import edu.common.dynamicextensions.query.ast.OrderExprListNode;
+import edu.common.dynamicextensions.query.ast.OrderExprNode;
+import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
+import edu.common.dynamicextensions.query.ast.RoundOffNode;
+import edu.common.dynamicextensions.query.ast.SelectListNode;
 
 public class QueryCompiler
 {
@@ -44,6 +59,8 @@ public class QueryCompiler
     private int numQueries;
     
     private boolean vcEnabled;
+
+	private PathConfig pathConfig;
     
     public QueryCompiler(String rootFormName, String query) {
         this(rootFormName, query, null);
@@ -54,12 +71,17 @@ public class QueryCompiler
         this.query = query;
         this.restriction = restriction;
     }
-    
+
     public QueryCompiler enabledVersionedForms(boolean vcEnabled) {
     	this.vcEnabled = vcEnabled;
     	return this;
     }
-    
+
+    public QueryCompiler pathConfig(PathConfig pathConfig) {
+		this.pathConfig = pathConfig;
+		return this;
+	}
+
     public void compile() {
 		try {
 			QueryParser queryParser = new QueryParser(query);
@@ -75,6 +97,10 @@ public class QueryCompiler
     public QueryExpressionNode getQueryExpr() {
         return queryExpr;
     }
+
+    private PathConfig pathConfig() {
+		return (pathConfig == null) ? PathConfig.getInstance() : pathConfig;
+	}
 
     public JoinTree getQueryJoinTree() {
         return queryJoinTree;
@@ -100,13 +126,11 @@ public class QueryCompiler
             rootTree = new JoinTree(rootForm, "t" + tabCnt++);
         }
 
-        List<String> lookupNames = new ArrayList<String>(joinMap.keySet());
-        Collections.sort(lookupNames, new Comparator<String>() {
-        	public int compare(String arg0, String arg1) {
+        List<String> lookupNames = new ArrayList<>(joinMap.keySet());
+        Collections.sort(lookupNames, (arg0, arg1) -> {
         		Integer query0 = Integer.parseInt(arg0.split("\\.")[0]);
         		Integer query1 = Integer.parseInt(arg1.split("\\.")[0]);
         		return query0.compareTo(query1);
-        	}
         });
         
         for (String formLookupName : lookupNames) {
@@ -117,7 +141,7 @@ public class QueryCompiler
             JoinTree childTree = joinMap.get(formLookupName);
             
             String dest = formLookupName.substring(formLookupName.indexOf(".") + 1); 
-            Path path = PathConfig.getInstance().getPath(rootFormName, dest);
+            Path path = pathConfig().getPath(rootFormName, dest);
             if (path == null) {
                 throw new RuntimeException("No path between root form " + rootFormName + " and " + dest);
             }
@@ -145,6 +169,24 @@ public class QueryCompiler
         	parentTree.addChild(queryId + "." + current.getFormName(), to);        	        	
         	return;
         }
+
+        if (path.isForTopLevelDynaEntity()) {
+			PathLink link = path.getLinks().get(0);
+
+			JoinTree child = new JoinTree(link.getRefTab(), "t" + tabCnt++);
+			child.setParent(current);
+			child.setForeignKey(link.getRefTabKey());
+			child.setParentKey(link.getKey());
+			child.setExtnFk(link.getExtnKey());
+			child.setFormIdCol(link.getFormIdCol());
+			current.addChild(child.getAlias(), child);
+
+			to.setParent(child);
+			to.setExtensionForm(true);
+			to.setTopLevelExtensionForm(true);
+			child.addChild(to.getAlias(), to);
+			return;
+		}
         
         for (PathLink link : path.getLinks()) {
             if (link.getRefTab() == null && to.getParent() == null) {            	
@@ -156,17 +198,18 @@ public class QueryCompiler
                 break;
             }
             
-            JoinTree child = current.getChild(link.getRefTab());            
+            JoinTree child = current.getChild(link.getRefTab());
             if (child == null) {
                 child = new JoinTree(link.getRefTab(), "t" + tabCnt++);
                 child.setParent(current);
                 child.setForeignKey(link.getRefTabKey());
                 child.setParentKey(link.getKey());
-                current.addChild(child.getAlias(), child); // Earlier: name = child.getTab()                
+                current.addChild(child.getAlias(), child); // Earlier: name = child.getTab()
             }
+
             current = child;
         }
-        
+
         current.setInnerJoin(path.isWildCard());
     }
 
@@ -211,6 +254,38 @@ public class QueryCompiler
         sfTree.setFormIdCol(sfCtrl.getFormIdColumn());
         return sfTree;
     }
+
+    private Control getControl(Container form, String udn) {
+		if (udn.equals("dynaEntities")) {
+			return getDynaEntitySubFormCtrl(form);
+		} else {
+			return form.getControlByUdn(udn);
+		}
+	}
+
+    private SubFormControl getDynaEntitySubFormCtrl(Container parentForm) {
+		Path path = pathConfig().getPath("*", "dynaEntities");
+		if (path == null || path.getLinks() == null || path.getLinks().isEmpty()) {
+			return null;
+		}
+
+		PathLink link = path.getLinks().get(0);
+		Container sf = new Container();
+		sf.setName("dynaEntities");
+		sf.setCaption("Dynamic Entities");
+		sf.setDbTableName(link.getRefTab());
+
+		SubFormControl sfCtrl = new SubFormControl();
+		sfCtrl.setName("dynaEntities");
+		sfCtrl.setUserDefinedName("dynaEntities");
+		sfCtrl.setContainer(parentForm);
+		sfCtrl.setParentKey(link.getKey());
+		sfCtrl.setForeignKey(link.getRefTabKey());
+		sfCtrl.setExtnFkColumn(link.getExtnKey());
+		sfCtrl.setFormIdColumn(link.getFormIdCol());
+		sfCtrl.setSubContainer(sf);
+		return sfCtrl;
+	}
     
     private JoinTree getFieldTree(JoinTree parentNode, Control field) {
 		JoinTree fieldTree = new JoinTree();
@@ -244,6 +319,29 @@ public class QueryCompiler
         if (expr.getOrderExpr() != null) {
             expr.setOrderExpr(analyzeOrderExpr(expr.getOrderExpr(), joinMap));
         }
+
+        //
+		// Link join trees based on link control configuration
+		//
+        for (Map.Entry<String, JoinTree> jt : joinMap.entrySet()) {
+			if (jt.getValue().getForm() == null) {
+				continue;
+			}
+
+			int dotIdx = jt.getKey().indexOf(".");
+			String queryId = jt.getKey().substring(0, dotIdx + 1);
+			for (Control ctrl : jt.getValue().getForm().getOrderedControlList()) {
+				if (!(ctrl instanceof LinkControl)) {
+					continue;
+				}
+
+				LinkControl linkControl = (LinkControl) ctrl;
+				JoinTree linkedTree = joinMap.get(queryId + linkControl.getFormName());
+				if (linkedTree != null) {
+					jt.getValue().addLinkedTree(linkControl, linkedTree);
+				}
+			}
+		}
 
         return joinMap;
     }
@@ -537,18 +635,18 @@ public class QueryCompiler
     		form = formTree.getForm();
     	}    	                
         captions[0] = form.getCaption();
-        
-        Control ctrl = form.getControlByUdn(fieldNameParts[1]);
-        if (ctrl == null) {
-        	throw new IllegalArgumentException("Field doesn't exists: " + field.getName());
-        }
-        
-        if (!fieldNameParts[1].equals("extensions") && !fieldNameParts[1].equals("customFields") && (ctrl instanceof SubFormControl) && fieldNameParts.length > 2) {
-        	formTree = analyzeSubFormFields(queryId, formTree, fieldNameParts, 1, captions, false /*failIfAbsent*/);
-        } else if ((fieldNameParts[1].equals("extensions") || fieldNameParts[1].equals("customFields")) && (ctrl instanceof SubFormControl) && fieldNameParts.length > 3) {
-        	formTree = analyzeExtensionFields(queryId, joinMap, formTree, fieldNameParts, captions, false /*failIfAbsent*/);
-        } 
-        
+
+		Control ctrl = getControl(form, fieldNameParts[1]);
+		if (ctrl == null) {
+			throw new IllegalArgumentException("Field doesn't exists: " + field.getName());
+		}
+
+		if (!isCustomOrExtensionField(fieldNameParts[1]) && (ctrl instanceof SubFormControl) && fieldNameParts.length > 2) {
+			formTree = analyzeSubFormFields(queryId, formTree, fieldNameParts, 1, captions, false /*failIfAbsent*/);
+		} else if (isCustomOrExtensionField(fieldNameParts[1]) && (ctrl instanceof SubFormControl) && fieldNameParts.length > 3) {
+			formTree = analyzeExtensionFields(queryId, formTree, fieldNameParts, captions, false /*failIfAbsent*/);
+		}
+
         if (formTree == null && failIfAbsent) {
         	return false;
         }
@@ -583,16 +681,14 @@ public class QueryCompiler
         field.setTabAlias(tabAlias);
         field.setNodeCaptions(captions);
         return true;
-    }    
-        
-    private JoinTree getSubFormTree(int queryId, JoinTree formTree, String fieldName, boolean failIfAbsent) {
-    	return getSubFormTree(queryId, formTree, fieldName, failIfAbsent, null);
     }
-    
+
+    private boolean isCustomOrExtensionField(String fieldPart) {
+		return fieldPart.equals("customFields") || fieldPart.equals("extensions") || fieldPart.equals("dynaEntities");
+	}
+
     private JoinTree getSubFormTree(int queryId, JoinTree formTree, String fieldName, boolean failIfAbsent, String extnForm) {
-    	Container form = formTree.getForm();
-    	Control ctrl = form.getControlByUdn(fieldName);
-    	
+		Control ctrl = getControl(formTree.getForm(), fieldName);
     	if (!(ctrl instanceof SubFormControl)) {
     		throw new IllegalArgumentException("Field is not sub-form:" + fieldName);
     	}
@@ -626,8 +722,9 @@ public class QueryCompiler
     	for (int i = startIdx; i < fieldNameParts.length - 1; i++) {
     		//sfTree = getSubFormTree(queryId, formTree, fieldNameParts[i], failIfAbsent);
     		sfTree = getSubFormTree(
-    				queryId, formTree, fieldNameParts[i], 
-    				!failIfAbsent ? false : i == startIdx ? failIfAbsent : false);
+    				queryId, formTree, fieldNameParts[i],
+					failIfAbsent && i == startIdx,
+					(i + 1) < fieldNameParts.length ? fieldNameParts[i + 1] : null);
     		if (sfTree == null) {
     			return null;
     		}
@@ -639,12 +736,7 @@ public class QueryCompiler
     	return sfTree;
     }
     
-    private JoinTree analyzeExtensionFields(
-    		int queryId, 
-    		Map<String, JoinTree> joinMap, JoinTree formTree, 
-    		String[] fieldNameParts, String[] captions, 
-    		boolean failIfAbsent) {
-    	
+    private JoinTree analyzeExtensionFields(int queryId, JoinTree formTree, String[] fieldNameParts, String[] captions, boolean failIfAbsent) {
     	JoinTree extensionTree = getSubFormTree(queryId, formTree, fieldNameParts[1], failIfAbsent, fieldNameParts[2]);
     	if (extensionTree == null) {
     		return null;    		
@@ -672,8 +764,8 @@ public class QueryCompiler
     	captions[2] = extensionFormTree.getForm().getCaption();
     	return analyzeSubFormFields(queryId, extensionFormTree, fieldNameParts, 3, captions, failIfAbsent);
     }
-       
-    private Container getContainer(String name) {
+
+	private Container getContainer(String name) {
     	Container container = null;
     	
     	if (vcEnabled) {

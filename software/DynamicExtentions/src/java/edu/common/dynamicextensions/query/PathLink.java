@@ -5,7 +5,13 @@ public class PathLink {
     
     private String refTabKey;
     
-    private String key;	
+    private String key;
+
+    private String extnKey = "RECORD_ID";
+
+    private String formIdCol = "FORM_ID";
+
+    private boolean toExtension = false;
 
     public PathLink() {
     }
@@ -43,5 +49,29 @@ public class PathLink {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getExtnKey() {
+        return extnKey;
+    }
+
+    public void setExtnKey(String extnKey) {
+        this.extnKey = extnKey;
+    }
+
+    public String getFormIdCol() {
+        return formIdCol;
+    }
+
+    public void setFormIdCol(String formIdCol) {
+        this.formIdCol = formIdCol;
+    }
+
+    public boolean isToExtension() {
+        return toExtension;
+    }
+
+    public void setToExtension(boolean toExtension) {
+        this.toExtension = toExtension;
     }
 }

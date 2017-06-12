@@ -32,6 +32,21 @@ public class PathConfig {
         return instance;
     }
 
+    public static PathConfig from(List<Path> paths) {
+		PathConfig config = new PathConfig();
+		config.paths = new HashMap<>();
+
+		for (Path path : paths) {
+			config.paths.put(config.getPathStr(path.getStartForm(), path.getEndForm()), path);
+		}
+
+		return config;
+	}
+
+	private PathConfig() {
+
+	}
+
     private PathConfig(String pathConfig) {
         FileInputStream fin = null;
         

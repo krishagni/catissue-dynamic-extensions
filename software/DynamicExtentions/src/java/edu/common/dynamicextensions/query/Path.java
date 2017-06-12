@@ -12,9 +12,10 @@ public class Path
     private String startField;
     
     private boolean wildCard;
-    
-    private List<PathLink> links = new ArrayList<PathLink>();
-	
+
+    private boolean forTopLevelDynaEntity;
+
+    private List<PathLink> links = new ArrayList<>();
 
     public Path() {
     }
@@ -65,5 +66,13 @@ public class Path
     
     public void setWildCard(boolean wildCard) {
     	this.wildCard = wildCard;
+    }
+
+    public boolean isForTopLevelDynaEntity() {
+        return forTopLevelDynaEntity;
+    }
+
+    public void setForTopLevelDynaEntity(boolean forTopLevelDynaEntity) {
+        this.forTopLevelDynaEntity = forTopLevelDynaEntity;
     }
 }

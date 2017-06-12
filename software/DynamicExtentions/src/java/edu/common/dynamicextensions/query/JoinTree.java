@@ -1,11 +1,14 @@
 package edu.common.dynamicextensions.query;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
+import edu.common.dynamicextensions.domain.nui.LinkControl;
 
 public class JoinTree
 {
@@ -28,12 +31,18 @@ public class JoinTree
 	private boolean subForm;
 	
 	private boolean extensionForm;
+
+	private boolean topLevelExtensionForm;
 	
 	private String extnFk;
 
 	private String formIdCol;
 	
-	private Map<String, JoinTree> children = new HashMap<String, JoinTree>();	
+	private Map<String, JoinTree> children = new HashMap<>();
+
+	private Map<LinkControl, JoinTree> linkedTrees = new HashMap<>();
+
+	private List<JoinTree> linkedFromTrees = new ArrayList<>();
 
     public JoinTree() {
     }
@@ -139,6 +148,18 @@ public class JoinTree
 
 	public void setExtensionForm(boolean extensionForm) {
 		this.extensionForm = extensionForm;
+	}
+
+	public boolean isTopLevelExtensionForm() {
+		return topLevelExtensionForm;
+	}
+
+	public void setTopLevelExtensionForm(boolean topLevelExtensionForm) {
+		this.topLevelExtensionForm = topLevelExtensionForm;
+	}
+
+	public boolean isNonTopLevelExtensionForm() {
+		return isExtensionForm() && !isTopLevelExtensionForm();
 	}
 
 	public String getExtnFk() {
@@ -256,8 +277,21 @@ public class JoinTree
     public boolean isSubFormOrMultiSelect() {
     	return field != null || subForm;
     }
-    
-    private JoinTree getNonLinkParentNode(JoinTree joinTree) {
+
+    public void addLinkedTree(LinkControl ctrl, JoinTree tree) {
+		linkedTrees.put(ctrl, tree);
+		tree.linkedFromTrees.add(this);
+	}
+
+	public Map<LinkControl, JoinTree> getLinkedTrees() {
+		return linkedTrees;
+	}
+
+	public List<JoinTree> getLinkedFromTrees() {
+		return linkedFromTrees;
+	}
+
+	private JoinTree getNonLinkParentNode(JoinTree joinTree) {
     	if ((joinTree.form == null && joinTree.field == null) || 
     		(joinTree.form != null && joinTree.form.getName().equals("extensions")))  {
     		return getNonLinkParentNode(joinTree.getParent());

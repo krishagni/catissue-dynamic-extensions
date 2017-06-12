@@ -33,6 +33,8 @@ public class Query {
     private boolean vcEnabled;
     
     private ResultPostProc resultPostProc;
+
+	private PathConfig pathConfig;
         
     public static Query createQuery() {
         return new Query();
@@ -65,6 +67,11 @@ public class Query {
     	this.vcEnabled = vcEnabled;
     	return this;
     }
+
+    public Query pathConfig(PathConfig pathConfig) {
+		this.pathConfig = pathConfig;
+		return this;
+	}
   
     public void compile(String rootFormName, String query) {
         compile(rootFormName, query, null);
@@ -72,7 +79,7 @@ public class Query {
     
     public void compile(String rootFormName, String query, String restriction) {
         QueryCompiler compiler = new QueryCompiler(rootFormName, query, restriction);
-        compiler.enabledVersionedForms(vcEnabled).compile();
+        compiler.enabledVersionedForms(vcEnabled).pathConfig(pathConfig).compile();
         queryExpr     = compiler.getQueryExpr();
         queryJoinTree = compiler.getQueryJoinTree();
         
