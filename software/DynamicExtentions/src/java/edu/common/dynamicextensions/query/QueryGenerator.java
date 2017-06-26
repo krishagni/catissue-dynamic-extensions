@@ -295,6 +295,8 @@ public class QueryGenerator {
         	//
             from.append(" on ").append(joinTree.getAlias()).append(".").append(joinTree.getForeignKey())
                 .append(" = ").append(parentTree.getAlias()).append(".").append(joinTree.getParentKey());
+
+			addActiveJoinCond(joinTree, from);
         } else if (joinTree.isExtensionForm() && parentTree != null) {
         	//
         	// Extension form
@@ -303,7 +305,7 @@ public class QueryGenerator {
         		.append(" = ").append(parentTree.getAlias()).append(".").append(parentTree.getExtnFk())
         		.append(" and ").append(parentTree.getAlias()).append(".").append(parentTree.getFormIdCol())
         		.append(" = ").append(joinTree.getFormId());
-        } 
+        }
 
         for (JoinTree child : joinTree.getChildren()) {
         	from.append(buildFromClause(child));
@@ -315,10 +317,23 @@ public class QueryGenerator {
         	//
         	from.append(") on ").append(joinTree.getAlias()).append(".").append(joinTree.getForeignKey())
         		.append(" = ").append(parentTree.getAlias()).append(".").append(joinTree.getParentKey());
+
+			addActiveJoinCond(joinTree, from);
         }
 
         return from.toString();
     }
+
+    private void addActiveJoinCond(JoinTree tree, StringBuilder clause) {
+		addActiveJoinCond(tree, clause, true);
+	}
+
+	private void addActiveJoinCond(JoinTree tree, StringBuilder clause, boolean addAnd) {
+		Container form = tree.getForm();
+		if (form != null && StringUtils.isNotBlank(form.getActiveCond())) {
+			clause.append(addAnd ? " and " : "").append(tree.getAlias()).append(".").append(form.getActiveCond());
+		}
+	}
 
     private String buildWhereClause(Node root) {
         String exprStr = null;
@@ -366,27 +381,8 @@ public class QueryGenerator {
     
     private String buildActiveCond(JoinTree joinTree) {
     	StringBuilder clause = new StringBuilder();
-    	
-    	Container form = joinTree.getForm();
-    	if (form != null && form.getActiveCond() != null) {
-    		clause.append(joinTree.getAlias()).append(".").append(form.getActiveCond());
-    	}
-    	
-    	for (JoinTree childTree : joinTree.getChildren()) {
-    		String childActiveCond = buildActiveCond(childTree);
-    		
-    		if (childActiveCond.isEmpty()) {
-    			continue;
-    		}
-    		    		
-    		if (clause.length() != 0) {
-    			clause.append(" AND ");
-    		}
-    		
-    		clause.append(childActiveCond);
-    	}
-    	
-    	return clause.toString();
+		addActiveJoinCond(joinTree, clause, false);
+		return clause.toString();
     }
 
     private String buildLinkCond(JoinTree joinTree) {

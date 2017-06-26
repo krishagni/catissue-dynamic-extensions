@@ -809,7 +809,7 @@ public class FormDataManagerImpl implements FormDataManager {
 		ValidationErrors errors = new ValidationErrors();
 		for (Control ctrl : formData.getContainer().getOrderedControlList()) {
 			ControlValue cv = formData.getFieldValue(ctrl.getName());
-			if (cv.getValue() == null) {
+			if (cv == null || cv.getValue() == null) {
 				continue;
 			}
 
