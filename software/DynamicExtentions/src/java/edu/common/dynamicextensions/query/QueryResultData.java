@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.nutility.Util;
 import edu.common.dynamicextensions.query.ast.AggregateNode;
@@ -35,18 +38,22 @@ public class QueryResultData {
     private QueryResultScreener screener = null;
     
     private int dbRowsCount;
-        	
-    public QueryResultData(List<ResultColumn> resultColumns, String dateFormat, String timeFormat) {
-        this.resultColumns = resultColumns;
-        if (dateFormat != null) {
-        	sdf = new SimpleDateFormat(dateFormat);
 
-                if (timeFormat != null) {
-                        tsf = new SimpleDateFormat(dateFormat + " " + timeFormat);
-                }
+	public QueryResultData(List<ResultColumn> resultColumns) {
+		this.resultColumns = resultColumns;
+	}
+
+    public QueryResultData(List<ResultColumn> resultColumns, String dateFormat, String timeFormat) {
+		this(resultColumns);
+
+        if (dateFormat != null) {
+			sdf = new SimpleDateFormat(dateFormat);
+			if (timeFormat != null) {
+				tsf = new SimpleDateFormat(dateFormat + " " + timeFormat);
+			}
         }
     }
-    
+
     public QueryResultScreener getScreener() {
         return screener;
     }
@@ -97,6 +104,21 @@ public class QueryResultData {
 		}
 
 		return urls;
+	}
+
+	public String[] getColumnTypes() {
+		List<ResultColumn> screenedCols = getResultColumns();
+		String[] types = new String[screenedCols.size()];
+		int i = 0;
+		for (ResultColumn column : screenedCols) {
+			if (column.getExpression() != null && column.getExpression().getType() != null) {
+				types[i] = column.getExpression().getType().name();
+			}
+
+			++i;
+		}
+
+		return types;
 	}
     
     public List<ResultColumn> getResultColumns() {
@@ -240,19 +262,13 @@ public class QueryResultData {
         for(int j = 0; j < row.length; j++) {
             if (row[j] == null) {
                 result[j] = null;
-            } else if (row[j] instanceof Timestamp && tsf != null) {
-                result[j] = tsf.format(row[j]);
-            } else if (row[j] instanceof Date && sdf != null){
-                result[j] = sdf.format(row[j]);
+            } else if (row[j] instanceof Timestamp) {
+                result[j] = toTime((Date)row[j]);
+            } else if (row[j] instanceof Date){
+                result[j] = toDate((Date)row[j]);
             } else if (Util.isOraTimestamp(row[j])) {
 				Date dateObj = Util.getDateFromOraTimestamp(row[j]);
-				if (tsf != null) {
-					result[j] = tsf.format(dateObj);
-				} else if (sdf != null) {
-					result[j] = sdf.format(dateObj);
-				} else {
-					result[j] = dateObj.toString();
-				}
+				result[j] = toTime(dateObj);
 			} else if (row[j] instanceof Number) {
 				result[j] = new BigDecimal(((Number)row[j]).doubleValue())
 					.setScale(getResultColumns().get(j).getScale(), BigDecimal.ROUND_HALF_UP)
@@ -307,5 +323,29 @@ public class QueryResultData {
 			}    			
    		};
     }
-    
+
+    private String toTime(Date input) {
+		if (input == null) {
+			return  null;
+		}
+
+		if (tsf != null) {
+			return tsf.format(input);
+		} else {
+			return input.toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+		}
+
+	}
+
+	private String toDate(Date input) {
+		if (input == null) {
+			return null;
+		}
+
+		if (sdf != null) {
+			return sdf.format(input);
+		} else {
+			return input.toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE);
+		}
+	}
 }

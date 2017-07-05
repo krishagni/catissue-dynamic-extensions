@@ -25,7 +25,9 @@ public class Query {
     private WideRowMode wideRowMode;
     
     private boolean ic;
-    
+
+	private boolean outputIsoDateTime;
+
     private String dateFormat = "MM-dd-yyyy";
 
     private String timeFormat = "HH:mm";
@@ -52,7 +54,12 @@ public class Query {
     	this.ic = ic;
     	return this;
     }
-    
+
+    public Query outputIsoDateTime(boolean outputIsoDateTime) {
+		this.outputIsoDateTime = outputIsoDateTime;
+		return this;
+	}
+
     public Query dateFormat(String dateFormat) {
     	this.dateFormat = dateFormat;
     	return this;
@@ -194,8 +201,8 @@ public class Query {
         wideRowGenerator.start();
         int dbRowsCount = wideRowGenerator.processResultSet(rs);
         wideRowGenerator.end();
-        
-        QueryResultData qrd = new QueryResultData(wideRowGenerator.getResultColumns(), dateFormat, timeFormat);
+
+		QueryResultData qrd = getQueryResultData(wideRowGenerator.getResultColumns());
         qrd.dataSource(wideRowGenerator);
         qrd.setDbRowsCount(dbRowsCount);
         return qrd;
@@ -203,7 +210,7 @@ public class Query {
     
     private QueryResultData getProcessedData(ResultSet rs) {
     	int dbRowsCount = resultPostProc.processResultSet(rs);
-    	QueryResultData qrd = new QueryResultData(resultPostProc.getResultColumns(), dateFormat, timeFormat);
+    	QueryResultData qrd = getQueryResultData(resultPostProc.getResultColumns());
     	qrd.setDbRowsCount(dbRowsCount);
     	qrd.dataSource(resultPostProc.getRows());
     	return qrd;
@@ -211,10 +218,18 @@ public class Query {
 
     private QueryResultData getQueryResultData(ResultSet rs)
     throws SQLException {
-        QueryResultData queryResult = new QueryResultData(getResultColumns(queryExpr), dateFormat, timeFormat);
+        QueryResultData queryResult = getQueryResultData(getResultColumns(queryExpr));
         queryResult.dataSource(rs);
         return queryResult;
     }
+
+    private QueryResultData getQueryResultData(List<ResultColumn> columns) {
+		if (outputIsoDateTime) {
+			return new QueryResultData(columns);
+		} else {
+			return new QueryResultData(columns, dateFormat, timeFormat);
+		}
+	}
             
     private List<ResultColumn> getResultColumns(QueryExpressionNode queryExpr) {
         SelectListNode selectList = queryExpr.getSelectList();
