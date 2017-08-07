@@ -110,20 +110,28 @@ public class IoUtil {
 	throws IOException {
 		return new DeleteOnCloseFileInputStream(file);
 	}
-	
+
 	public static void zipFiles(String inputDir, String outFilePath) {
-		FileOutputStream fout = null;				
+		zipFiles(inputDir, outFilePath, null);
+	}
+	
+	public static void zipFiles(String inputDir, String outFilePath, List<String> excludeFiles) {
+		FileOutputStream fout = null;
 		try {
 			fout = new FileOutputStream(outFilePath);
-			zipFiles(inputDir, fout);
+			zipFiles(inputDir, fout, excludeFiles);
 		} catch (Exception e) {
 			throw new RuntimeException("Error creating zip file", e);
 		} finally {
 			IoUtil.close(fout);
 		}
 	}
-	
+
 	public static void zipFiles(String inputDir, OutputStream out) {
+		zipFiles(inputDir, out);
+	}
+	
+	public static void zipFiles(String inputDir, OutputStream out, List<String> excludeFiles) {
 		ZipOutputStream zout = null;
 	
 		try {		
@@ -141,6 +149,10 @@ public class IoUtil {
 				for (File file : dir.listFiles()) {
 					if (file.isDirectory()) {
 						dirs.add(file);
+						continue;
+					}
+
+					if (excludeFiles != null && excludeFiles.contains(file.getAbsolutePath())) {
 						continue;
 					}
 					
