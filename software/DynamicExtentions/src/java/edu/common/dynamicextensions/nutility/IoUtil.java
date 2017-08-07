@@ -128,7 +128,7 @@ public class IoUtil {
 	}
 
 	public static void zipFiles(String inputDir, OutputStream out) {
-		zipFiles(inputDir, out);
+		zipFiles(inputDir, out, null);
 	}
 	
 	public static void zipFiles(String inputDir, OutputStream out, List<String> excludeFiles) {
@@ -140,22 +140,23 @@ public class IoUtil {
 			File inputDirFile = new File(inputDir);
 			URI baseDir = inputDirFile.toURI();
 			
-			List<File> dirs = new ArrayList<File>();
+			List<File> dirs = new ArrayList<>();
 			dirs.add(inputDirFile);
 			
 			while (!dirs.isEmpty()) {
 				File dir = dirs.remove(0);			
 			
 				for (File file : dir.listFiles()) {
+					if (excludeFiles != null && excludeFiles.contains(file.getAbsolutePath())) {
+						continue;
+					}
+
 					if (file.isDirectory()) {
 						dirs.add(file);
 						continue;
 					}
 
-					if (excludeFiles != null && excludeFiles.contains(file.getAbsolutePath())) {
-						continue;
-					}
-					
+
 					zipFile(file, baseDir.relativize(file.toURI()).getPath(), zout);
 				}
 			}
