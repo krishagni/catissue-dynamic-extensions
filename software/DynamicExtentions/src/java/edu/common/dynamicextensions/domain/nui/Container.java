@@ -3,6 +3,7 @@ package edu.common.dynamicextensions.domain.nui;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.thoughtworks.xstream.XStream;
@@ -37,7 +39,9 @@ import edu.common.dynamicextensions.nutility.ContainerParser;
 import edu.common.dynamicextensions.nutility.IdGenerator;
 import edu.common.dynamicextensions.util.parser.FormulaParser;
 
-public class Container implements Serializable {			
+public class Container implements Serializable {
+	private static final Logger logger = Logger.getLogger(Container.class);
+
 	private static final long serialVersionUID = -6178237643696575798L;
 
 	private static final String tableNameFmt = "DE_E_%d";
@@ -791,12 +795,19 @@ public class Container implements Serializable {
 	}
 	
 	public static Container getContainer(JdbcDao jdbcDao, Long id) {
+		long t1 = Calendar.getInstance().getTimeInMillis();
+		Container container = null;
 		try {						
 			ContainerDao containerDao = new ContainerDao(jdbcDao);
-			return containerDao.getById(id);				
+			container = containerDao.getById(id);
+			return container;
 		} catch (Exception e) {
 			throw new RuntimeException("Error obtaining container: " + id, e);
-		}	
+		} finally {
+			if (container != null) {
+				logger.info("Time taken to load the form " + container.getName() + " is: " + (Calendar.getInstance().getTimeInMillis() - t1) + " ms");
+			}
+		}
 	}
 	
 	public static Container getContainer(String name) {
@@ -804,12 +815,15 @@ public class Container implements Serializable {
 	}
 	
 	public static Container getContainer(JdbcDao jdbcDao, String name) {
+		long t1 = Calendar.getInstance().getTimeInMillis();
 		try {						
 			ContainerDao containerDao = new ContainerDao(jdbcDao);
 			return containerDao.getByName(name);				
 		} catch (Exception e) {
 			throw new RuntimeException("Error obtaining container: " + name, e);
-		}	
+		} finally {
+			logger.info("Time taken to load the form " + name + " is: " + (Calendar.getInstance().getTimeInMillis() - t1) + " ms");
+		}
 	}
 		
 	public static List<ContainerInfo> getContainerInfo() {
