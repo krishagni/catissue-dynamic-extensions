@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -200,15 +201,27 @@ public class Form {
 	@ResponseBody
 	public String uploadFile(@PathVariable("file") MultipartFile file) {
 		String output = "{\"status\" : \"error\"}";
+
+		File pvFile = null;
 		try {
 			// get temp location programatically.
 			if (file.getOriginalFilename() != null) {
 				String filename = UUID.randomUUID().toString();
-				File pvFile = new File(System.getProperty("java.io.tmpdir"), filename);
+				pvFile = new File(System.getProperty("java.io.tmpdir"), filename);
 				FileUtils.copyInputStreamToFile(file.getInputStream(), pvFile);
+
+				long noOfPvs = Files.lines(pvFile.toPath()).count();
+				if (noOfPvs > 100) {
+					throw new IllegalArgumentException("Too many PVs (" + noOfPvs + "). Consider using SQL backed PV set");
+				}
 				output = "{\"status\": \"saved\", \"file\" : \"" + filename + "\"}";
 			}
 		} catch (Exception ex) {
+			ex.printStackTrace();
+			if (pvFile != null) {
+				pvFile.delete();
+			}
+
 			return output;
 		}
 
