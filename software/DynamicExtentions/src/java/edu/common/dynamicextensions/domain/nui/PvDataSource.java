@@ -2,21 +2,29 @@ package edu.common.dynamicextensions.domain.nui;
 
 import java.io.Serializable;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
-import edu.common.dynamicextensions.ndao.ResultExtractor;
 
 public class PvDataSource implements Serializable {
 	private static final long serialVersionUID = 276983397161935250L;
 
-	public static enum Ordering {
+	private static final String LIMIT_QUERY = "select * from (select tab.*, rownum rnum from (%s) tab where rownum <= %d) where rnum >= %d";
+
+	private static final String VALIDITY_QUERY = "select count(*) from (%s) t where t.%s = ?";
+
+	private static final String SEARCH_QUERY = "select * from (%s) t where t.%s like '%%%s%%'";
+
+	public enum Ordering {
 		NONE, ASC, DESC
 	}
 	
@@ -71,29 +79,79 @@ public class PvDataSource implements Serializable {
 	}  
 	
 	public List<PermissibleValue> getPermissibleValues(Date activationDate) {
-		List<PermissibleValue> pvs = null;
+		return getPermissibleValues(activationDate, 0);
+	}
+
+	public List<PermissibleValue> getPermissibleValues(Date activationDate, int maxPvs) {
+		List<PermissibleValue> pvs;
 		
 		if (sql != null) {
-			pvs = getPvsFromDb(sql);
+			pvs = getPvsFromDb(sql, maxPvs);
 		} else {
 			pvs = getPvVersion(activationDate).getPermissibleValues();
+			switch (ordering) {
+				case ASC:
+					Collections.sort(pvs);
+					break;
+
+				case DESC:
+					Collections.sort(pvs, Collections.reverseOrder());
+					break;
+
+				default:
+					// do nothing
+					break;
+			}
+
+			if (maxPvs > 0 && pvs.size() > maxPvs) {
+				pvs = pvs.subList(0, maxPvs);
+			}
 		}
-		
-		switch (ordering) {
-			case ASC:
-				Collections.sort(pvs);
-				break;
-				
-			case DESC:
-				Collections.sort(pvs, Collections.reverseOrder());
-				break;				
-				
-			default:
-				// do nothing
-				break;
-		}
-		
+
 		return pvs;
+	}
+
+	public List<PermissibleValue> getPermissibleValues(String searchStr, int maxPvs) {
+		return getPermissibleValues(Calendar.getInstance().getTime(), searchStr, maxPvs);
+	}
+
+	public List<PermissibleValue> getPermissibleValues(Date activationDate, String searchStr, int maxPvs) {
+		List<PermissibleValue> pvs;
+
+		if (sql != null) {
+			String searchSql = sql;
+			if (StringUtils.isNotBlank(searchStr)) {
+				searchSql = String.format(SEARCH_QUERY, sql, getColumnName(sql), searchStr.trim());
+			}
+
+			pvs = getPvsFromDb(searchSql, maxPvs);
+		} else {
+			pvs = getPvVersion(activationDate).getPermissibleValues();
+			sort(pvs);
+
+			if (StringUtils.isNotBlank(searchStr)) {
+				pvs = pvs.stream()
+					.filter(pv -> pv.getValue().toLowerCase().contains(searchStr.toLowerCase()))
+					.limit(maxPvs)
+					.collect(Collectors.toList());
+			}
+		}
+
+		return pvs;
+	}
+
+	public boolean isValidPv(Date activationDate, String input) {
+		if (sql != null) {
+			String searchSql = String.format(VALIDITY_QUERY, sql, getColumnName(sql));
+			return JdbcDaoFactory.getJdbcDao().getResultSet(searchSql, Collections.singletonList(input), ResultSet::next);
+		} else {
+			List<PermissibleValue> pvs = getPvVersion(activationDate).getPermissibleValues();
+			if (pvs == null || pvs.isEmpty()) {
+				return false;
+			}
+
+			return pvs.stream().filter(pv -> pv.getValue().equals(input)).findFirst().orElse(null) != null;
+		}
 	}
 	
 	public PermissibleValue getDefaultValue(Date activationDate) {
@@ -156,27 +214,60 @@ public class PvDataSource implements Serializable {
 		return result;		
 	}
 	
-	private List<PermissibleValue> getPvsFromDb(String sql) {
-		return JdbcDaoFactory.getJdbcDao().getResultSet(sql, null, new ResultExtractor<List<PermissibleValue>>() {
-			@Override
-			public List<PermissibleValue> extract(ResultSet rs)
-			throws SQLException {
-				List<PermissibleValue> result = new ArrayList<PermissibleValue>();
-					
-				while (rs.next()) {
-					String value = rs.getString(1);
-					if (value == null || value.trim().isEmpty()) {
-						continue;
-					}
-						
-					PermissibleValue pv = new PermissibleValue();
-					pv.setOptionName(value);
-					pv.setValue(value);
-					result.add(pv);
+	private List<PermissibleValue> getPvsFromDb(String sql, int maxPvs) {
+		if (maxPvs > 0) {
+			sql = getLimitQuery(sql, maxPvs);
+		}
+
+		return JdbcDaoFactory.getJdbcDao().getResultSet(sql, null, (rs) -> {
+			List<PermissibleValue> result = new ArrayList<>();
+
+			while (rs.next()) {
+				String value = rs.getString(1);
+				if (value == null || value.trim().isEmpty()) {
+					continue;
 				}
-					
-				return result;
+
+				PermissibleValue pv = new PermissibleValue();
+				pv.setOptionName(value);
+				pv.setValue(value);
+				result.add(pv);
 			}
+
+			return result;
 		});
+	}
+
+	private String getLimitQuery(String sql, int maxPvs) {
+		if (DbSettingsFactory.isOracle()) {
+			sql = String.format(LIMIT_QUERY, sql, maxPvs, 1);
+		} else {
+			sql = sql + " limit 0, " + maxPvs;
+		}
+
+		return sql;
+	}
+
+	private String getColumnName(String sql) {
+		return JdbcDaoFactory.getJdbcDao().getResultSet(getLimitQuery(sql, 1), null, (rs) -> {
+			ResultSetMetaData rsmd = rs.getMetaData();
+			return rsmd.getColumnName(1);
+		});
+	}
+
+	private void sort(List<PermissibleValue> pvs) {
+		switch (ordering) {
+			case ASC:
+				Collections.sort(pvs);
+				break;
+
+			case DESC:
+				Collections.sort(pvs, Collections.reverseOrder());
+				break;
+
+			default:
+				// do nothing
+				break;
+		}
 	}
 }

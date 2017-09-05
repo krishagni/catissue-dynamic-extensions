@@ -68,6 +68,7 @@ public class PvMapper {
 		pvVersion.setActivationDate(new Date());
 		pvVersion.setPermissibleValues(pvList);
 		pvDataSource.setPvVersions(Arrays.asList(pvVersion));
+		pvDataSource.setSql(controlProperties.getString("sql"));
 		return pvDataSource;
 	}
 
@@ -191,19 +192,23 @@ public class PvMapper {
 	 */
 	public static void pVDataSourcetoProperties(PvDataSource pvDataSource, Properties controlProps) {
 		Map<String, Object> pvMap = new LinkedHashMap<String, Object>();
+
 		String pvKey = "pv_";
 		Integer pvKeyNum = 0;
-		List<PermissibleValue> pvs = pvDataSource.getPermissibleValues(new Date());
-		for (PermissibleValue pv : pvs) {
 
+
+		List<PermissibleValue> pvs = pvDataSource.getPermissibleValues(new Date(), pvDataSource.getSql() != null ? 100 : 0);
+		for (PermissibleValue pv : pvs) {
 			pvMap.put(pvKey + pvKeyNum, pvToProperties(pv));
 			pvKeyNum++;
 		}
+
 		PermissibleValue defaultPv = pvDataSource.getDefaultValue(new Date());
 		if (defaultPv != null) {
 			controlProps.setProperty("defaultPv", pvToProperties(defaultPv));
 		}
 
+		controlProps.setProperty("sql", pvDataSource.getSql());
 		controlProps.setProperty("pvOrder", pvDataSource.getOrdering().name());
 		controlProps.setProperty("pvs", pvMap);
 		controlProps.setProperty("dataType", pvDataSource.getDataType().toString());

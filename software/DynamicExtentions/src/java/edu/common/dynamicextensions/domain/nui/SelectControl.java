@@ -187,6 +187,9 @@ public abstract class SelectControl extends Control implements Serializable {
 		return value;
 	}
 
+	//
+	// TODO: get rid of this method
+	//
 	public List<PermissibleValue> getPVList(Date encounterDate, ControlValue controlValue) {
 		List<PermissibleValue> permissibleValues = controlValue.getPermissibleValues();
 		if (permissibleValues == null || permissibleValues.isEmpty()) {
@@ -214,7 +217,6 @@ public abstract class SelectControl extends Control implements Serializable {
 		String pvString = null;
 
 		for (PermissibleValue permissibleValue : getPvs(activationDate)) {
-
 			if (conceptCode.equals(permissibleValue.getConceptCode())) {
 				pvString = permissibleValue.getValue();
 				break;
@@ -230,14 +232,8 @@ public abstract class SelectControl extends Control implements Serializable {
 		props.put("dataType", pvDataSrc.getDataType());
 		props.put("dateFormat", pvDataSrc.getDateFormat());
 		props.put("defaultValue", getDefaultValue());
-		
-		List<PermissibleValue> pvs = pvDataSrc.getPermissibleValues(Calendar.getInstance().getTime());
 
-		int maxPvs = getContainer().getMaxPvListSize();
-		if (maxPvs > 0 && pvs.size() > maxPvs) {
-			pvs = pvs.subList(0, maxPvs);
-		}
-
+		List<PermissibleValue> pvs = pvDataSrc.getPermissibleValues(Calendar.getInstance().getTime(), getContainer().getMaxPvListSize());
 		props.put("pvs", pvs);
 		props.put("pvOrdering", pvDataSrc.getOrdering().name());		
 	}
@@ -266,21 +262,8 @@ public abstract class SelectControl extends Control implements Serializable {
 		if (input == null || input.trim().isEmpty()) {
 			return true;
 		}
-		
-		List<PermissibleValue> pvs = getPvs();
-		if (pvs == null || pvs.isEmpty()) {
-			return false; 
-		}
-		
-		boolean found = false;
-		for (PermissibleValue pv : pvs) {
-			if (pv.getValue().equals(input)) {
-				found = true;
-				break;
-			}
-		}
-		
-		return found;
+
+		return pvDataSource.isValidPv(Calendar.getInstance().getTime(), input);
 	}
 	
 	public ValidationStatus validateSingle(Object value) {
