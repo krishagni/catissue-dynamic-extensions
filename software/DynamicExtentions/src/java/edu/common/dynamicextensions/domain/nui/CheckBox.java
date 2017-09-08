@@ -1,9 +1,7 @@
 
 package edu.common.dynamicextensions.domain.nui;
 
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElement;
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementEnd;
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
+import static edu.common.dynamicextensions.nutility.XmlUtil.*;
 
 import java.io.Serializable;
 import java.io.Writer;
@@ -48,11 +46,14 @@ public class CheckBox extends Control implements Serializable {
 	@Override
 	public String toString(Object value) { 
 		if (value instanceof BigDecimal) {
-			int val = ((BigDecimal)value).intValue();
+			int val = ((BigDecimal) value).intValue();
 			return val == 0 ? "0" : "1";
+		} else if (value == null) {
+			return "0";
 		} else {
-			return (value == null || value.toString().equals("false")) ? "0" : "1";
-		}		
+			String valStr = value.toString();
+			return valStr.equals("true") || valStr.equals("1") ? "1" : "0";
+		}
 	}
 	
 	@Override
