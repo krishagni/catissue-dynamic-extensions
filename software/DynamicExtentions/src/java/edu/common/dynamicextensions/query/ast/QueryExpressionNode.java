@@ -2,6 +2,8 @@ package edu.common.dynamicextensions.query.ast;
 
 
 public class QueryExpressionNode implements Node {
+	private String aql;
+
 	private SelectListNode selectList;
 	
 	private FilterExpressionNode filterExpr;
@@ -13,6 +15,15 @@ public class QueryExpressionNode implements Node {
 	private CrosstabNode crosstabSpec;
 	
 	private ResultPostProcNode resultPostProc;
+
+	@Override
+	public String getAql() {
+		return aql;
+	}
+
+	public void setAql(String aql) {
+		this.aql = aql;
+	}
 
 	public SelectListNode getSelectList() {
 		return selectList;

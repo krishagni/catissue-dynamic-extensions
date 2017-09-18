@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
@@ -83,42 +84,24 @@ public class QueryResultData {
     	
     	return indices.toArray(new Integer[0]);
     }
+
+    public String[] getColumnAqlExprs() {
+		return getResultColumns().stream().map(rs -> rs.getExpression().getAql()).toArray(String[]::new);
+	}
     
     public String[] getColumnLabels() {
-        List<ResultColumn> screenedCols = getResultColumns();
-        String[] labels = new String[screenedCols.size()];
-        int i = 0;
-        for (ResultColumn column : screenedCols) {
-        	labels[i++] = column.getColumnLabel(formatter);
-        }
-        
-        return labels;
+		return getResultColumns().stream().map(rs -> rs.getColumnLabel(formatter)).toArray(String[]::new);
     }
 
 	public String[] getColumnUrls() {
-		List<ResultColumn> screenedCols = getResultColumns();
-		String[] urls = new String[screenedCols.size()];
-		int i = 0;
-		for (ResultColumn column : screenedCols) {
-			urls[i++] = column.getUrl();
-		}
-
-		return urls;
+		return getResultColumns().stream().map(ResultColumn::getUrl).toArray(String[]::new);
 	}
 
 	public String[] getColumnTypes() {
-		List<ResultColumn> screenedCols = getResultColumns();
-		String[] types = new String[screenedCols.size()];
-		int i = 0;
-		for (ResultColumn column : screenedCols) {
-			if (column.getExpression() != null && column.getExpression().getType() != null) {
-				types[i] = column.getExpression().getType().name();
-			}
-
-			++i;
-		}
-
-		return types;
+		return getResultColumns().stream()
+			.map(ResultColumn::getExpression)
+			.map(expr -> expr != null && expr.getType() != null ? expr.getType().name() : null)
+			.toArray(String[]::new);
 	}
     
     public List<ResultColumn> getResultColumns() {

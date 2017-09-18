@@ -7,11 +7,22 @@ import java.util.List;
 public class SelectListNode implements Node, Serializable {
 
 	private static final long serialVersionUID = -3175328287644413811L;
+
+	private String aql;
 	
 	private boolean distinct;
 
 	private List<ExpressionNode> elements = new ArrayList<ExpressionNode>();
-	
+
+	@Override
+	public String getAql() {
+		return aql;
+	}
+
+	public void setAql(String aql) {
+		this.aql = aql;
+	}
+
 	public boolean isDistinct() {
 		return distinct;
 	}

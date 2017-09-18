@@ -6,14 +6,24 @@ import java.util.List;
 
 
 public class FilterExpressionNode implements FilterNodeMarker {
-	public static enum Op {
+	public enum Op {
 		AND, OR, NOT, PAND, PARENTHESIS, IDENTITY, NTHCHILD;
 	}
+
+	private String aql;
 	
 	private List<FilterNodeMarker> operands = new ArrayList<FilterNodeMarker>();
 	
-	private Op operator; 
-	
+	private Op operator;
+
+    @Override
+    public String getAql() {
+        return aql;
+    }
+
+    public void setAql(String aql) {
+        this.aql = aql;
+    }
 
     public Op getOperator() {
         return operator;

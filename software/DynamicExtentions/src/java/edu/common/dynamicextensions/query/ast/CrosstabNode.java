@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CrosstabNode implements Node, Serializable {
+	private String aql;
+
 	private String name;
 	
 	private List<Integer> rowGroupByColumns = new ArrayList<Integer>();
@@ -14,6 +16,15 @@ public class CrosstabNode implements Node, Serializable {
 	private List<Integer> measureColumns = new ArrayList<Integer>();
 	
 	private boolean includeSubTotals = false;
+
+	@Override
+	public String getAql() {
+		return aql;
+	}
+
+	public void setAql(String aql) {
+		this.aql = aql;
+	}
 
 	public String getName() {
 		return name;

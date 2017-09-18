@@ -13,6 +13,8 @@ public abstract class ExpressionNode implements Node, Serializable {
 	private String label;
 	
 	private String columnAlias;
+
+	private String aql;
 	
 	public abstract DataType getType();
 	
@@ -28,6 +30,7 @@ public abstract class ExpressionNode implements Node, Serializable {
 		to.setPos(from.getPos());
 		to.setLabel(from.getLabel());
 		to.setColumnAlias(from.getColumnAlias());
+		to.setAql(from.getAql());
 	}
 	
 	public boolean isAggregateExpression() {
@@ -56,6 +59,15 @@ public abstract class ExpressionNode implements Node, Serializable {
 
 	public void setColumnAlias(String columnAlias) {
 		this.columnAlias = columnAlias;
+	}
+
+	@Override
+	public String getAql() {
+		return aql;
+	}
+
+	public void setAql(String aql) {
+		this.aql = aql;
 	}
 
 	public boolean isDate() {

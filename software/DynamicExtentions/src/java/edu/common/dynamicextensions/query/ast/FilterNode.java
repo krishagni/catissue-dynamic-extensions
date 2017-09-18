@@ -2,7 +2,7 @@ package edu.common.dynamicextensions.query.ast;
 
 
 public class FilterNode implements FilterNodeMarker {
-    public static enum RelationalOp {
+    public enum RelationalOp {
         EQ("="),
         LT("<"),
         LE("<="),
@@ -42,14 +42,25 @@ public class FilterNode implements FilterNodeMarker {
             return result;
         }                
     }
+
+    private String aql;
     
     private ExpressionNode lhs;
    
 	private RelationalOp relOp;
     
     private ExpressionNode rhs;
-   
-    public ExpressionNode getLhs() {
+
+	@Override
+	public String getAql() {
+		return aql;
+	}
+
+	public void setAql(String aql) {
+		this.aql = aql;
+	}
+
+	public ExpressionNode getLhs() {
 		return lhs;
 	}
 

@@ -13,7 +13,7 @@ public class AggregateNode extends ExpressionNode implements Serializable {
 	// CCOUNT and CSUM is supported in plain mode that does not have
 	// any post processing of results
 	//
-	public static enum AGG_FN {
+	public enum AGG_FN {
 		COUNT, CCOUNT, SUM, CSUM, MIN, MAX, AVG
 	};
 	
@@ -22,7 +22,7 @@ public class AggregateNode extends ExpressionNode implements Serializable {
 	private boolean distinct;
 	
 	private FieldNode field;
-	
+
 	@Override
 	public boolean isAggregateExpression() {
 		return true;
@@ -61,9 +61,9 @@ public class AggregateNode extends ExpressionNode implements Serializable {
 	public ExpressionNode copy() {
 		AggregateNode copy = new AggregateNode();
 		super.copy(this, copy);
-		copy.setAggFn(this.getAggFn());
+		copy.setAggFn(getAggFn());
 		copy.setDistinct(distinct);
-		copy.setField(field.copy());	
+		copy.setField(field.copy());
 		return copy;
 	}
 
