@@ -85,10 +85,19 @@ public class QueryResultData {
     	return indices.toArray(new Integer[0]);
     }
 
-    public String[] getColumnAqlExprs() {
-		return getResultColumns().stream().map(rs -> rs.getExpression().getAql()).toArray(String[]::new);
+    //
+	// At present only AQL expr and whether the expression is aggregate or not are returned
+	// Eventually, everything (label, url, type) will be subsumed by this column metadata
+	//
+    public List<Map<String, Object>> getColumnMetadata() {
+		return getResultColumns().stream().map(rs -> {
+			Map<String, Object> metadata = new HashMap<>();
+			metadata.put("expr", rs.getExpression().getAql());
+			metadata.put("aggregate", rs.getExpression().isAggregateExpression());
+			return metadata;
+		}).collect(Collectors.toList());
 	}
-    
+
     public String[] getColumnLabels() {
 		return getResultColumns().stream().map(rs -> rs.getColumnLabel(formatter)).toArray(String[]::new);
     }
