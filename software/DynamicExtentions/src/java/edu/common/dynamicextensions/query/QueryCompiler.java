@@ -724,7 +724,7 @@ public class QueryCompiler
     		sfTree = getSubFormTree(
     				queryId, formTree, fieldNameParts[i],
 					failIfAbsent && i == startIdx,
-					(i + 1) < fieldNameParts.length ? fieldNameParts[i + 1] : null);
+					null /* KrisDB? (i + 1) < fieldNameParts.length ? fieldNameParts[i + 1] : null */);
     		if (sfTree == null) {
     			return null;
     		}
