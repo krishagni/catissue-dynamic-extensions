@@ -207,7 +207,7 @@ public class FormData {
 	}
 						
 	public Map<String, Object> getFieldNameValueMap(boolean includeUdn) {
-		Map<String, Object> props = new HashMap<String, Object>();
+		Map<String, Object> props = new HashMap<>();
 		props.put("appData", getAppData());
 		props.put("containerId", container.getId());
 		props.put("id", recordId);

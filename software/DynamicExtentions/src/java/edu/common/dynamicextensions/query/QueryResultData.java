@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
@@ -37,7 +38,9 @@ public class QueryResultData {
     private SimpleDateFormat tsf = null;
     
     private QueryResultScreener screener = null;
-    
+
+	private boolean outputExpression;
+
     private int dbRowsCount;
 
 	public QueryResultData(List<ResultColumn> resultColumns) {
@@ -99,7 +102,14 @@ public class QueryResultData {
 	}
 
     public String[] getColumnLabels() {
-		return getResultColumns().stream().map(rs -> rs.getColumnLabel(formatter)).toArray(String[]::new);
+		Function<ResultColumn, String> labelFn;
+		if (outputExpression) {
+			labelFn = (rs) -> rs.getColumnExpr(formatter);
+		} else {
+			labelFn = (rs) -> rs.getColumnLabel(formatter);
+		}
+
+		return getResultColumns().stream().map(labelFn).toArray(String[]::new);
     }
 
 	public String[] getColumnUrls() {
@@ -198,6 +208,14 @@ public class QueryResultData {
 
 		return result;
     }
+
+	public boolean isOutputExpression() {
+		return outputExpression;
+	}
+
+	public void setOutputExpression(boolean outputExpression) {
+		this.outputExpression = outputExpression;
+	}
 
 	public int getDbRowsCount() {
 		return dbRowsCount;

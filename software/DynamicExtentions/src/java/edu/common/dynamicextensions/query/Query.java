@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -27,6 +28,8 @@ public class Query {
     private boolean ic;
 
 	private boolean outputIsoDateTime;
+
+	private boolean outputExpression;
 
     private String dateFormat = "MM-dd-yyyy";
 
@@ -57,6 +60,11 @@ public class Query {
 
     public Query outputIsoDateTime(boolean outputIsoDateTime) {
 		this.outputIsoDateTime = outputIsoDateTime;
+		return this;
+	}
+
+	public Query outputExpression(boolean outputExpression) {
+		this.outputExpression = outputExpression;
 		return this;
 	}
 
@@ -169,7 +177,8 @@ public class Query {
         		} else {
         			resultData = getQueryResultData(rs);
         		}
-        		
+
+				resultData.setOutputExpression(!(resultPostProc instanceof Crosstab) && outputExpression);
         		long t3 = System.currentTimeMillis();        		
         		logger.info("Data SQL: " + dataSql + "; Query Exec Time: " + (t2 - t1) + "; Result Prep Time: " + (t3 - t2));
         		
@@ -232,13 +241,8 @@ public class Query {
 	}
             
     private List<ResultColumn> getResultColumns(QueryExpressionNode queryExpr) {
-        SelectListNode selectList = queryExpr.getSelectList();
-        List<ResultColumn> columns = new ArrayList<ResultColumn>();
-        
-        for (ExpressionNode node : selectList.getElements()) {
-            columns.add(new ResultColumn(node, 0));
-        }
-        
-        return columns;     
-    }    
+		return queryExpr.getSelectList().getElements().stream()
+			.map(node -> new ResultColumn(node, 0))
+			.collect(Collectors.toList());
+    }
 }

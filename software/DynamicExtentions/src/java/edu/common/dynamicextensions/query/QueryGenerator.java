@@ -594,7 +594,7 @@ public class QueryGenerator {
     			return "(" + lt(lhsSql, d0Sql) + " or " + gt(lhsSql, d1Sql) + ")";
     			
     		default:
-    			throw new IllegalArgumentException("Unexcepted operator for date: " + filter.getRelOp().symbol());    			    		
+    			throw new IllegalArgumentException("Unexpected operator for date: " + filter.getRelOp().symbol());
     	}
     }
         

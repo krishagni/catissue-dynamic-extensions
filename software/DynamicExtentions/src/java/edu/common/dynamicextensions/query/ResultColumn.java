@@ -61,6 +61,13 @@ public class ResultColumn implements Serializable {
 		return format(formatter, captions, instance);		
 	}
 
+	public String getColumnExpr() { return getColumnExpr(null); }
+
+	public String getColumnExpr(ResultColumnLabelFormatter formatter) {
+		String[] labels = {columnExpr.getAql()};
+		return format(formatter, labels, instance);
+	}
+
 	public String getUrl() {
 		String url = null;
 		if (columnExpr instanceof FieldNode) {

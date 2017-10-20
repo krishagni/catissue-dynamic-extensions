@@ -88,7 +88,7 @@ public class Crosstab implements ResultPostProc {
 		CrosstabNode ctSpec = queryExpr.getCrosstabSpec();
 		List<ExpressionNode> selectList = queryExpr.getSelectList().getElements();
 		
-		List<ResultColumn> columns = new ArrayList<ResultColumn>();		
+		List<ResultColumn> columns = new ArrayList<>();
 		for (int idx : ctSpec.getRowGroupByColumns()) {
 			columns.add(new ResultColumn(selectList.get(idx - 1), 0));			
 		}
