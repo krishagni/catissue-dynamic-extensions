@@ -384,7 +384,7 @@ var Views = {
               if (this.model.has('formTreeNodeId')) {
                 Main.treeView.getTree().setItemText(
                     this.model.get('formTreeNodeId'),
-                    displayText, '');
+                    $('<span/>').text(displayText).html(), '');
 
                 Main.treeView.getTree().setUserData(
                     this.model.get('formTreeNodeId'),
@@ -671,16 +671,16 @@ var Views = {
 
             if (status == "update") {
               this.setSuccessMessageHeader();
-              $("#messagesDiv").append(Utility.messageSpace
-              + this.model.get('caption')
-              + " updated successfully in the form");
+              $("#messagesDiv").append(
+                $("<span style='padding-left: 30px;'/>").text(
+                  this.model.get('caption') + " updated successfully in the form")
+              );
             } else if (status == "save") {
               this.setSuccessMessageHeader();
-              $("#messagesDiv")
-                  .append(
-                      Utility.messageSpace
-                          + this.model.get('caption')
-                          + " added to the form successfully.");
+              $("#messagesDiv").append(
+                $("<span style='padding-left: 30px;'/>").text(
+                  this.model.get('caption') + " added to the form successfully.")
+              );
               Main.currentFieldView.enableDisableButton("delete",
                   false);
               Main.currentFieldView.enableDisableButton("copy",
@@ -732,7 +732,7 @@ var Views = {
               $('select[name="placement-control"]')
                 .append($("<option/>")
                 .prop("value", controlsOrder[i])
-                .append(control.get("caption")));
+                .append($("<span/>").text(control.get("caption"))));
             }
 
             $('select[name="placement-control"]').hide();
@@ -1926,7 +1926,7 @@ var Views = {
 
         setCaptionAndName : function(event) {
           Main.treeView.getTree().setItemText(1,
-              $('#formCaption').val(), '');
+              $('<span/>').text($('#formCaption').val()).html(), '');
           var formName = Main.formView.getFormModel().getFormInformation().get('formName');
           if (formName == undefined) {
             $('#formName').val(Utility.toCamelCase($('#formCaption').val()));

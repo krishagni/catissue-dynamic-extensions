@@ -423,7 +423,7 @@ var Utility = {
   notify: function(notifDiv, message, type, fade) {
     fade = (typeof fade == 'undefined' || fade == null ) ? true : fade;
     notifDiv.removeClass("alert alert-success alert-info alert-danger hidden");
-    notifDiv.html(message);
+    notifDiv.text(message);
     var alertClass;
     if (type == 'success') {
       alertClass = "alert alert-success";

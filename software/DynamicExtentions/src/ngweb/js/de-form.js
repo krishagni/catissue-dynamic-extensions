@@ -392,6 +392,8 @@ edu.common.de.Form = function(args) {
   }
 
   this.setValue = function(formData) {
+    formData = formData || {};
+
     var recId = undefined;
     if (formData) {
       recId = formData.id;
@@ -399,9 +401,7 @@ edu.common.de.Form = function(args) {
 
     for (var i = 0; i < this.fieldObjs.length; ++i) {
       var fieldObj = this.fieldObjs[i];
-      if (recId) {
-        fieldObj.setValue(recId, formData[fieldObj.getName()]);
-      }
+      fieldObj.setValue(recId, formData[fieldObj.getName()]);
       fieldObj.postRender();
     }
   };
@@ -508,7 +508,7 @@ edu.common.de.Form = function(args) {
   };
 
   this.fieldLabel = function(name, label) {
-    return $("<label/>").addClass("control-label").prop('for', name).append(label);
+    return $("<label/>").addClass("control-label").prop('for', name).append($("<span/>").text(label));
   };
 
   this.getActionButtons = function() {
@@ -944,7 +944,8 @@ edu.common.de.DatePicker = function(id, field, args) {
     if (this.timeEl) {
       this.timeEl.timepicker({
         showMeridian: false,
-        minuteStep: 1
+        minuteStep: 1,
+        defaultTime: (field.defaultType == 'CURRENT_DATE') ? 'current' : false
       });
     }
 
@@ -1337,8 +1338,15 @@ edu.common.de.GroupField = function(id, field) {
         defaultVal = true;
       }
 
-      var btn = $("<input/>").prop({type: type, name: field.name + id, value: pv.value, title: field.toolTip, checked: defaultVal});
-      currentDiv.append($("<label/>").addClass(typeclass).append(btn).append(pv.value).css("width", width));
+      var btn = $("<input/>").prop({
+        type: type,
+        name: field.name + id,
+        value: pv.value,
+        title: field.toolTip,
+        checked: defaultVal});
+
+      var option = $("<span/>").text(pv.value);
+      currentDiv.append($("<label/>").addClass(typeclass).append(btn).append(option).css("width", width));
       this.inputEls.push(btn);
       ++count;
     }
@@ -1536,6 +1544,8 @@ edu.common.de.SubFormField = function(id, sfField, args) {
   };
 
   this.setValue = function(recId, value) {
+    value = value || [];
+
     this.recId = recId;
     this.sfFieldsEl.children().remove();
     this.fieldObjsRows = [];
@@ -1582,7 +1592,7 @@ edu.common.de.SubFormField = function(id, sfField, args) {
       var column = $("<div/>").css("width", this.fieldWidth + '%')
         .css("min-width", getSfFieldMinWidth(field))
         .addClass("de-sf-cell")
-        .append(field.caption);
+        .text(field.caption);
       heading.append(column);
     }
 
@@ -1868,7 +1878,7 @@ edu.common.de.Note = function(id, field) {
   this.inputEl = null;
 
   this.render = function() {
-    this.inputEl = $("<div/>").html(field.caption);
+    this.inputEl = $("<div/>").text(field.caption);
     if (field.heading == true || field.type == 'heading') {
       this.inputEl.addClass('de-heading');
     }
@@ -1949,7 +1959,7 @@ edu.common.de.Utility = {
     var panelDiv = $("<div/>").addClass("panel").addClass("panel-" + context);
     if (title) {
       var panelHeading = $("<div/>").addClass("panel-heading");
-      var titleDiv = $("<div/>").addClass("panel-title").append(title);
+      var titleDiv = $("<div/>").addClass("panel-title").text(title);
       panelHeading.append(titleDiv);
       panelDiv.append(panelHeading);
     }
@@ -2091,7 +2101,7 @@ edu.common.de.LookupField = function(params, callback) {
   };
 
   var initSelection = function(elem, callback) {
-    if (!that.value) {
+    if (!that.value && field.defaultType != 'none') {
       $.when(that.getDefaultValue()).done(
         function(result) {
           that.value = result.id;
@@ -2099,7 +2109,7 @@ edu.common.de.LookupField = function(params, callback) {
           callback(result);
         }
       );
-    } else {
+    } else if (!!that.value) {
       $.when(that.lookup(that.value)).done(
         function(result) {
           callback(result);

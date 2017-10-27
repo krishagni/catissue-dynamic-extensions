@@ -172,7 +172,7 @@ var Routers = {
     },
 
     updateTreeWithFormName : function(model) {
-      Main.treeView.getTree().setItemText(1, model.get('caption'), 'Form\'s caption');
+      Main.treeView.getTree().setItemText(1, $("<span/>").text(model.get('caption')).html(), 'Form\'s caption');
       Main.treeView.getTree().deleteChildItems(1);
     },
 
@@ -337,7 +337,7 @@ var Routers = {
     populateTreeWithControlNodes : function(parentId, control) {
       var tree =  Main.treeView.getTree();
       var id = GlobalMemory.nodeCounter++;
-      var label = control.get('caption') + " (" + control.get('userDefinedName') + ")";
+      var label = $("<span/>").text(control.get('caption') + " (" + control.get('userDefinedName') + ")").html();
       tree.insertNewChild(parentId, id, label, 0, 0, 0, 0);
       tree.setUserData(id, "controlName", control.get('controlName'));
       tree.setUserData(id, "controlType", control.get('type'));

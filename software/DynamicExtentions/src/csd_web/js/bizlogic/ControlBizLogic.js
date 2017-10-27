@@ -400,6 +400,7 @@ var ControlBizLogic = {
 	createTreeNode : function(parentId, name, controlName, type) {
 		var id = 10 + GlobalMemory.nodeCounter;
 
+		name = $("<span/>").text(name).html();
 		Main.treeView.getTree().insertNewChild(parentId, id, name, 0, 0, 0, 0,
 				"CHILD,CHECKED");
 
