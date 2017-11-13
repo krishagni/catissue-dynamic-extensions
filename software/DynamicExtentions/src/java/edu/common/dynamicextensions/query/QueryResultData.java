@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,7 +13,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.nutility.Util;
 import edu.common.dynamicextensions.query.ast.AggregateNode;
@@ -23,6 +20,10 @@ import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 
 public class QueryResultData {
+	private static final String ISO_DATE_TIME_FMT = "yyyy-MM-dd'T'HH:mm:ss";
+
+	private static final String ISO_DATE_FMT = "yyyy-MM-dd";
+
     private ResultColumnLabelFormatter formatter = new DefaultResultColLabelFormatter("# ");
     
     private List<ResultColumn> resultColumns = null;
@@ -45,6 +46,8 @@ public class QueryResultData {
 
 	public QueryResultData(List<ResultColumn> resultColumns) {
 		this.resultColumns = resultColumns;
+		sdf = new SimpleDateFormat(ISO_DATE_FMT);
+		tsf = new SimpleDateFormat(ISO_DATE_TIME_FMT);
 	}
 
     public QueryResultData(List<ResultColumn> resultColumns, String dateFormat, String timeFormat) {
@@ -55,7 +58,10 @@ public class QueryResultData {
 			if (timeFormat != null) {
 				tsf = new SimpleDateFormat(dateFormat + " " + timeFormat);
 			}
-        }
+        } else {
+			sdf = new SimpleDateFormat(ISO_DATE_FMT);
+			tsf = new SimpleDateFormat(ISO_DATE_TIME_FMT);
+		}
     }
 
     public QueryResultScreener getScreener() {
@@ -339,12 +345,7 @@ public class QueryResultData {
 			return  null;
 		}
 
-		if (tsf != null) {
-			return tsf.format(input);
-		} else {
-			return input.toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-		}
-
+		return tsf.format(input);
 	}
 
 	private String toDate(Date input) {
@@ -352,10 +353,6 @@ public class QueryResultData {
 			return null;
 		}
 
-		if (sdf != null) {
-			return sdf.format(input);
-		} else {
-			return input.toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE);
-		}
+		return sdf.format(input);
 	}
 }
