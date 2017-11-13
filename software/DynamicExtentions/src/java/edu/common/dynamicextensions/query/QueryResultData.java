@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -324,7 +325,7 @@ public class QueryResultData {
 		if (tsf != null) {
 			return tsf.format(input);
 		} else {
-			return input.toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+			return input.toInstant().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 		}
 
 	}
@@ -337,7 +338,7 @@ public class QueryResultData {
 		if (sdf != null) {
 			return sdf.format(input);
 		} else {
-			return input.toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_LOCAL_DATE);
+			return input.toInstant().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE);
 		}
 	}
 }
