@@ -282,8 +282,9 @@ public class FormDataManagerImpl implements FormDataManager {
 					ControlValueCrud crud = (ControlValueCrud)sfCtrl;
 					formData.addFieldValue(crud.getValue(jdbcDao, formData));
 				} else if (!sfCtrl.isOneToOne() || !sfCtrl.isInverse()) {
-					List<FormData> sfData = getFormData(jdbcDao, sfCtrl.getSubContainer(), "PARENT_RECORD_ID", formData.getRecordId());
-					
+					String fk = StringUtils.isBlank(sfCtrl.getForeignKey()) ? "PARENT_RECORD_ID" : sfCtrl.getForeignKey();
+					List<FormData> sfData = getFormData(jdbcDao, sfCtrl.getSubContainer(), fk, formData.getRecordId());
+
 					ControlValue cv = null;
 					if (sfCtrl.isOneToOne() && !CollectionUtils.isEmpty(sfData)) {
 						cv = new ControlValue(sfCtrl, sfData.iterator().next());
