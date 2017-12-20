@@ -166,11 +166,10 @@ public class NumberField extends TextField implements Serializable {
 		}
 
 		try {
-			return new BigDecimal(value);
+			return new BigDecimal(value.trim());
 		} catch (NumberFormatException nfe) {
 			throw new IllegalArgumentException("Invalid number: " + value);
 		}
-		
 	}
 
 	@Override
