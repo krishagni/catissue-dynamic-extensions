@@ -1324,13 +1324,13 @@ public class Container implements Serializable {
 		
 		String[] controlNameParts = controlName.split(separator);
 		if (controlNameParts.length == 1) { // no sub form control name
-			throw new RuntimeException("Invalid control name: " + controlName); 
+			throw new IllegalArgumentException("Invalid control name: " + controlName);
 		}
 		
 		for (int i = 0; i < controlNameParts.length - 1; ++i) {
 			ctrl = container.getControl(controlNameParts[i]);
 			if (!(ctrl instanceof SubFormControl)) {
-				throw new RuntimeException("Invalid control name: " + controlName);
+				throw new IllegalArgumentException("Invalid control name: " + controlName);
 			}
 			
 			SubFormControl sfCtrl = (SubFormControl)ctrl;
@@ -1339,7 +1339,7 @@ public class Container implements Serializable {
 		
 		ctrl = container.getControl(controlNameParts[controlNameParts.length - 1]);
 		if (ctrl == null) {
-			throw new RuntimeException("Invalid control name: " + controlName);
+			throw new IllegalArgumentException("Invalid control name: " + controlName);
 		}
 		
 		return ctrl;
@@ -1354,13 +1354,13 @@ public class Container implements Serializable {
 		
 		String[] udnParts = userDefinedName.split(separator);
 		if (udnParts.length == 1) { // no sub form control name
-			throw new RuntimeException("Invalid user defined name: " + userDefinedName); 
+			throw new IllegalArgumentException("Invalid user defined name: " + userDefinedName);
 		}
 		
 		for (int i = 0; i < udnParts.length - 1; ++i) {
 			ctrl = container.getControlByUdn(udnParts[i]);
 			if (!(ctrl instanceof SubFormControl)) {
-				throw new RuntimeException("Invalid user defined name: " + userDefinedName);
+				throw new IllegalArgumentException("Invalid user defined name: " + userDefinedName);
 			}
 			
 			SubFormControl sfCtrl = (SubFormControl)ctrl;
@@ -1369,7 +1369,7 @@ public class Container implements Serializable {
 		
 		ctrl = container.getControlByUdn(udnParts[udnParts.length - 1]);
 		if (ctrl == null) {
-			throw new RuntimeException("Invalid user defined name: " + userDefinedName);
+			throw new IllegalArgumentException("Invalid user defined name: " + userDefinedName);
 		}
 		
 		return ctrl;
