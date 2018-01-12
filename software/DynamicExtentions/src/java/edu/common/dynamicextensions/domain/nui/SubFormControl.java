@@ -45,6 +45,11 @@ public class SubFormControl extends Control implements Serializable {
 	// Used in AQ. Specifies whether this sub-form exists purely to specify path
 	//
 	private boolean pathLink;
+
+	//
+	// Used in AQ. Specifies the entity type, whether CP based etc
+	//
+	private String customFieldsInfo;
 		
 	//
 	// If this sub-form is used as an entry point into extensions,
@@ -140,6 +145,14 @@ public class SubFormControl extends Control implements Serializable {
 		this.pathLink = pathLink;
 	}
 
+	public String getCustomFieldsInfo() {
+		return customFieldsInfo;
+	}
+
+	public void setCustomFieldsInfo(String customFieldsInfo) {
+		this.customFieldsInfo = customFieldsInfo;
+	}
+
 	public String getExtnFkColumn() {
 		return extnFkColumn;
 	}
@@ -168,6 +181,7 @@ public class SubFormControl extends Control implements Serializable {
 		result = prime * result	+ ((parentKeyColumn == null) ? 0 : parentKeyColumn.hashCode());
 		result = prime * result	+ ((foreignKeyColumn == null) ? 0 : foreignKeyColumn.hashCode());
 		result = prime * result + (pathLink ? 1231 : 1237);
+		result = prime * result + (customFieldsInfo == null ? 0 : customFieldsInfo.hashCode());
 		result = prime * result + (extnFkColumn == null ? 0 : extnFkColumn.hashCode());
 		result = prime * result + (formIdColumn == null ? 0 : formIdColumn.hashCode());
 		return result;
@@ -193,12 +207,13 @@ public class SubFormControl extends Control implements Serializable {
 			!StringUtils.equals(parentKeyColumn, other.parentKeyColumn) ||
 			!StringUtils.equals(foreignKeyColumn, other.foreignKeyColumn) || 
 			pathLink != other.pathLink ||
+			!StringUtils.equals(customFieldsInfo, other.customFieldsInfo) ||
 			!StringUtils.equals(extnFkColumn, other.extnFkColumn) ||
 			!StringUtils.equals(formIdColumn, other.formIdColumn)) {
 			
 			return false;
 		}
-			
+
 		return true;
 	}
 	

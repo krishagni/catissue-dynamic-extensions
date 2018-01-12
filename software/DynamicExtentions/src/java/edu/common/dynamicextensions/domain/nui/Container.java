@@ -610,6 +610,7 @@ public class Container implements Serializable {
 				existingSfCtrl.setForeignKey(newSfCtrl.getForeignKey());
 				existingSfCtrl.setParentKey(newSfCtrl.getParentKey());
 				existingSfCtrl.setPathLink(newSfCtrl.isPathLink());
+				existingSfCtrl.setCustomFieldsInfo(newSfCtrl.getCustomFieldsInfo());
 				
 				if (!isManagedTables()) {
 					newSfCtrl.setTableName(existingSfCtrl.getTableName());

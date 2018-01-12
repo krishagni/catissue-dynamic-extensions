@@ -721,10 +721,15 @@ public class QueryCompiler
     	JoinTree sfTree = formTree;
     	for (int i = startIdx; i < fieldNameParts.length - 1; i++) {
     		//sfTree = getSubFormTree(queryId, formTree, fieldNameParts[i], failIfAbsent);
+			if (isCustomOrExtensionField(fieldNameParts[i]) && (i + 1) <= fieldNameParts.length - 1) {
+				sfTree = analyzeExtensionFields(queryId, formTree, i, fieldNameParts, captions, false);
+				break;
+			}
+
     		sfTree = getSubFormTree(
-    				queryId, formTree, fieldNameParts[i],
-					failIfAbsent && i == startIdx,
-					null /* KrisDB? (i + 1) < fieldNameParts.length ? fieldNameParts[i + 1] : null */);
+    			queryId, formTree, fieldNameParts[i],
+				failIfAbsent && i == startIdx,
+				null /* KrisDB? (i + 1) < fieldNameParts.length ? fieldNameParts[i + 1] : null */);
     		if (sfTree == null) {
     			return null;
     		}
@@ -737,18 +742,22 @@ public class QueryCompiler
     }
     
     private JoinTree analyzeExtensionFields(int queryId, JoinTree formTree, String[] fieldNameParts, String[] captions, boolean failIfAbsent) {
-    	JoinTree extensionTree = getSubFormTree(queryId, formTree, fieldNameParts[1], failIfAbsent, fieldNameParts[2]);
+    	return analyzeExtensionFields(queryId, formTree, 1, fieldNameParts, captions, failIfAbsent);
+	}
+
+	private JoinTree analyzeExtensionFields(int queryId, JoinTree formTree, int startIdx, String[] fieldNameParts, String[] captions, boolean failIfAbsent) {
+    	JoinTree extensionTree = getSubFormTree(queryId, formTree, fieldNameParts[startIdx], failIfAbsent, fieldNameParts[startIdx + 1]);
     	if (extensionTree == null) {
     		return null;    		
     	}
     																																										
-    	JoinTree extensionFormTree = extensionTree.getChild(queryId + "." + fieldNameParts[2]);
+    	JoinTree extensionFormTree = extensionTree.getChild(queryId + "." + fieldNameParts[startIdx + 1]);
     	if (extensionFormTree == null && failIfAbsent) {
     		return null;
     	}
     	
     	if (extensionFormTree == null) {
-    		Container extensionForm = getContainer(fieldNameParts[2]);
+    		Container extensionForm = getContainer(fieldNameParts[startIdx + 1]);
     		if (extensionForm == null) {
     			throw new IllegalArgumentException("Invalid extension form name: " + fieldNameParts[2]);
     		}
@@ -757,12 +766,12 @@ public class QueryCompiler
     		extensionFormTree.setParent(extensionTree);
     		extensionFormTree.setExtensionForm(true);
     		
-    		extensionTree.addChild(queryId + "." + fieldNameParts[2], extensionFormTree);    		
+    		extensionTree.addChild(queryId + "." + fieldNameParts[startIdx + 1], extensionFormTree);
     	}
     	
-    	captions[1] = "$$_" + extensionTree.getForm().getCaption() + "_$$"; 
-    	captions[2] = extensionFormTree.getForm().getCaption();
-    	return analyzeSubFormFields(queryId, extensionFormTree, fieldNameParts, 3, captions, failIfAbsent);
+    	captions[startIdx] = "$$_" + extensionTree.getForm().getCaption() + "_$$";
+    	captions[startIdx + 1] = extensionFormTree.getForm().getCaption();
+    	return analyzeSubFormFields(queryId, extensionFormTree, fieldNameParts, startIdx + 2, captions, failIfAbsent);
     }
 
 	private Container getContainer(String name) {
