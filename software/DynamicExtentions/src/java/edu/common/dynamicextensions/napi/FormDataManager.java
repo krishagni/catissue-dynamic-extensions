@@ -10,25 +10,29 @@ import edu.common.dynamicextensions.ndao.JdbcDao;
 // Persistence layer interface
 //
 public interface FormDataManager {
-	public FormData getFormData(Long containerId, Long recordId);
+	FormData getFormData(Long containerId, Long recordId);
 	
-	public FormData getFormData(Container container, Long recordId);
-	
-	public List<FormData> getSummaryData(Long containerId, List<Long> recordIds);
-	
-	public List<FormData> getSummaryData(Container container, List<Long> recordIds);
-	
-	public Long saveOrUpdateFormData(UserContext userCtxt, FormData formData);
-	
-	public Long saveOrUpdateFormData(UserContext userCtxt, FormData formData, JdbcDao jdbcDao);
+	FormData getFormData(Container container, Long recordId);
 
-	public void deleteFormData(UserContext userCtxt, Long containerId, Long recordId);
-	
-	public void anonymize(UserContext userCtxt, Container form, Long recordId);
+	List<FormData> getFormData(Long containerId, List<Long> recordIds);
 
-	public FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName);
+	List<FormData> getFormData(Container container, List<Long> recordIds);
 	
-	public FormDataFilterManager getFilterMgr();
+	List<FormData> getSummaryData(Long containerId, List<Long> recordIds);
+	
+	List<FormData> getSummaryData(Container container, List<Long> recordIds);
+	
+	Long saveOrUpdateFormData(UserContext userCtxt, FormData formData);
+	
+	Long saveOrUpdateFormData(UserContext userCtxt, FormData formData, JdbcDao jdbcDao);
 
-	public List<Long> getRecordIds(Container container, String ctrlName, Object value, boolean useUdn);
+	void deleteFormData(UserContext userCtxt, Long containerId, Long recordId);
+	
+	void anonymize(UserContext userCtxt, Container form, Long recordId);
+
+	FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName);
+	
+	FormDataFilterManager getFilterMgr();
+
+	List<Long> getRecordIds(Container container, String ctrlName, Object value, boolean useUdn);
 }

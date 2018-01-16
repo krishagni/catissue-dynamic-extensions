@@ -24,6 +24,8 @@ public class FormData {
 	private Container container;
 	
 	private Long recordId;
+
+	private Long parentRecordId;
 	
 	private Map<String, Object> appData = new HashMap<String, Object>();
 	
@@ -49,6 +51,14 @@ public class FormData {
 
 	public void setRecordId(Long recordId) {
 		this.recordId = recordId;
+	}
+
+	public Long getParentRecordId() {
+		return parentRecordId;
+	}
+
+	public void setParentRecordId(Long parentRecordId) {
+		this.parentRecordId = parentRecordId;
 	}
 
 	public Map<String, Object> getAppData() {

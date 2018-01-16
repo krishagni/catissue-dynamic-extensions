@@ -5,9 +5,13 @@ import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -41,7 +45,7 @@ import edu.common.dynamicextensions.nutility.DeConfiguration;
 import edu.common.dynamicextensions.nutility.IoUtil;
 
 public class FormDataManagerImpl implements FormDataManager {
-	private static final String GET_MULTI_SELECT_VALUES_SQL = "SELECT %s FROM %s WHERE RECORD_ID = ?";
+	private static final String GET_MULTI_SELECT_VALUES_SQL = "SELECT RECORD_ID, %s FROM %s WHERE %s";
 	
 	private static final String DELETE_MULTI_SELECT_VALUES_SQL = "DELETE FROM %s WHERE RECORD_ID = ?";
 	
@@ -80,17 +84,8 @@ public class FormDataManagerImpl implements FormDataManager {
 	@Override
 	public FormData getFormData(Long containerId, Long recordId) {		
 		try {
-			FormData result = null;
 			Container container = Container.getContainer(containerId);
-			
-			if (container != null) {
-				List<FormData> formsData = getFormData(JdbcDaoFactory.getJdbcDao(), container, "IDENTIFIER", recordId);
-				if (formsData != null && !formsData.isEmpty()) {
-					result = formsData.get(0);
-				}
-			}
-			
-			return result;
+			return container != null ? getFormData(container, recordId) : null;
 		} catch (Exception e) {
 			throw new RuntimeException("Error obtaining form data: [" + containerId + ", " + recordId  + "]", e);
 		}
@@ -99,18 +94,31 @@ public class FormDataManagerImpl implements FormDataManager {
 	@Override
 	public FormData getFormData(Container container, Long recordId) {		
 		try {
-			FormData result = null;			
-			List<FormData> formData = getFormData(JdbcDaoFactory.getJdbcDao(), container, "IDENTIFIER", recordId);
-			if (formData != null && !formData.isEmpty()) {
-				result = formData.get(0);
-			}
-			
-			return result;
+			return getFormData(JdbcDaoFactory.getJdbcDao(), container, "IDENTIFIER", recordId);
 		} catch (Exception e) {
 			throw new RuntimeException("Error obtaining form data: [" + container.getId() + ", " + recordId  + "]", e);
 		}	
 	}
-	
+
+	@Override
+	public List<FormData> getFormData(Long containerId, List<Long> recordIds) {
+		try {
+			Container container = Container.getContainer(containerId);
+			return container != null ? getFormData(container, recordIds) : Collections.emptyList();
+		} catch (Exception e) {
+			throw new RuntimeException("Error obtaining form data: [" + containerId + ", " + StringUtils.join(recordIds, ", ")  + "]", e);
+		}
+	}
+
+	@Override
+	public List<FormData> getFormData(Container container, List<Long> recordIds) {
+		try {
+			return getFormData(JdbcDaoFactory.getJdbcDao(), container, "IDENTIFIER", recordIds);
+		} catch (Exception e) {
+			throw new RuntimeException("Error obtaining form data: [" + container.getId() + ", " + StringUtils.join(recordIds, ", ")  + "]", e);
+		}
+	}
+
 	@Override
 	public List<FormData> getSummaryData(Long containerId, List<Long> recordIds) {
 		try {
@@ -240,69 +248,97 @@ public class FormDataManagerImpl implements FormDataManager {
 		return getRecordIds(JdbcDaoFactory.getJdbcDao(), ctrl, value, (ctrlName.split("\\.").length > 1));
 	}
 
-	private List<FormData> getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Long identifier)
+	private FormData getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Long recordId)
 	throws Exception {
-		final List<Control> simpleCtrls = new ArrayList<Control>();
-		final List<Control> multiSelectCtrls = new ArrayList<Control>();
-		final List<Control> subFormCtrls = new ArrayList<Control>();
+		List<FormData> formDataList = getFormData(jdbcDao, container, identifyingColumn, Collections.singletonList(recordId));
+		return (formDataList == null || formDataList.isEmpty()) ? null : formDataList.iterator().next();
+	}
+
+	private List<FormData> getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Collection<Long> recordIds)
+	throws Exception {
+		final List<Control> simpleCtrls = new ArrayList<>();
+		final List<Control> multiSelectCtrls = new ArrayList<>();
+		final List<Control> subFormCtrls = new ArrayList<>();
 		
 		segregateControls(container, simpleCtrls, multiSelectCtrls, subFormCtrls);
 								
-		String query = buildQuery(simpleCtrls, container.getDbTableName(), identifyingColumn);
-		List<FormData> formsData = jdbcDao.getResultSet(query, Collections.singletonList(identifier), new ResultExtractor<List<FormData>>() {
+		String query = buildQuery(simpleCtrls, container.getDbTableName(), identifyingColumn, recordIds.size());
+		Map<Long, FormData> formsData = jdbcDao.getResultSet(query, new ArrayList<>(recordIds), new ResultExtractor<Map<Long, FormData>>() {
 			@Override
-			public List<FormData> extract(ResultSet rs) 
+			public Map<Long, FormData> extract(ResultSet rs)
 			throws SQLException {
-				List<FormData> formsData = new ArrayList<FormData>();
+				Map<Long, FormData> result = new LinkedHashMap<>();
 					
 				while (rs.next()) {
 					Long recordId = rs.getLong("IDENTIFIER");
+
 					FormData formData = new FormData(container);
 					formData.setRecordId(recordId);
-						
+					formData.setParentRecordId(rs.getLong(identifyingColumn));
+
 					extractSimpleValues(simpleCtrls, rs, formData);
-						
-					for (Control ctrl : multiSelectCtrls) {
-						List<String> msValues = getMultiSelectValues(jdbcDao, ctrl, recordId);
-						ControlValue ctrlValue = new ControlValue(ctrl, msValues.toArray(new String[0]));					
-						formData.addFieldValue(ctrlValue);					
-					}
-					
-					formsData.add(formData);
+					result.put(recordId, formData);
 				}
 					
-				return formsData;
+				return result;
 			}
 		});
-		
-		for (FormData formData : formsData) {
-			for (Control ctrl : subFormCtrls) {
-				SubFormControl sfCtrl = (SubFormControl)ctrl;
-				if (sfCtrl instanceof ControlValueCrud) {
-					ControlValueCrud crud = (ControlValueCrud)sfCtrl;
-					formData.addFieldValue(crud.getValue(jdbcDao, formData));
-				} else if (!sfCtrl.isOneToOne() || !sfCtrl.isInverse()) {
-					String fk = StringUtils.isBlank(sfCtrl.getForeignKey()) ? "PARENT_RECORD_ID" : sfCtrl.getForeignKey();
-					List<FormData> sfData = getFormData(jdbcDao, sfCtrl.getSubContainer(), fk, formData.getRecordId());
 
-					ControlValue cv = null;
-					if (sfCtrl.isOneToOne() && !CollectionUtils.isEmpty(sfData)) {
-						cv = new ControlValue(sfCtrl, sfData.iterator().next());
-					} else {
-						cv = new ControlValue(sfCtrl, sfData);
-					}
-					
-					formData.addFieldValue(cv);					
-				} else {
-					throw new RuntimeException("One-to-one inverse not yet implemented - TODO");
-				}
-			}			
+		for (Control ctrl : multiSelectCtrls) {
+			Map<Long, List<String>> rValuesMap = getMultiSelectValues(jdbcDao, ctrl, formsData.keySet());
+			rValuesMap.forEach((recordId, values) -> {
+				ControlValue cv = new ControlValue(ctrl, values.toArray(new String[0]));
+				formsData.get(recordId).addFieldValue(cv);
+			});
 		}
-		
-		return formsData;		
+
+		for (Control ctrl : subFormCtrls) {
+			SubFormControl sfCtrl = (SubFormControl) ctrl;
+			if (sfCtrl instanceof ControlValueCrud) {
+				continue;
+			}
+
+			if (sfCtrl.isOneToOne() && sfCtrl.isInverse()) {
+				throw new RuntimeException("One-to-one inverse not yet implemented - TODO");
+			}
+
+			String fk = StringUtils.isBlank(sfCtrl.getForeignKey()) ? "PARENT_RECORD_ID" : sfCtrl.getForeignKey();
+			List<FormData> sfDataList = getFormData(jdbcDao, sfCtrl.getSubContainer(), fk, formsData.keySet());
+			if (sfCtrl.isOneToOne()) {
+				for (FormData sfData : sfDataList) {
+					ControlValue cv = new ControlValue(sfCtrl, sfData);
+					formsData.get(sfData.getParentRecordId()).addFieldValue(cv);
+				}
+			} else {
+				Map<Long, List<FormData>> sfDataMap = new HashMap<>();
+				for (FormData sfData : sfDataList) {
+					List<FormData> sfv = sfDataMap.computeIfAbsent(sfData.getParentRecordId(), (u) -> new ArrayList<>());
+					sfv.add(sfData);
+				}
+
+				sfDataMap.forEach((prId, sfv) -> {
+					ControlValue cv = new ControlValue(sfCtrl, sfv);
+					formsData.get(prId).addFieldValue(cv);
+				});
+			}
+		}
+
+		for (Control ctrl : subFormCtrls) {
+			SubFormControl sfCtrl = (SubFormControl) ctrl;
+			if (!(sfCtrl instanceof ControlValueCrud)) {
+				continue;
+			}
+
+			ControlValueCrud crud = (ControlValueCrud) sfCtrl;
+			formsData.forEach((recordId, formData) -> {
+				formData.addFieldValue(crud.getValue(jdbcDao, formData));
+			});
+		}
+
+		return new ArrayList<>(formsData.values());
 	}
 	
-	private String buildQuery(List<Control> simpleCtrls, String tableName, String identifyingColumn) {
+	private String buildQuery(List<Control> simpleCtrls, String tableName, String idColumn, int numIds) {
 		StringBuilder query = new StringBuilder("SELECT ");
 		for (Control ctrl : simpleCtrls) {
 			if (ctrl instanceof FileUploadControl) {
@@ -313,11 +349,11 @@ public class FormDataManagerImpl implements FormDataManager {
 				query.append(ctrl.getDbColumnName()).append(", ");
 			}
 		}
-		
-		query.append("IDENTIFIER FROM ").append(tableName)
-			.append(" WHERE ").append(identifyingColumn).append(" = ?");		
-		
-		return query.toString();
+
+		return query.append("IDENTIFIER").append(idColumn.equals("IDENTIFIER") ?  "" : ", " + idColumn)
+			.append(" FROM ").append(tableName)
+			.append(" WHERE ").append(getInClause(idColumn, numIds))
+			.toString();
 	}
 	
 	private String buildRecsSummaryQuery(List<Control> ctrls, String tableName, String identifyingColumn, int noOfRecords) {
@@ -362,21 +398,47 @@ public class FormDataManagerImpl implements FormDataManager {
 		return query.toString();
 	}
 		
-	private List<String> getMultiSelectValues(final JdbcDao jdbcDao, final Control ctrl, Long recordId) 
-	throws SQLException {		
+	private Map<Long, List<String>> getMultiSelectValues(final JdbcDao jdbcDao, final Control ctrl, Collection<Long> recordIds)
+	throws SQLException {
 		MultiSelectControl msCtrl = (MultiSelectControl)ctrl;
-		String query = String.format(GET_MULTI_SELECT_VALUES_SQL, ctrl.getDbColumnName(), msCtrl.getTableName());
-		return jdbcDao.getResultSet(query, Collections.singletonList(recordId), new ResultExtractor<List<String>>() {
+
+		String inClause = getInClause("RECORD_ID", recordIds.size());
+		String query = String.format(GET_MULTI_SELECT_VALUES_SQL, ctrl.getDbColumnName(), msCtrl.getTableName(), inClause);
+		return jdbcDao.getResultSet(query, new ArrayList<>(recordIds), new ResultExtractor<Map<Long, List<String>>>() {
 			@Override
-			public List<String> extract(ResultSet rs) throws SQLException {
-				List<String> result = new ArrayList<String>();
+			public Map<Long, List<String>> extract(ResultSet rs) throws SQLException {
+				Map<Long, List<String>> results = new HashMap<>();
 				while (rs.next()) {
-					result.add(ctrl.toString(rs.getObject("VALUE")));
+					int idx = 0;
+					Long recordId = rs.getLong(++idx);
+					Object value = rs.getObject(++idx);
+
+					List<String> values = results.computeIfAbsent(recordId, (u) -> new ArrayList<>());
+					values.add(ctrl.toString(value));
 				}
 				
-				return result;
-			}				
+				return results;
+			}
 		});
+	}
+
+	private String getInClause(String columnName, int numValues) {
+		StringBuilder inClause = new StringBuilder();
+		for (int i = 0; i < numValues / 500 + 1; ++i) {
+			if (i != 0) {
+				inClause.append(" OR ");
+			}
+
+			inClause.append(columnName).append(" IN (");
+			int numPlaceholders = (numValues - i * 500) > 500 ? 500 : (numValues - i * 500);
+			for (int j = 0; j < numPlaceholders; ++j) {
+				inClause.append("?, ");
+			}
+
+			inClause.delete(inClause.length() - 2, inClause.length()).append(")");
+		}
+
+		return "(" + inClause.toString() + ")";
 	}
 	
 	public FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName) {
