@@ -256,6 +256,10 @@ public class FormDataManagerImpl implements FormDataManager {
 
 	private List<FormData> getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Collection<Long> recordIds)
 	throws Exception {
+		if (recordIds == null || recordIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
 		final List<Control> simpleCtrls = new ArrayList<>();
 		final List<Control> multiSelectCtrls = new ArrayList<>();
 		final List<Control> subFormCtrls = new ArrayList<>();
@@ -400,6 +404,10 @@ public class FormDataManagerImpl implements FormDataManager {
 		
 	private Map<Long, List<String>> getMultiSelectValues(final JdbcDao jdbcDao, final Control ctrl, Collection<Long> recordIds)
 	throws SQLException {
+		if (recordIds == null || recordIds.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
 		MultiSelectControl msCtrl = (MultiSelectControl)ctrl;
 
 		String inClause = getInClause("RECORD_ID", recordIds.size());
