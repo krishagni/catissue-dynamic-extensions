@@ -723,7 +723,7 @@ public class QueryGenerator {
     	    	break;
     	}
     	
-    	String value = removeQuotes(stringNode.getValues().get(0).toString());
+    	String value = StringEscapeUtils.escapeSql(removeQuotes(stringNode.getValues().get(0).toString()));
     	return "'" + prefix + value + suffix + "'";
     }
         
