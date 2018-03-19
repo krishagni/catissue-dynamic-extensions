@@ -213,7 +213,7 @@ public class NumberField extends TextField implements Serializable {
 		}
 		
 		if (!(value instanceof BigDecimal)) {
-			return null;
+			return value == null ? null : value.toString();
 		}
 		
 		BigDecimal numberValue = (BigDecimal) value;
