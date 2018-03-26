@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
 import edu.common.dynamicextensions.ndao.ResultExtractor;
+import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
@@ -123,9 +124,9 @@ public class Query {
                 continue;
             }
 
-            if (!onlyFields || element instanceof FieldNode) {
-                return true;
-            }
+            if (!onlyFields || element instanceof FieldNode || (element instanceof ConcatNode && ((ConcatNode) element).hasPhiField())) {
+				return true;
+			}
         }
 
         return false;

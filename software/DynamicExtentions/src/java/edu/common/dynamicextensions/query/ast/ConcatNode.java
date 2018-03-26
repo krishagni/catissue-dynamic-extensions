@@ -68,6 +68,24 @@ public class ConcatNode extends ExpressionNode implements Serializable {
 		return phiArg != null;
 	}
 
+	//
+	// Checks whether any of its args is made of pure PHI field.
+	//
+	public boolean hasPhiField() {
+		for (ExpressionNode en : getArgs()) {
+			if (en instanceof FieldNode && en.isPhi()) {
+				return true;
+			} else if (en instanceof ConcatNode) {
+				boolean hasPhiField = ((ConcatNode) en).hasPhiField();
+				if (hasPhiField) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	@Override
 	public Set<FieldNode> getFields() {
 		Set<FieldNode> fields = new HashSet<>();
