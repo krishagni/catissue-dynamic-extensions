@@ -111,13 +111,13 @@ public class FieldNode extends ExpressionNode implements Serializable {
 		FieldNode other = (FieldNode) obj;
 		if (ctrl == null && other.ctrl != null) {
 			return false;
-		} else if (!ctrl.equals(other.ctrl)) {
+		} else if (ctrl != null && !ctrl.equals(other.ctrl)) {
 			return false;
 		}
 		
 		if (name == null && other.name != null) {
 			return false;
-		} else if (!name.equals(other.name)) {
+		} else if (name != null && !name.equals(other.name)) {
 			return false;
 		}
 		
@@ -127,7 +127,7 @@ public class FieldNode extends ExpressionNode implements Serializable {
 		
 		if (tabAlias == null && other.tabAlias != null) {
 			return false;
-		} else if (!tabAlias.equals(other.tabAlias)) {
+		} else if (tabAlias != null && !tabAlias.equals(other.tabAlias)) {
 			return false;
 		}
 		
