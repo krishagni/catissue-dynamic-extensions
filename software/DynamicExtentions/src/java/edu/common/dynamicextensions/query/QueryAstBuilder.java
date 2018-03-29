@@ -193,6 +193,14 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     public FilterNode visitMvFilter(AQLParser.MvFilterContext ctx) {
     	FilterNode filter = new FilterNode();
     	filter.setLhs((ExpressionNode)visit(ctx.arith_expr()));
+
+		LiteralValueListNode list = (LiteralValueListNode)visit(ctx.literal_values());
+		if (list.size() > 1000) {
+			throw new IllegalArgumentException(
+				"You've used " + list.size() + " condition values. " +
+				"However, more than 1000 condition values are not allowed. Please consider breaking the long filter into multiple smaller filters.");
+		}
+
     	filter.setRhs((ExpressionNode)visit(ctx.literal_values()));
     	filter.setRelOp(RelationalOp.getBySymbol(ctx.MOP().getText()));
     	return setAql(filter, ctx);

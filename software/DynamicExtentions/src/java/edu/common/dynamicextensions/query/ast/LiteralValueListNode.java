@@ -45,8 +45,11 @@ public class LiteralValueListNode extends ExpressionNode implements Serializable
 	public List<LiteralValueNode> getLiteralVals() {
 		return literalVals;
 	}
-	
-	
+
+	public int size() {
+		return literalVals.size();
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
