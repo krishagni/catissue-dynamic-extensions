@@ -2,6 +2,7 @@ package edu.common.dynamicextensions.query;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -112,8 +113,9 @@ public class QueryGenerator {
     }
    
     public String getCountSql(QueryExpressionNode queryExpr, JoinTree joinTree) {
+		ensureTablesLimit(joinTree);
+
     	StringBuilder countSql = new StringBuilder();
-    	
     	if (wideRowSupport) {
         	String fromClause  = buildFromClause(joinTree);
         	String whereClause = buildWhereClause(queryExpr.getFilterExpr());
@@ -136,6 +138,8 @@ public class QueryGenerator {
     }
 
     public String getDataSql(QueryExpressionNode queryExpr, JoinTree joinTree) {
+		ensureTablesLimit(joinTree);
+
     	String selectClause = buildSelectClause(queryExpr.getSelectList(), joinTree);
         String fromClause  = buildFromClause(joinTree);
         String whereClause = buildWhereClause(queryExpr.getFilterExpr());        
@@ -190,8 +194,27 @@ public class QueryGenerator {
         
         return result;
     }
-    
-    private String buildSelectClause(SelectListNode selectList, JoinTree joinTree) {
+
+	private void ensureTablesLimit(JoinTree joinTree) {
+		List<JoinTree> toInspect = new ArrayList<>();
+		toInspect.add(joinTree);
+
+		int count = 0;
+		while (!toInspect.isEmpty()) {
+			++count;
+
+			JoinTree tree = toInspect.remove(0);
+			toInspect.addAll(tree.getChildren());
+		}
+
+		if (count > 60) {
+			throw new IllegalArgumentException(
+				"Too many (" + count + ") tables. Query interface permits use of only 60 tables in a join. " +
+				"Please consider removing some fields/filters from your query");
+		}
+	}
+
+	private String buildSelectClause(SelectListNode selectList, JoinTree joinTree) {
     	StringBuilder select = new StringBuilder();
     	if (selectList.isDistinct()) {
     		select.append("distinct ");

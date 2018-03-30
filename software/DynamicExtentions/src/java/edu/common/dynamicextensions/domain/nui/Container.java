@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import edu.common.dynamicextensions.domain.nui.SkipCondition.RelationalOp;
@@ -802,6 +803,9 @@ public class Container implements Serializable {
 			ContainerDao containerDao = new ContainerDao(jdbcDao);
 			container = containerDao.getById(id);
 			return container;
+
+		} catch (IllegalArgumentException iae) {
+			throw new IllegalArgumentException("Error obtaining container: " + id + ". " + iae.getMessage(), iae);
 		} catch (Exception e) {
 			throw new RuntimeException("Error obtaining container: " + id, e);
 		} finally {
@@ -817,9 +821,11 @@ public class Container implements Serializable {
 	
 	public static Container getContainer(JdbcDao jdbcDao, String name) {
 		long t1 = Calendar.getInstance().getTimeInMillis();
-		try {						
+		try {
 			ContainerDao containerDao = new ContainerDao(jdbcDao);
-			return containerDao.getByName(name);				
+			return containerDao.getByName(name);
+		} catch (IllegalArgumentException iae) {
+			throw new IllegalArgumentException("Error obtaining container: " + name + ". " + iae.getMessage(), iae);
 		} catch (Exception e) {
 			throw new RuntimeException("Error obtaining container: " + name, e);
 		} finally {
@@ -888,14 +894,16 @@ public class Container implements Serializable {
 		} else if (parsedContainer.isDto) {
 			container = fromDto(parsedContainer);
 			container.setManagedTables(!createTables);
+		} else {
+			container = parsedContainer;
 		}
-				
+
 		return container.save(ctxt);
 	}
 				
 	public void editContainer(Container newContainer) {
-		if (! this.getName().equals(newContainer.getName())) {
-			throw new RuntimeException("Error : Container name cannot be edited");
+		if (!this.getName().equals(newContainer.getName())) {
+			throw new IllegalArgumentException("Error : Container name cannot be edited");
 		}
 		
 		if (isManagedTables()) {
@@ -1104,13 +1112,17 @@ public class Container implements Serializable {
 		
 	public static Container fromXml(String xml) {
 //		XStream xstream = new XStream(new KXml2Driver());
-		XStream xstream = new XStream(new DomDriver());
-		xstream.setMode(XStream.ID_REFERENCES);
-		setUpAliases(xstream);
-		
-		Container container = (Container)xstream.fromXML(xml);
-		container.initLogs(); // for some reason, xstream is not initializing add/edit/deleteLogs of container
-		return container;
+		try {
+			XStream xstream = new XStream(new DomDriver());
+			xstream.setMode(XStream.ID_REFERENCES);
+			setUpAliases(xstream);
+
+			Container container = (Container)xstream.fromXML(xml);
+			container.initLogs(); // for some reason, xstream is not initializing add/edit/deleteLogs of container
+			return container;
+		} catch (XStreamException xse) {
+			throw new IllegalArgumentException("Error parsing container definition: " + xse.getMessage());
+		}
 	}
 	
 	private static Container fromDto(Container dtoContainer) {
