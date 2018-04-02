@@ -16,72 +16,75 @@ var Views = {
         },
 
         saveForm : function(showMessage) {
-          if (!Utility.checkNameForCorrectness($('#formName').val())) {
-            Utility.notify(
-              $("#notifications"), 
-              "Form Name should not contain special characters and white spaces", "error");
-            return;
-          }
-          // Save Model
-          // alert(JSON.stringify(this.model.toJSON()));
-          this.populateControlsInForm(this.model);
-          $("#formWaitingImage").show();
-          // set form info from summary
-          this.model.setFormInformation(Main.mainTabBarView.getFormSummaryView().getModel());
-          this.model.set({
-            formulae : GlobalMemory.formulae
-          });
-
-          var ctrlColl = this.model.get('controlObjectCollection');
-          this.model.attributes = _.omit(this.model.attributes, ['controlObjectCollection']);
-          var sfCtrlColl = {};
-          for (var i = 0; i < this.model.get('controlCollection').length; ++i) {
-            var ctrl = this.model.get('controlCollection')[i];
-            if (ctrl.type == 'subForm') {
-              var sf = ctrl.subForm;
-              sfCtrlColl[ctrl.controlName] = sf.get('controlObjectCollection');
-              sf.attributes = _.omit(sf.attributes, ['controlObjectCollection']);
+          var that = this;
+          setTimeout(function() {
+            if (!Utility.checkNameForCorrectness($('#formName').val())) {
+              Utility.notify(
+                $("#notifications"), 
+                "Form Name should not contain special characters and white spaces", "error");
+              return;
             }
-          }
-                                       
-          this.model.save({
-              save : "yes"
-            },{
-              wait : true,
-              success : function(model, response) {
-                if (model.get("status") == "saved") {
-                  Routers.updateCachedFormMethod(model);
-                  $("#formWaitingImage").hide();
+            // Save Model
+            // alert(JSON.stringify(that.model.toJSON()));
+            that.populateControlsInForm(that.model);
+            $("#formWaitingImage").show();
+            // set form info from summary
+            that.model.setFormInformation(Main.mainTabBarView.getFormSummaryView().getModel());
+            that.model.set({
+              formulae : GlobalMemory.formulae
+            });
 
-                  var message = model.get('caption') + " was saved successfully.";
-                  if (showMessage) {
-                    Utility.notify($("#notifications"), message, "success");
-                  }
-
-                  // change from Save as to save
-                  $('#saveForm').prop("value", " Save  ");
-                  model.updateControlIdProp(response.controlCollection);
-                } else {
-                  $("#formWaitingImage").hide();
-                         Utility.notify($("#notifications"), "Could not save the form successfully", "error");
-                }
-              },
-            
-              error : function(model, response) {
-                $("#formWaitingImage").hide();
-                       Utility.notify($("#notifications"), message, "success");
+            var ctrlColl = that.model.get('controlObjectCollection');
+            that.model.attributes = _.omit(that.model.attributes, ['controlObjectCollection']);
+            var sfCtrlColl = {};
+            for (var i = 0; i < that.model.get('controlCollection').length; ++i) {
+              var ctrl = that.model.get('controlCollection')[i];
+              if (ctrl.type == 'subForm') {
+                var sf = ctrl.subForm;
+                sfCtrlColl[ctrl.controlName] = sf.get('controlObjectCollection');
+                sf.attributes = _.omit(sf.attributes, ['controlObjectCollection']);
               }
             }
-          );
+                                       
+            that.model.save({
+                save : "yes"
+              },{
+                wait : true,
+                success : function(model, response) {
+                  if (model.get("status") == "saved") {
+                    Routers.updateCachedFormMethod(model);
+                    $("#formWaitingImage").hide();
 
-          this.model.set('controlObjectCollection', ctrlColl);
-          for (var i = 0; i < this.model.get('controlCollection').length; ++i) {
-            var ctrl = this.model.get('controlCollection')[i];
-            if (ctrl.type == 'subForm') {
-              var sf = ctrl.subForm;
-              sf.set('controlObjectCollection', sfCtrlColl[ctrl.controlName]);
+                    var message = model.get('caption') + " was saved successfully.";
+                    if (showMessage) {
+                      Utility.notify($("#notifications"), message, "success");
+                    }
+
+                    // change from Save as to save
+                    $('#saveForm').prop("value", " Save  ");
+                    model.updateControlIdProp(response.controlCollection);
+                  } else {
+                    $("#formWaitingImage").hide();
+                           Utility.notify($("#notifications"), "Could not save the form successfully", "error");
+                  }
+                },
+            
+                error : function(model, response) {
+                  $("#formWaitingImage").hide();
+                         Utility.notify($("#notifications"), message, "success");
+                }
+              }
+            );
+
+            that.model.set('controlObjectCollection', ctrlColl);
+            for (var i = 0; i < that.model.get('controlCollection').length; ++i) {
+              var ctrl = that.model.get('controlCollection')[i];
+              if (ctrl.type == 'subForm') {
+                var sf = ctrl.subForm;
+                sf.set('controlObjectCollection', sfCtrlColl[ctrl.controlName]);
+              }
             }
-          }
+          }, 500);
         },
 
         loadModelInSessionForPreview : function() {
