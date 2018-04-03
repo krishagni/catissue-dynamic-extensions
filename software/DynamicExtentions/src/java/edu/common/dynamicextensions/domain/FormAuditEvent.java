@@ -16,7 +16,7 @@ public class FormAuditEvent {
 	
 	private Long recordId;
 	
-	private String formDataXml;
+	private String formData;
 
 	public Long getIdentifier() {
 		return identifier;
@@ -66,14 +66,11 @@ public class FormAuditEvent {
 		this.recordId = recordId;
 	}
 
-	public String getFormDataXml() {
-		return formDataXml;
+	public String getFormData() {
+		return formData;
 	}
 
-	public void setFormDataXml(String formDataXml) {
-		this.formDataXml = formDataXml;
+	public void setFormData(String formData) {
+		this.formData = formData;
 	}
-	
-	
-
 }

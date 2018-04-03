@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+  <changeSet author="vpawar" id="DE form data audit event table">
+    <createTable tableName="DYEXTN_AUDIT_EVENTS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="IP_ADDRESS" type="${text.type}(255)"/>
+      <column name="EVENT_TIMESTAMP" type="${ts.type}"/>
+      <column name="USER_ID" type="${int.type}"/>
+      <column name="EVENT_TYPE" type="${text.type}(32)"/>
+      <column name="FORM_NAME" type="${text.type}(255)"/>
+      <column name="RECORD_ID" type="${int.type}"/>
+      <column name="FORM_DATA" type="${clob.type}"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="DE form data audit event id generator" dbms="oracle">
+    <createSequence sequenceName="DYEXTN_AUDIT_EVENTS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+</databaseChangeLog>

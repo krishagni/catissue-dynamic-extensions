@@ -6,12 +6,16 @@ package edu.common.dynamicextensions.napi.impl;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.Clob;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.common.dynamicextensions.domain.FormAuditEvent;
 import edu.common.dynamicextensions.domain.nui.Container;
@@ -24,11 +28,13 @@ import edu.common.dynamicextensions.domain.nui.UserContext;
 import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FormAuditManager;
 import edu.common.dynamicextensions.napi.FormData;
+import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.ndao.JdbcDao;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
-import edu.common.dynamicextensions.ndao.ResultExtractor;
 
-public class FormAuditManagerImpl implements FormAuditManager {	
+public class FormAuditManagerImpl implements FormAuditManager {
+	private static ObjectMapper mapper = new ObjectMapper();
+
 	@Override
 	public void audit(UserContext userCtxt, FormData formData, String operation) {
 		try {
@@ -39,89 +45,90 @@ public class FormAuditManagerImpl implements FormAuditManager {
 	}
 	@Override
 	public void audit(UserContext userCtxt, FormData formData, String operation, JdbcDao jdbcDao) {
-		StringBuilder xml = new StringBuilder();
-		String formName = formData.getContainer().getName();
-		Long recId = formData.getRecordId();
-	
-		xml.append("<form-submit>");	
-		xml.append("<name>").append(formName).append("</name>");
-		xml.append("<user>").append((userCtxt != null) ? userCtxt.getUserName() : "no-user").append("</user>");
-		xml.append("<ip-address>").append((userCtxt != null) ? userCtxt.getIpAddress() : "no-ip").append("</ip-address>");
-		xml.append("<record-identifier>").append(recId).append("</record-identifier>");	
-		xml.append(getFieldSetsXml(formData));
-		xml.append("</form-submit>");
-		
 		FormAuditEvent formAuditEvent = new FormAuditEvent();
-		formAuditEvent.setFormName(formName);
-		formAuditEvent.setRecordId(recId);
-		formAuditEvent.setFormDataXml(xml.toString());
+		formAuditEvent.setFormName(formData.getContainer().getName());
+		formAuditEvent.setRecordId(formData.getRecordId());
+		formAuditEvent.setFormData(getAuditDataJson(userCtxt, formData));
 		formAuditEvent.setIpAddress(userCtxt.getIpAddress());
 		formAuditEvent.setUserId(userCtxt.getUserId());
 		formAuditEvent.setOperation(operation != null ? operation : "");
 	
 		persist(formAuditEvent, jdbcDao);
 	}
-	
-	private String getFieldSetsXml(FormData formData) {
-		StringBuilder xml = new StringBuilder();
-		
+
+	private String getAuditDataJson(UserContext userCtxt, FormData formData) {
+		try {
+			Map<String, Object> data = new HashMap<>();
+			data.put("name", formData.getContainer().getName());
+			data.put("user", userCtxt != null ? userCtxt.getUserName() : "no-user");
+			data.put("ipAddress", userCtxt != null ? userCtxt.getIpAddress() : "no-ip");
+			data.put("recordId", formData.getRecordId());
+			data.put("data", getFieldSets(formData));
+
+			return mapper.writeValueAsString(data);
+		} catch (Exception e) {
+			throw new RuntimeException("Error generating audit event data JSON: " + e.getMessage(), e);
+		}
+	}
+
+	private Map<String, Object> getFieldSets(FormData formData) {
 		Container c = formData.getContainer();
-		xml.append("<field-set>");
-		xml.append("<container-name>").append(c.getName()).append("</container-name>");
-		xml.append("<container-id>").append(c.getId()).append("</container-id>");
-		xml.append("<db-table>").append(c.getDbTableName()).append("</db-table>");
-		
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("formId", c.getId());
+		result.put("formName", c.getName());
+		result.put("dbTable", c.getDbTableName());
+
+		List<Map<String, Object>> fields = new ArrayList<>();
 		for (ControlValue fieldValue :formData.getFieldValues()) {
 			Control ctrl = fieldValue.getControl();
 			Object val = fieldValue.getValue();
-			
+
 			if (ctrl instanceof Label || ctrl instanceof PageBreak) {
 				continue;
 			}
-			xml.append("<field>")
-				.append("<control-name>").append(ctrl.getName()).append("</control-name>")
-				.append("<ui-label>").append(ctrl.getCaption()).append("</ui-label>");
-			
+
+			Map<String, Object> field = new HashMap<>();
+			field.put("controlName", ctrl.getName());
+
 			if (ctrl instanceof SubFormControl) {
 				List<FormData> subFormsData = (List<FormData>) val;
 				if (subFormsData == null) {
 					continue;
 				}
 
+				List<Map<String, Object>> subRecords = new ArrayList<>();
 				for (FormData subFormData : subFormsData) {
-					xml.append(getFieldSetsXml(subFormData));
+					subRecords.add(getFieldSets(subFormData));
 				}
-				
-			} else if (ctrl instanceof MultiSelectControl) {
-				MultiSelectControl msCtrl = (MultiSelectControl) ctrl;
-				xml.append("<collection>")
-				   .append("<db-table>").append(msCtrl.getTableName()).append("</db-table>");
-				
-				String[] strValues = (String[])val;
-				if (strValues != null) {
-					for(String strVal : strValues) {
-						xml.append("<element>")
-							.append("<db-column>").append("VALUE").append("</db-column>")
-							.append("<value>").append(strVal).append("</value>")
-							.append("</element>");
-					}
-				}
-				xml.append("</collection>");
+
+				field.put("subRecords", subRecords);
 			} else {
-				xml.append("<db-column>").append(ctrl.getDbColumnName()).append("</db-column>")
-					.append("<value>").append(val != null ? val.toString() : null).append("</value>");
+				if (ctrl instanceof MultiSelectControl) {
+					MultiSelectControl msCtrl = (MultiSelectControl) ctrl;
+					field.put("multiple", true);
+					field.put("dbTable", msCtrl.getTableName());
+				}
+
+				field.put("dbColumn", ctrl.getDbColumnName());
+				field.put("value", val);
 			}
-			xml.append("</field>");
+
+			fields.add(field);
 		}
-		xml.append("</field-set>");
-		return xml.toString();
+
+		result.put("fields", fields);
+		return result;
 	}
-	
-	private void persist(FormAuditEvent formAuditEvent, JdbcDao jdbcDao) {		
+
+	private void persist(FormAuditEvent formAuditEvent, JdbcDao jdbcDao) {
 		try {
 			Long auditId = insertAndRetrieveAuditEvent(formAuditEvent, jdbcDao);
 			formAuditEvent.setIdentifier(auditId);
-			insertFormAuditEvent(formAuditEvent, jdbcDao);
+
+			if (DbSettingsFactory.isOracle()) {
+				insertFormAuditEventData(formAuditEvent, jdbcDao);
+			}
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to persist audit data", e);
 		}
@@ -129,64 +136,68 @@ public class FormAuditManagerImpl implements FormAuditManager {
 
 
 	private Long insertAndRetrieveAuditEvent(FormAuditEvent auditEvent, JdbcDao jdbcDao) 
-	throws Exception {		
-		List<Object> params = new ArrayList<Object>();
+	throws Exception {
+		List<Object> params = new ArrayList<>();
 		params.add(auditEvent.getIpAddress());
 		params.add(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		params.add(auditEvent.getUserId());
 		params.add(auditEvent.getOperation());
+		params.add(auditEvent.getFormName());
+		params.add(auditEvent.getRecordId());
 
-		Long auditId = null;
-		Number key = jdbcDao.executeUpdateAndGetKey(INSERT_AUDIT_EVENT_SQL, params, "IDENTIFIER");
-		if (key != null) {
-			auditId = key.longValue();
+		String sql = INSERT_AUDIT_EVENT_SQL_ORA;
+		if (DbSettingsFactory.isMySQL()) {
+			sql = INSERT_AUDIT_EVENT_SQL_MSQL;
+			params.add(auditEvent.getFormData());
 		}
-		return auditId;
+
+		Number key = jdbcDao.executeUpdateAndGetKey(sql, params, "IDENTIFIER");
+		return key != null ? key.longValue() : null;
 	}
 
-	private void insertFormAuditEvent(FormAuditEvent formAuditEvent, JdbcDao jdbcDao) 
+	private void insertFormAuditEventData(FormAuditEvent formAuditEvent, JdbcDao jdbcDao)
 	throws Exception {
-		List<Object> params = new ArrayList<Object>();		
-		params.add(formAuditEvent.getIdentifier());
-		params.add(formAuditEvent.getFormName());
-		params.add(formAuditEvent.getRecordId());
-		
-		jdbcDao.executeUpdate(INSERT_FORM_AUDIT_SQL, params);	
-		params.clear();
+		List<Object> params = new ArrayList<>();
 		params.add(formAuditEvent.getIdentifier());
 		
-		Clob clob = jdbcDao.getResultSet(GET_AUDIT_XML_BY_ID_SQL, params, new ResultExtractor<Clob>() {
-			@Override
-			public Clob extract(ResultSet rs) 
-			throws SQLException {
-				rs.next();
-				return rs.getClob("FORM_DATA_XML");
-			}
+		Clob clob = jdbcDao.getResultSet(GET_AUDIT_DATA_BY_ID_SQL, params, (rs) -> {
+			rs.next();
+			return rs.getClob("FORM_DATA");
 		});
-		
-		writeToClob(clob, formAuditEvent.getFormDataXml());			
+
+		writeToClob(clob, formAuditEvent.getFormData());
 	}
 	
-	private void writeToClob(Clob clob, String auditXml) throws IOException {
+	private void writeToClob(Clob clob, String auditData) throws IOException {
 		Writer clobOut = null;
 		try {
 			clobOut = clob.setCharacterStream(0);	
-			clobOut.write(auditXml);
+			clobOut.write(auditData);
 		} catch (Exception e) {
 			throw new RuntimeException("Error writing clob", e);
 		} finally {
-				clobOut.close();
+			IOUtils.closeQuietly(clobOut);
 		}
 	}
 
+	private static final String INSERT_AUDIT_EVENT_SQL_ORA =
+			"INSERT INTO " +
+			"  DYEXTN_AUDIT_EVENTS(IDENTIFIER, IP_ADDRESS, EVENT_TIMESTAMP, USER_ID, EVENT_TYPE, FORM_NAME, RECORD_ID, FORM_DATA) " +
+			"VALUES" +
+			"  (DYEXTN_AUDIT_EVENTS_SEQ.NEXTVAL, ?, ?, ?, ?, ?, ?, empty_clob())";
 
-	private static final String INSERT_AUDIT_EVENT_SQL = 
-			"INSERT INTO CATISSUE_AUDIT_EVENT(IDENTIFIER, IP_ADDRESS, EVENT_TIMESTAMP, USER_ID, EVENT_TYPE) VALUES(CATISSUE_AUDIT_EVENT_PARAM_SEQ.NEXTVAL, ?, ?, ?, ?)";
+	private static final String INSERT_AUDIT_EVENT_SQL_MSQL =
+			"INSERT INTO " +
+			"  DYEXTN_AUDIT_EVENTS(IDENTIFIER, IP_ADDRESS, EVENT_TIMESTAMP, USER_ID, EVENT_TYPE, FORM_NAME, RECORD_ID, FORM_DATA) " +
+			"VALUES" +
+			"  (default, ?, ?, ?, ?, ?, ?, ?)";
 
-	private static final String INSERT_FORM_AUDIT_SQL = 
-			"INSERT INTO DYEXTN_AUDIT_EVENT (IDENTIFIER, FORM_NAME, RECORD_ID, FORM_DATA_XML) VALUES(?, ?, ?,  empty_clob())";
-
-	private static final String GET_AUDIT_XML_BY_ID_SQL = "SELECT FORM_DATA_XML, FORM_NAME, RECORD_ID"
-			+ " FROM DYEXTN_AUDIT_EVENT WHERE IDENTIFIER = ? FOR UPDATE";
-
+	private static final String GET_AUDIT_DATA_BY_ID_SQL =
+			"SELECT " +
+			"  FORM_DATA " +
+			"FROM " +
+			"  DYEXTN_AUDIT_EVENTS " +
+			"WHERE " +
+			"  IDENTIFIER = ? " +
+			"FOR UPDATE";
 }
