@@ -4,7 +4,7 @@ public interface ContainerSerializer {
 	//
 	// Serializes both view and skip rules
 	//
-	public void serialize();
+	void serialize();
 	
-	public void serialize(int maxPvListSize);
+	void serialize(int maxPvListSize);
 }

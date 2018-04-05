@@ -15,9 +15,9 @@ public class DeConfiguration {
 
 	private String fileUploadDir = System.getProperty("java.io.tmpdir");
 
-	private static String dateFormat = "MM-dd-yyyy";
+	private String dateFormat = "MM-dd-yyyy";
 
-	private static String timeFormat = "HH:mm";
+	private String timeFormat = "HH:mm";
 
 	private int maxCacheElementsInMemory = 100;
 

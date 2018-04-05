@@ -22,7 +22,6 @@ import edu.common.dynamicextensions.domain.nui.StringTextField;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.TextArea;
 import edu.common.dynamicextensions.domain.nui.TextField;
-import edu.common.dynamicextensions.processor.ProcessorConstants;
 import edu.wustl.dynamicextensions.formdesigner.utility.CSDConstants;
 
 /**

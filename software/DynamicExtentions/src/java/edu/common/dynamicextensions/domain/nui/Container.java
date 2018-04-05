@@ -38,7 +38,7 @@ import edu.common.dynamicextensions.ndao.TransactionManager.Transaction;
 import edu.common.dynamicextensions.nutility.ContainerCache;
 import edu.common.dynamicextensions.nutility.ContainerParser;
 import edu.common.dynamicextensions.nutility.IdGenerator;
-import edu.common.dynamicextensions.util.parser.FormulaParser;
+import edu.common.dynamicextensions.nutility.FormulaParser;
 
 public class Container implements Serializable {
 	private static final Logger logger = Logger.getLogger(Container.class);

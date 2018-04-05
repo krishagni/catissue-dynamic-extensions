@@ -8,13 +8,13 @@ import java.util.Map;
 import edu.common.dynamicextensions.domain.nui.Control;
 
 public class ContainerChangeLog {
-	private List<Control> addedCtrls = new ArrayList<Control>();
+	private List<Control> addedCtrls = new ArrayList<>();
 	
-	private List<Control> deletedCtrls = new ArrayList<Control>();
+	private List<Control> deletedCtrls = new ArrayList<>();
 	
-	private List<Control> editedCtrls = new ArrayList<Control>();
+	private List<Control> editedCtrls = new ArrayList<>();
 	
-	private Map<String, ContainerChangeLog> editedSubCtrls = new HashMap<String, ContainerChangeLog>(); 
+	private Map<String, ContainerChangeLog> editedSubCtrls = new HashMap<>();
 
 	public List<Control> getAddedCtrls() {
 		return addedCtrls;

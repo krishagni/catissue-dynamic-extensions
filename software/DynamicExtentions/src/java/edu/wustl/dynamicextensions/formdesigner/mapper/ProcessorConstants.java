@@ -1,5 +1,5 @@
 
-package edu.common.dynamicextensions.processor;
+package edu.wustl.dynamicextensions.formdesigner.mapper;
 
 /**
  * @author preeti_munot

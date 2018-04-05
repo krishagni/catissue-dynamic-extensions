@@ -16,7 +16,7 @@ import edu.common.dynamicextensions.domain.nui.NumberField;
 import edu.common.dynamicextensions.domain.nui.SkipRule;
 import edu.common.dynamicextensions.domain.nui.UserContext;
 import edu.common.dynamicextensions.nutility.DeConfiguration;
-import edu.common.dynamicextensions.util.parser.FormulaParser;
+import edu.common.dynamicextensions.nutility.FormulaParser;
 import edu.wustl.dynamicextensions.formdesigner.usercontext.AppUserContextProvider;
 import edu.wustl.dynamicextensions.formdesigner.usercontext.CSDProperties;
 import edu.wustl.dynamicextensions.formdesigner.utility.CSDConstants;
