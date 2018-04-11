@@ -880,7 +880,7 @@ var Views = {
                         $("#messagesDiv")
                             .append(
                                 trail
-                                    + "Could not upload file");
+                                    + "Could not upload file: " + receivedData.message);
                       }
                     }
                   });
@@ -1353,7 +1353,7 @@ var Views = {
                             "#advancedPropertiesmessagesDiv")
                             .append(
                                 Utility.messageSpace
-                                    + "Could not upload file");
+                                    + "Could not upload file: " + receivedData.message);
                       }
                     }
                   });

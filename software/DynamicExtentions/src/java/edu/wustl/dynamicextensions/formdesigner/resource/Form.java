@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,7 +201,7 @@ public class Form {
 
 		File pvFile = null;
 		try {
-			// get temp location programatically.
+			// get temp location programmatically.
 			if (file.getOriginalFilename() != null) {
 				String filename = UUID.randomUUID().toString();
 				pvFile = new File(System.getProperty("java.io.tmpdir"), filename);
@@ -218,11 +219,10 @@ public class Form {
 				pvFile.delete();
 			}
 
-			return output;
+			output = "{\"status\": \"error\", \"message\": \"" + StringEscapeUtils.escapeJavaScript(ex.getMessage()) + "\"}";
 		}
 
 		return output;
-
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value="currentuser")
