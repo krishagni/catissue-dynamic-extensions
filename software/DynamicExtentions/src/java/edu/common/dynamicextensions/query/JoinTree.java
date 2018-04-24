@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.LinkControl;
@@ -289,6 +291,28 @@ public class JoinTree
 
 	public List<JoinTree> getLinkedFromTrees() {
 		return linkedFromTrees;
+	}
+
+	public JoinTree getByAlias(String alias) {
+		if (alias.equalsIgnoreCase(this.alias)) {
+			return this;
+		}
+
+		for (JoinTree child : children.values()) {
+			JoinTree result = child.getByAlias(alias);
+			if (result != null) {
+				return result;
+			}
+		}
+
+		for (JoinTree linkedTree : linkedTrees.values()) {
+			JoinTree result = linkedTree.getByAlias(alias);
+			if (result != null) {
+				return result;
+			}
+		}
+
+		return null;
 	}
 
 	private JoinTree getNonLinkParentNode(JoinTree joinTree) {

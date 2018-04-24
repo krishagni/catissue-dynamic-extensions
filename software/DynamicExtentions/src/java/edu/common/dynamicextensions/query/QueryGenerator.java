@@ -36,7 +36,6 @@ import edu.common.dynamicextensions.query.ast.DateDiffFuncNode.DiffType;
 import edu.common.dynamicextensions.query.ast.DateFormatFuncNode;
 import edu.common.dynamicextensions.query.ast.DateIntervalNode;
 import edu.common.dynamicextensions.query.ast.DateRangeFuncNode;
-import edu.common.dynamicextensions.query.ast.OrderExprListNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.FilterExpressionNode;
@@ -46,6 +45,7 @@ import edu.common.dynamicextensions.query.ast.LimitExprNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueListNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueNode;
 import edu.common.dynamicextensions.query.ast.Node;
+import edu.common.dynamicextensions.query.ast.OrderExprListNode;
 import edu.common.dynamicextensions.query.ast.OrderExprNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
 import edu.common.dynamicextensions.query.ast.RoundOffNode;
@@ -101,6 +101,8 @@ public class QueryGenerator {
 
 	private String dbDateFormat = "MM-dd-yyyy HH:mm";
 
+	private int innerTabCount = 0;
+
     public QueryGenerator() {
     }
     
@@ -118,7 +120,7 @@ public class QueryGenerator {
     	StringBuilder countSql = new StringBuilder();
     	if (wideRowSupport) {
         	String fromClause  = buildFromClause(joinTree);
-        	String whereClause = buildWhereClause(queryExpr.getFilterExpr());
+        	String whereClause = buildWhereClause(joinTree, queryExpr.getFilterExpr());
         	String activeClause = buildActiveCond(joinTree);
 			String linkClause = buildLinkCond(joinTree);
 			whereClause = and(and(whereClause, activeClause), linkClause);
@@ -142,7 +144,7 @@ public class QueryGenerator {
 
     	String selectClause = buildSelectClause(queryExpr.getSelectList(), joinTree);
         String fromClause  = buildFromClause(joinTree);
-        String whereClause = buildWhereClause(queryExpr.getFilterExpr());        
+        String whereClause = buildWhereClause(joinTree, queryExpr.getFilterExpr());
         String activeClause = buildActiveCond(joinTree);
 		String linkClause = buildLinkCond(joinTree);
         String groupBy = buildGroupBy(queryExpr.getSelectList());
@@ -358,21 +360,21 @@ public class QueryGenerator {
 		}
 	}
 
-    private String buildWhereClause(Node root) {
+    private String buildWhereClause(JoinTree joinTree, Node root) {
         String exprStr = null;
         
         if (root instanceof FilterNode) {
-            return buildFilter((FilterNode)root);
+            return buildFilter(joinTree, (FilterNode)root);
         } 
         
         FilterExpressionNode expr = (FilterExpressionNode)root;
-        String lhs = buildWhereClause(expr.getOperands().get(0));
+        String lhs = buildWhereClause(joinTree, expr.getOperands().get(0));
         String rhs = null;
             
         switch (expr.getOperator()) {
           	case AND:
            	case OR:
-           		rhs = buildWhereClause(expr.getOperands().get(1));
+           		rhs = buildWhereClause(joinTree, expr.getOperands().get(1));
            		exprStr = new StringBuilder(lhs).append(" ")
            				.append(expr.getOperator()).append(" ")
            				.append(rhs).toString();
@@ -392,7 +394,7 @@ public class QueryGenerator {
             	break;
             	
             case PAND:
-           		rhs = buildWhereClause(expr.getOperands().get(1));
+           		rhs = buildWhereClause(joinTree, expr.getOperands().get(1));
            		exprStr = new StringBuilder(lhs).append(" ")
            				.append(" AND ")
            				.append(rhs).toString();            	
@@ -478,17 +480,61 @@ public class QueryGenerator {
     	
     	return groupBy.toString(); 
     }
-    
-    private String buildFilter(FilterNode filter) {
-    	if (!isValidFilter(filter)) {
-    		throw new RuntimeException("Invalid filter"); // add more info here
-    	}
-    	
-    	if (isDateCmpFilter(filter)) {
-    		return getDateCmpSql(filter);
-    	}
-    	
-        String filterExpr = null, lhs = null, rhs = null;
+
+	private boolean isMvFilter(FilterNode filter) {
+		ExpressionNode lhsNode = filter.getLhs();
+		return lhsNode instanceof FieldNode &&
+				((FieldNode) lhsNode).getCtrl() instanceof MultiSelectControl &&
+				filter.getRelOp() != RelationalOp.EXISTS &&
+				filter.getRelOp() != RelationalOp.NOT_EXISTS &&
+				filter.getRelOp() != RelationalOp.ANY;
+	}
+
+	private String buildMvFilter(JoinTree tree, FilterNode filter) {
+		ExpressionNode lhsNode = filter.getLhs();
+		JoinTree fieldTab = tree.getByAlias(((FieldNode) lhsNode).getTabAlias());
+
+		String clause = "exists";
+		if (filter.getRelOp() == RelationalOp.NE || filter.getRelOp() == RelationalOp.NOT_IN) {
+			clause = "not exists";
+		}
+
+		String innerTabAlias = "itab" + innerTabCount++;
+		FieldNode sqLhsNode = new FieldNode();
+		sqLhsNode.setCtrl(((FieldNode) lhsNode).getCtrl());
+		sqLhsNode.setTabAlias(innerTabAlias);
+
+		RelationalOp sqRelOp = filter.getRelOp();
+		FilterNode sqFilter = new FilterNode();
+		sqFilter.setLhs(sqLhsNode);
+		sqFilter.setRelOp(sqRelOp == RelationalOp.NE ? RelationalOp.EQ : (sqRelOp == RelationalOp.NOT_IN ? RelationalOp.IN : sqRelOp));
+		sqFilter.setRhs(filter.getRhs());
+
+		String parentKey  = fieldTab.getParent().getAlias() + "." + fieldTab.getParentKey();
+		String foreignKey = innerTabAlias + "." + fieldTab.getForeignKey();
+		return String.format(
+			"(%s (select %s from %s %s where %s and %s = %s))",
+			clause, foreignKey, fieldTab.getTab(), innerTabAlias, buildFilter0(sqFilter), foreignKey, parentKey);
+	}
+
+    private String buildFilter(JoinTree joinTree, FilterNode filter) {
+		if (isMvFilter(filter)) {
+			return buildMvFilter(joinTree, filter);
+		} else {
+			return buildFilter0(filter);
+		}
+	}
+
+	private String buildFilter0(FilterNode filter) {
+		if (!isValidFilter(filter)) {
+			throw new RuntimeException("Invalid filter"); // add more info here
+		}
+
+		if (isDateCmpFilter(filter)) {
+			return getDateCmpSql(filter);
+		}
+
+		String filterExpr = null, lhs = null, rhs = null;
         if (filter.getRelOp() != RelationalOp.ANY) {
         	lhs = getExpressionNodeSql(filter.getLhs(), filter.getLhs().getType());
         }
@@ -678,8 +724,8 @@ public class QueryGenerator {
     		LookupControl luCtrl = (LookupControl)field.getCtrl();
     		column = luCtrl.getValueColumn();
     	}
-    	
-    	return field.getTabAlias() + "." + column;
+
+    	return (StringUtils.isNotBlank(field.getTabAlias()) ? (field.getTabAlias() + ".") : "") + column;
     }
     
     private String getLiteralValueNodeSql(LiteralValueNode value, DataType coercionType) {
@@ -1062,7 +1108,7 @@ public class QueryGenerator {
     	upperBound.setRelOp(RelationalOp.LE);
     	upperBound.setRhs(node.getMaxNode());
     	
-    	return "(" + buildFilter(lowerBound) + " and " + buildFilter(upperBound) + ")";    			    	
+    	return "(" + buildFilter0(lowerBound) + " and " + buildFilter0(upperBound) + ")";
     }
 
 	private String getDateInDbFormat(String date) {
