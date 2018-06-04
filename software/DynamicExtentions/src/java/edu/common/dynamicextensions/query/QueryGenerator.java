@@ -1065,8 +1065,8 @@ public class QueryGenerator {
     		case DAY:
     			return "(" + loperand + " - " + roperand + ")";
 
-                case MINUTES:
-                        return "(round(1440 * (" + loperand + " - " + roperand + "), 2))";
+    		case MINUTES:
+    			return "(round(1440 * (cast(" + loperand + " as date) - cast(" + roperand + " as date)), 2))";
     	}
     	
     	return "";
