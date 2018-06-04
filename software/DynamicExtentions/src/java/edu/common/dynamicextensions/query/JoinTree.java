@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.LinkControl;
@@ -316,11 +314,14 @@ public class JoinTree
 	}
 
 	private JoinTree getNonLinkParentNode(JoinTree joinTree) {
-    	if ((joinTree.form == null && joinTree.field == null) || 
-    		(joinTree.form != null && joinTree.form.getName().equals("extensions")))  {
+    	if ((joinTree.form == null && joinTree.field == null) || isExtensionOrCustomFieldsForm(joinTree.form))  {
     		return getNonLinkParentNode(joinTree.getParent());
     	}
     	
     	return joinTree;
     }
+
+    private boolean isExtensionOrCustomFieldsForm(Container form) {
+		return form != null && (form.getName().equals("extensions") || form.getName().equals("customFields"));
+	}
 }
