@@ -487,7 +487,8 @@ public class QueryGenerator {
 				((FieldNode) lhsNode).getCtrl() instanceof MultiSelectControl &&
 				filter.getRelOp() != RelationalOp.EXISTS &&
 				filter.getRelOp() != RelationalOp.NOT_EXISTS &&
-				filter.getRelOp() != RelationalOp.ANY;
+				filter.getRelOp() != RelationalOp.ANY &&
+				filter.getSubQuery() == null;
 	}
 
 	private String buildMvFilter(JoinTree tree, FilterNode filter) {
@@ -568,15 +569,24 @@ public class QueryGenerator {
             	break;
             	            	
             default:
-            	rhs = getExpressionNodeSql(filter.getRhs(), filter.getLhs().getType());            	
-            	if (filter.getLhs().isString() && ic) {
-            		lhs = "upper(" + lhs + ")";
-            		if (filter.getRhs() instanceof FieldNode) {
-            			rhs = "upper(" + rhs + ")";
-            		} else {
-            			rhs = rhs.toUpperCase();
-            		}
-            	}            	
+            	if (filter.getSubQuery() != null) {
+            		QueryGenerator sqGen = new QueryGenerator();
+            		sqGen.wideRowSupport = false;
+            		sqGen.innerTabCount = innerTabCount;
+            		rhs = "(" + sqGen.getDataSql(filter.getSubQuery(), filter.getSubQueryJoinTree()) + ")";
+            		innerTabCount = sqGen.innerTabCount;
+				} else {
+					rhs = getExpressionNodeSql(filter.getRhs(), filter.getLhs().getType());
+					if (filter.getLhs().isString() && ic) {
+						lhs = "upper(" + lhs + ")";
+						if (filter.getRhs() instanceof FieldNode) {
+							rhs = "upper(" + rhs + ")";
+						} else {
+							rhs = rhs.toUpperCase();
+						}
+					}
+				}
+
             	filterExpr = lhs + " " + filter.getRelOp().symbol() + " " + rhs;
             	break;            	
         }

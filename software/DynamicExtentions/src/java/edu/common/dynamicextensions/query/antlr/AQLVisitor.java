@@ -11,8 +11,14 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	/**
+	 * Visit a parse tree produced by {@link AQLParser#query}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitQuery(AQLParser.QueryContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code QueryExpr}
-	 * labeled alternative in {@link AQLParser#query}.
+	 * labeled alternative in {@link AQLParser#query_expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
@@ -129,6 +135,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMvFilter(AQLParser.MvFilterContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code SubQueryFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubQueryFilter(AQLParser.SubQueryFilterContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ConcatCompFilter}
 	 * labeled alternative in {@link AQLParser#filter}.

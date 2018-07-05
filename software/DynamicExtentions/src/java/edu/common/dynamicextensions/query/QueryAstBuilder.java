@@ -3,7 +3,6 @@ package edu.common.dynamicextensions.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -46,7 +45,12 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 
     public QueryAstBuilder() {
     }
-    
+
+    @Override
+    public QueryExpressionNode visitQuery(AQLParser.QueryContext ctx) {
+    	return (QueryExpressionNode) visit(ctx.query_expr());
+	}
+
     @Override 
     public QueryExpressionNode visitQueryExpr(AQLParser.QueryExprContext ctx) {
     	QueryExpressionNode queryExpr = new QueryExpressionNode();
@@ -201,10 +205,19 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 				"However, more than 1000 condition values are not allowed. Please consider breaking the long filter into multiple smaller filters.");
 		}
 
-    	filter.setRhs((ExpressionNode)visit(ctx.literal_values()));
+    	filter.setRhs(list);
     	filter.setRelOp(RelationalOp.getBySymbol(ctx.MOP().getText()));
     	return setAql(filter, ctx);
     }
+
+    @Override
+    public FilterNode visitSubQueryFilter(AQLParser.SubQueryFilterContext ctx) {
+    	FilterNode filter = new FilterNode();
+    	filter.setLhs((ExpressionNode)visit(ctx.arith_expr()));
+    	filter.setRelOp(RelationalOp.getBySymbol(ctx.MOP().getText()));
+    	filter.setSubQuery((QueryExpressionNode) visit(ctx.query_expr()));
+    	return setAql(filter, ctx);
+	}
 
 	@Override
 	public FilterNode visitConcatCompFilter(AQLParser.ConcatCompFilterContext ctx) {

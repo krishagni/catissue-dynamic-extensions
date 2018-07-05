@@ -414,7 +414,11 @@ public class QueryCompiler
     
     private void analyzeFilterNode(int queryId, FilterNode filter, Map<String, JoinTree> joinMap) {
         analyzeExpressionNode(queryId, filter.getLhs(), joinMap);
-        analyzeExpressionNode(queryId, filter.getRhs(), joinMap);       
+        if (filter.getSubQuery() != null) {
+        	filter.setSubQueryJoinTree(buildJoinTree(filter.getSubQuery()));
+		} else {
+			analyzeExpressionNode(queryId, filter.getRhs(), joinMap);
+		}
     }
     
     private void analyzeArithExpressionNode(int queryId, ArithExpressionNode expr, Map<String, JoinTree> joinMap) {

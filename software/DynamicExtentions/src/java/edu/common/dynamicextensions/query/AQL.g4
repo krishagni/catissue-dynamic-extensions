@@ -1,6 +1,9 @@
 grammar AQL;
 
-query         : (SELECT select_list WHERE)? filter_expr order_expr? limit_expr? (crosstab_expr | report_expr)? #QueryExpr
+query         : query_expr EOF
+              ;
+
+query_expr    : (SELECT select_list WHERE)? filter_expr order_expr? limit_expr? (crosstab_expr | report_expr)? #QueryExpr
               ;
       
 select_list   : DISTINCT? select_element (',' select_element)* #SelectExpr
@@ -35,6 +38,7 @@ report_expr   : ID (LP SLITERAL (',' SLITERAL)* RP)? #ReportExpr
 
 filter        : arith_expr     OP   arith_expr          #BasicFilter
               | arith_expr     MOP  literal_values      #MvFilter
+              | arith_expr     MOP  LP query_expr RP    #SubQueryFilter
               | concat_expr    SOP  SLITERAL            #ConcatCompFilter
               | concat_ws_expr SOP  SLITERAL            #ConcatWsCompFilter
               | FIELD          SOP  SLITERAL            #StringCompFilter
@@ -45,8 +49,8 @@ filter        : arith_expr     OP   arith_expr          #BasicFilter
               
 literal_values: '(' literal (',' literal)* ')'
               ;
-              
-literal       : SLITERAL                             #StringLiteral 
+
+literal       : SLITERAL                             #StringLiteral
               | INT                                  #IntLiteral
               | FLOAT                                #FloatLiteral
               | BOOL                                 #BoolLiteral

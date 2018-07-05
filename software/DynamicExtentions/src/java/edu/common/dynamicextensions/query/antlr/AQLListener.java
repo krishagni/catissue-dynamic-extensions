@@ -8,14 +8,24 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface AQLListener extends ParseTreeListener {
 	/**
+	 * Enter a parse tree produced by {@link AQLParser#query}.
+	 * @param ctx the parse tree
+	 */
+	void enterQuery(AQLParser.QueryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link AQLParser#query}.
+	 * @param ctx the parse tree
+	 */
+	void exitQuery(AQLParser.QueryContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code QueryExpr}
-	 * labeled alternative in {@link AQLParser#query}.
+	 * labeled alternative in {@link AQLParser#query_expr}.
 	 * @param ctx the parse tree
 	 */
 	void enterQueryExpr(AQLParser.QueryExprContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code QueryExpr}
-	 * labeled alternative in {@link AQLParser#query}.
+	 * labeled alternative in {@link AQLParser#query_expr}.
 	 * @param ctx the parse tree
 	 */
 	void exitQueryExpr(AQLParser.QueryExprContext ctx);
@@ -211,6 +221,18 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMvFilter(AQLParser.MvFilterContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code SubQueryFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubQueryFilter(AQLParser.SubQueryFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code SubQueryFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubQueryFilter(AQLParser.SubQueryFilterContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code ConcatCompFilter}
 	 * labeled alternative in {@link AQLParser#filter}.

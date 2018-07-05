@@ -2,7 +2,6 @@ package edu.common.dynamicextensions.query;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +14,6 @@ import edu.common.dynamicextensions.query.ast.ConcatNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
-import edu.common.dynamicextensions.query.ast.SelectListNode;
 
 public class Query {
     private static final Logger logger = Logger.getLogger(Query.class);

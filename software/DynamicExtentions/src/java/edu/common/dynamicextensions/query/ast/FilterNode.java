@@ -1,6 +1,8 @@
 package edu.common.dynamicextensions.query.ast;
 
 
+import edu.common.dynamicextensions.query.JoinTree;
+
 public class FilterNode implements FilterNodeMarker {
     public enum RelationalOp {
         EQ("="),
@@ -51,6 +53,10 @@ public class FilterNode implements FilterNodeMarker {
     
     private ExpressionNode rhs;
 
+    private QueryExpressionNode subQuery;
+
+    private JoinTree subQueryJoinTree;
+
 	@Override
 	public String getAql() {
 		return aql;
@@ -82,5 +88,21 @@ public class FilterNode implements FilterNodeMarker {
 
 	public void setRhs(ExpressionNode rhs) {
 		this.rhs = rhs;
-	}    
+	}
+
+	public QueryExpressionNode getSubQuery() {
+		return subQuery;
+	}
+
+	public void setSubQuery(QueryExpressionNode subQuery) {
+		this.subQuery = subQuery;
+	}
+
+	public JoinTree getSubQueryJoinTree() {
+		return subQueryJoinTree;
+	}
+
+	public void setSubQueryJoinTree(JoinTree subQueryJoinTree) {
+		this.subQueryJoinTree = subQueryJoinTree;
+	}
 }
