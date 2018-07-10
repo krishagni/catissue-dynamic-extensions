@@ -39,6 +39,7 @@ report_expr   : ID (LP SLITERAL (',' SLITERAL)* RP)? #ReportExpr
 filter        : arith_expr     OP   arith_expr          #BasicFilter
               | arith_expr     MOP  literal_values      #MvFilter
               | arith_expr     MOP  LP query_expr RP    #SubQueryFilter
+              | arith_expr     MOP  SQL LP SLITERAL RP  #SqlFilter
               | concat_expr    SOP  SLITERAL            #ConcatCompFilter
               | concat_ws_expr SOP  SLITERAL            #ConcatWsCompFilter
               | FIELD          SOP  SLITERAL            #StringCompFilter
@@ -121,6 +122,7 @@ AND      : 'and';
 PAND     : 'pand';
 NOT      : 'not';
 ROUND    : 'round';
+SQL      : 'sql';
 LP       : '(';
 RP       : ')';
 MOP      : ('in'|'not in');

@@ -244,6 +244,18 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSqlFilter(AQLParser.SqlFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSqlFilter(AQLParser.SqlFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterConcatCompFilter(AQLParser.ConcatCompFilterContext ctx) { }
 	/**
 	 * {@inheritDoc}

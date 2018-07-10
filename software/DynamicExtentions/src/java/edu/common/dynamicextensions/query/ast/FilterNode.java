@@ -57,6 +57,8 @@ public class FilterNode implements FilterNodeMarker {
 
     private JoinTree subQueryJoinTree;
 
+    private String sql;
+
 	@Override
 	public String getAql() {
 		return aql;
@@ -104,5 +106,13 @@ public class FilterNode implements FilterNodeMarker {
 
 	public void setSubQueryJoinTree(JoinTree subQueryJoinTree) {
 		this.subQueryJoinTree = subQueryJoinTree;
+	}
+
+	public String getSql() {
+		return sql;
+	}
+
+	public void setSql(String sql) {
+		this.sql = sql;
 	}
 }

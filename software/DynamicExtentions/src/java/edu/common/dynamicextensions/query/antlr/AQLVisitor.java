@@ -143,6 +143,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSubQueryFilter(AQLParser.SubQueryFilterContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code SqlFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSqlFilter(AQLParser.SqlFilterContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code ConcatCompFilter}
 	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree

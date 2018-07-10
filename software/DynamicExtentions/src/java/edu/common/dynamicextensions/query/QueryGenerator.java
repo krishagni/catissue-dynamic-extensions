@@ -488,7 +488,8 @@ public class QueryGenerator {
 				filter.getRelOp() != RelationalOp.EXISTS &&
 				filter.getRelOp() != RelationalOp.NOT_EXISTS &&
 				filter.getRelOp() != RelationalOp.ANY &&
-				filter.getSubQuery() == null;
+				filter.getSubQuery() == null &&
+				StringUtils.isBlank(filter.getSql());
 	}
 
 	private String buildMvFilter(JoinTree tree, FilterNode filter) {
@@ -570,11 +571,13 @@ public class QueryGenerator {
             	            	
             default:
             	if (filter.getSubQuery() != null) {
-            		QueryGenerator sqGen = new QueryGenerator();
-            		sqGen.wideRowSupport = false;
-            		sqGen.innerTabCount = innerTabCount;
-            		rhs = "(" + sqGen.getDataSql(filter.getSubQuery(), filter.getSubQueryJoinTree()) + ")";
-            		innerTabCount = sqGen.innerTabCount;
+					QueryGenerator sqGen = new QueryGenerator();
+					sqGen.wideRowSupport = false;
+					sqGen.innerTabCount = innerTabCount;
+					rhs = "(" + sqGen.getDataSql(filter.getSubQuery(), filter.getSubQueryJoinTree()) + ")";
+					innerTabCount = sqGen.innerTabCount;
+				} else if (StringUtils.isNotBlank(filter.getSql())) {
+					rhs = "(" + filter.getSql().trim().substring(1, filter.getSql().length() - 1) + ")";
 				} else {
 					rhs = getExpressionNodeSql(filter.getRhs(), filter.getLhs().getType());
 					if (filter.getLhs().isString() && ic) {

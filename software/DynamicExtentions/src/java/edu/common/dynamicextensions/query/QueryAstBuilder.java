@@ -220,6 +220,15 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 	}
 
 	@Override
+	public FilterNode visitSqlFilter(AQLParser.SqlFilterContext ctx) {
+    	FilterNode filter = new FilterNode();
+    	filter.setLhs((ExpressionNode) visit(ctx.arith_expr()));
+    	filter.setRelOp(RelationalOp.getBySymbol(ctx.MOP().getText()));
+    	filter.setSql(ctx.SLITERAL().getText());
+    	return setAql(filter, ctx);
+	}
+
+	@Override
 	public FilterNode visitConcatCompFilter(AQLParser.ConcatCompFilterContext ctx) {
 		FilterNode filter = new FilterNode();
 		filter.setLhs((ExpressionNode)visit(ctx.concat_expr()));
@@ -452,8 +461,8 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	node.setNoOfDigitsAfterDecimal(Integer.parseInt(ctx.INT().getText()));
     	return setAql(node, ctx);
     }
-    
-    @Override 
+
+    @Override
     public FieldNode visitField(AQLParser.FieldContext ctx) {
     	FieldNode field = new FieldNode();
     	field.setName(ctx.FIELD().getText());

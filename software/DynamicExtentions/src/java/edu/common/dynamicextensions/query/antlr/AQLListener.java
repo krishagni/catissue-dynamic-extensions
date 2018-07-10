@@ -234,6 +234,18 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitSubQueryFilter(AQLParser.SubQueryFilterContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code SqlFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void enterSqlFilter(AQLParser.SqlFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code SqlFilter}
+	 * labeled alternative in {@link AQLParser#filter}.
+	 * @param ctx the parse tree
+	 */
+	void exitSqlFilter(AQLParser.SqlFilterContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ConcatCompFilter}
 	 * labeled alternative in {@link AQLParser#filter}.
 	 * @param ctx the parse tree
