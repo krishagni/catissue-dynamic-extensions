@@ -571,8 +571,7 @@ public class QueryGenerator {
             	            	
             default:
             	if (filter.getSubQuery() != null) {
-					QueryGenerator sqGen = new QueryGenerator();
-					sqGen.wideRowSupport = false;
+					QueryGenerator sqGen = new QueryGenerator(false, ic, dateFormat, timeFormat);
 					sqGen.innerTabCount = innerTabCount;
 					rhs = "(" + sqGen.getDataSql(filter.getSubQuery(), filter.getSubQueryJoinTree()) + ")";
 					innerTabCount = sqGen.innerTabCount;
