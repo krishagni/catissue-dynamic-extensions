@@ -17,6 +17,8 @@ public class ResultColumn implements Serializable {
 	private int instance;
 	
 	private Object value;
+
+	private transient boolean firstColumnOfShallowForm;
 	
 	public ResultColumn(ExpressionNode columnExpr, int instance) {
 		this.columnExpr = columnExpr;
@@ -43,7 +45,15 @@ public class ResultColumn implements Serializable {
 	public Object getValue() {
 		return value;
 	}
-	
+
+	public boolean isFirstColumnOfShallowForm() {
+		return firstColumnOfShallowForm;
+	}
+
+	public void setFirstColumnOfShallowForm(boolean firstColumnOfShallowForm) {
+		this.firstColumnOfShallowForm = firstColumnOfShallowForm;
+	}
+
 	public String getColumnLabel() {
 		return getColumnLabel(null);
 	}

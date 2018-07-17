@@ -43,7 +43,7 @@ public class WideRowNode implements Serializable {
     }
     
     public Map<String, WideRowNode> initChildrenRows(String alias) {
-        Map<String, WideRowNode> childrenRows = new LinkedHashMap<String, WideRowNode>();
+        Map<String, WideRowNode> childrenRows = new LinkedHashMap<>();
         childrenRowsMap.put(alias, childrenRows);
         return childrenRows;
     }
@@ -53,37 +53,32 @@ public class WideRowNode implements Serializable {
     		Map<String, WideRowMode> tabWideRowMode, 
     		Map<String, List<ExpressionNode>> tabFieldsMap) {
     	
-    	List<ResultColumn> currentRow = new ArrayList<ResultColumn>();
+    	List<ResultColumn> currentRow = new ArrayList<>();
     	if (this.columns != null) {
     		currentRow.addAll(this.columns);
-		Collections.sort(currentRow, getPosBasedComparator());
+    		currentRow.sort(getPosBasedComparator());
     	}
     	
-    	List<List<ResultColumn>> rows = new ArrayList<List<ResultColumn>>();
+    	List<List<ResultColumn>> rows = new ArrayList<>();
     	rows.add(currentRow);
     	
     	for (Map.Entry<String, Map<String, WideRowNode>> childTabRows : childrenRowsMap.entrySet()) {
-    		List<List<ResultColumn>> currentRows = new ArrayList<List<ResultColumn>>();
+    		List<List<ResultColumn>> currentRows = new ArrayList<>();
     		
     		WideRowMode mode = tabWideRowMode.get(childTabRows.getKey());
     		if (mode == WideRowMode.SHALLOW) {
     			for (List<ResultColumn> existingRow : rows) {
-    				int childRowPos = -1, insertIdx = -1;
-    				
+    				existingRow.get(0).setFirstColumnOfShallowForm(true);
+
         			for (Map.Entry<String, WideRowNode> childRow : childTabRows.getValue().entrySet()) {
-        				List<List<ResultColumn>> flattenedChildRows = childRow.getValue().flatten(maxRowCntMap, tabWideRowMode, tabFieldsMap);        				        				
+        				List<List<ResultColumn>> flattenedChildRows = childRow.getValue().flatten(maxRowCntMap, tabWideRowMode, tabFieldsMap);
         				for (List<ResultColumn> flattenedChildRow : flattenedChildRows) {
-        					if (childRowPos == -1) {
-        						childRowPos = getFirstElementPos(flattenedChildRow);
-        					}
-        					
-        					List<ResultColumn> row = new ArrayList<ResultColumn>(existingRow);
-        					if (insertIdx == -1) {
-        						insertIdx = getIndexToInsert(row, childRowPos);
-        					}
-        					
-        					addChildRow(row, flattenedChildRow, insertIdx);
-        					currentRows.add(row);
+        					//
+        					// mark the first field of shallow form
+							// this is very useful in doing the merge sort of columns order in the final output
+							//
+        					flattenedChildRow.get(0).setFirstColumnOfShallowForm(true);
+        					currentRows.add(mergeShallowWideRowColumns(existingRow, flattenedChildRow));
         				}
         			}
         			
@@ -91,14 +86,14 @@ public class WideRowNode implements Serializable {
         				continue;
         			}
         			            		
-            		List<ResultColumn> row = new ArrayList<ResultColumn>(existingRow);
+            		List<ResultColumn> row = new ArrayList<>(existingRow);
             		List<ExpressionNode> tabFields = tabFieldsMap.get(childTabRows.getKey());
             		addEmptyChildRow(row, tabFields);
             		currentRows.add(row);
     			}
     		} else if (mode == WideRowMode.DEEP) { 
     			for (List<ResultColumn> existingRow : rows) {
-        			List<ResultColumn> row = new ArrayList<ResultColumn>(existingRow);
+        			List<ResultColumn> row = new ArrayList<>(existingRow);
         			WideRowNode childNode = null;
         			int instance = 0;
         			int childRowPos = -1, insertIdx = -1;
@@ -151,14 +146,13 @@ public class WideRowNode implements Serializable {
     }
         
     private Set<String> getAliases(boolean incThisNodeAlias) {   	
-		Set<String> aliases = new HashSet<String>();
+		Set<String> aliases = new HashSet<>();
 		if (incThisNodeAlias) {
 			aliases.add(alias);
 		}
 		
 		for (Map<String, WideRowNode> childrenRows : childrenRowsMap.values()) {
-			for (Map.Entry<String, WideRowNode> wideRow : childrenRows
-					.entrySet()) {
+			for (Map.Entry<String, WideRowNode> wideRow : childrenRows.entrySet()) {
 				if (wideRow.getValue() != null) {
 					aliases.addAll(wideRow.getValue().getAliases(true));
 					break;
@@ -273,5 +267,41 @@ public class WideRowNode implements Serializable {
 		
 		Collections.sort(columns, getPosBasedComparator());
 		return columns;		
+	}
+
+	private List<ResultColumn> mergeShallowWideRowColumns(List<ResultColumn> list1, List<ResultColumn> list2) {
+		List<ResultColumn> result = new ArrayList<>();
+
+		int i = 0, j = 0;
+		while (i < list1.size() && j < list2.size()) {
+			ResultColumn x = list1.get(i);
+			ResultColumn y = list2.get(j);
+
+			if (x.getExpression().getPos() <= y.getExpression().getPos()) {
+				result.add(x);
+				++i;
+
+				while (i < list1.size() && !list1.get(i).isFirstColumnOfShallowForm()) {
+					result.add(list1.get(i));
+					++i;
+				}
+			} else {
+				result.add(y);
+				++j;
+
+				while (j < list2.size() && !list2.get(j).isFirstColumnOfShallowForm()) {
+					result.add(list2.get(j));
+					++j;
+				}
+			}
+		}
+
+		if (i < list1.size()) {
+			result.addAll(list1.subList(i, list1.size()));
+		} else if (j < list2.size() ){
+			result.addAll(list2.subList(j, list2.size()));
+		}
+
+		return result;
 	}
 }
