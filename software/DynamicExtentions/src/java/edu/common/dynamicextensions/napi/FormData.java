@@ -342,15 +342,17 @@ public class FormData {
 			} else {
 				ValidationStatus status = ctrl.validate(ctrlValue.getValue());
 				if (status != ValidationStatus.OK) {
+					String formName = useUdn ? ctrl.getContainer().getName() : ctrl.getContainer().getCaption();
 					String field = useUdn ? ctrl.getUserDefinedName() : ctrl.getCaption();
-					errors.addError(field, status);
+					errors.addError(formName + "." + field, status);
 				}
 			}
 		}
 		
 		for (Control ctrl : mandatory.values()) {
+			String formName = useUdn ? ctrl.getContainer().getName() : ctrl.getContainer().getCaption();
 			String field = useUdn ? ctrl.getUserDefinedName() : ctrl.getCaption();
-			errors.addError(field, ValidationStatus.NULL_OR_EMPTY);
+			errors.addError(formName + "." + field, ValidationStatus.NULL_OR_EMPTY);
 		}
 		
 		errors.throwIfErrors();
