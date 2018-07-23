@@ -68,7 +68,10 @@ public class WideRowNode implements Serializable {
     		WideRowMode mode = tabWideRowMode.get(childTabRows.getKey());
     		if (mode == WideRowMode.SHALLOW) {
     			for (List<ResultColumn> existingRow : rows) {
-    				existingRow.get(0).setFirstColumnOfShallowForm(true);
+    				if (!existingRow.isEmpty()) {
+						existingRow.get(0).setFirstColumnOfShallowForm(true);
+					}
+
 
         			for (Map.Entry<String, WideRowNode> childRow : childTabRows.getValue().entrySet()) {
         				List<List<ResultColumn>> flattenedChildRows = childRow.getValue().flatten(maxRowCntMap, tabWideRowMode, tabFieldsMap);
@@ -77,7 +80,9 @@ public class WideRowNode implements Serializable {
         					// mark the first field of shallow form
 							// this is very useful in doing the merge sort of columns order in the final output
 							//
-        					flattenedChildRow.get(0).setFirstColumnOfShallowForm(true);
+							if (!flattenedChildRow.isEmpty()) {
+								flattenedChildRow.get(0).setFirstColumnOfShallowForm(true);
+							}
         					currentRows.add(mergeShallowWideRowColumns(existingRow, flattenedChildRow));
         				}
         			}
