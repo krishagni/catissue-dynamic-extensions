@@ -44,6 +44,8 @@ public class QueryResultData {
 
     private int dbRowsCount;
 
+    private String[] columnLabels;
+
 	public QueryResultData(List<ResultColumn> resultColumns) {
 		this.resultColumns = resultColumns;
 		sdf = new SimpleDateFormat(ISO_DATE_FMT);
@@ -74,6 +76,7 @@ public class QueryResultData {
 
     public void setColumnLabelFormatter(ResultColumnLabelFormatter formatter) {
     	this.formatter = formatter;
+    	this.columnLabels = null;
     }
 
     public Integer[] getColumnIndices(String name) {
@@ -108,6 +111,10 @@ public class QueryResultData {
 	}
 
     public String[] getColumnLabels() {
+		if (columnLabels != null) {
+			return columnLabels;
+		}
+
 		Function<ResultColumn, String> labelFn;
 		if (outputExpression) {
 			labelFn = (rs) -> rs.getColumnExpr(formatter);
@@ -115,7 +122,8 @@ public class QueryResultData {
 			labelFn = (rs) -> rs.getColumnLabel(formatter);
 		}
 
-		return getResultColumns().stream().map(labelFn).toArray(String[]::new);
+		columnLabels = getResultColumns().stream().map(labelFn).toArray(String[]::new);
+		return columnLabels;
     }
 
 	public String[] getColumnUrls() {
