@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.dao.DataAccessException;
 import org.springframework.util.CollectionUtils;
 
 import edu.common.dynamicextensions.domain.nui.Container;
@@ -209,8 +210,8 @@ public class FormDataManagerImpl implements FormDataManager {
 			
 			formData = getFilterMgr().executePostFilters(userCtxt, formData);
 			return recordId;
-		} catch (IllegalArgumentException iae) {
-			throw iae;
+		} catch (IllegalArgumentException|DataAccessException ae) {
+			throw ae;
 		} catch (Exception e) {
 			StringBuilder msg = new StringBuilder("Error saving form data: ");
 			if (e.getMessage() != null) {

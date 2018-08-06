@@ -36,12 +36,7 @@ public class JdbcDao {
 	}
 	
 	public int executeUpdate(String updateSql, List<?> params) {
-		try {
-			Object[] paramArray = params != null ? params.toArray() : new Object[0];
-			return jdbcTemplate.update(updateSql, paramArray);
-		} catch (Exception e) {
-			throw new RuntimeException("Error executing the update dml: " + updateSql, e);
-		}		
+		return jdbcTemplate.update(updateSql, params != null ? params.toArray() : new Object[0]);
 	}
 	
 	public Number executeUpdateAndGetKey(final String sql, final List<?> params, final String keyCol) 
