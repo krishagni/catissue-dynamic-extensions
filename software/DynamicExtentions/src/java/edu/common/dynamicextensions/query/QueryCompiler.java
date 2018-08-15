@@ -642,7 +642,7 @@ public class QueryCompiler
 
 		Control ctrl = getControl(form, fieldNameParts[1]);
 		if (ctrl == null) {
-			throw new IllegalArgumentException("Form '" + form.getName() + "' does not the field " + fieldNameParts[1] + ". Expr: " + field.getName());
+			throw new IllegalArgumentException("Form '" + form.getName() + "' does not have the field '" + fieldNameParts[1] + "'. Expr: " + field.getName());
 		}
 
 		if (!isCustomOrExtensionField(fieldNameParts[1]) && (ctrl instanceof SubFormControl) && fieldNameParts.length > 2) {
