@@ -630,7 +630,7 @@ public class QueryCompiler
     	if (formTree == null) {
     		form = getContainer(formName);
     		if (form == null) {
-    			throw new IllegalArgumentException("Invalid form in field: " + field.getName());
+    			throw new IllegalArgumentException("Invalid form '" + formName + "' in the field: " + field.getName());
     		}
     		
     		formTree = new JoinTree(form, "t" + tabCnt++);
@@ -642,7 +642,7 @@ public class QueryCompiler
 
 		Control ctrl = getControl(form, fieldNameParts[1]);
 		if (ctrl == null) {
-			throw new IllegalArgumentException("Field doesn't exists: " + field.getName());
+			throw new IllegalArgumentException("Form '" + form.getName() + "' does not the field " + fieldNameParts[1] + ". Expr: " + field.getName());
 		}
 
 		if (!isCustomOrExtensionField(fieldNameParts[1]) && (ctrl instanceof SubFormControl) && fieldNameParts.length > 2) {
