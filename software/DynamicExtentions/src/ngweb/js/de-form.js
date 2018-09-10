@@ -1299,8 +1299,9 @@ edu.common.de.SelectField = function(id, field, args) {
       hasValue = true;
     }
 
-    if (!hasValue && !this.recId && field.defaultValue && field.defaultValue.value) {
-      this.setValue(this.recId, field.defaultValue.value);
+    var defValue = field.defaultValue && field.defaultValue.value;
+    if (!hasValue && !this.recId && defValue) {
+      this.setValue(this.recId, this.isMultiSelect ? [defValue] : defValue);
     }
   };
 
