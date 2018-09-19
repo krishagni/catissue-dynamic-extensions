@@ -22,7 +22,7 @@ public class PvDataSource implements Serializable {
 
 	private static final String VALIDITY_QUERY = "select count(*) from (%s) t where t.%s = ?";
 
-	private static final String SEARCH_QUERY = "select * from (%s) t where t.%s like '%%%s%%'";
+	private static final String SEARCH_QUERY = "select * from (%s) t where upper(t.%s) like '%%%s%%'";
 
 	public enum Ordering {
 		NONE, ASC, DESC
@@ -121,7 +121,7 @@ public class PvDataSource implements Serializable {
 		if (sql != null) {
 			String searchSql = sql;
 			if (StringUtils.isNotBlank(searchStr)) {
-				searchSql = String.format(SEARCH_QUERY, sql, getColumnName(sql), searchStr.trim());
+				searchSql = String.format(SEARCH_QUERY, sql, getColumnName(sql), searchStr.trim().toUpperCase());
 			}
 
 			pvs = getPvsFromDb(searchSql, maxPvs);
