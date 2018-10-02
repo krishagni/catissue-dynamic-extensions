@@ -25,6 +25,8 @@ import com.google.gson.Gson;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.xml.DomDriver;
+import com.thoughtworks.xstream.security.AnyTypePermission;
+import com.thoughtworks.xstream.security.NoTypePermission;
 
 import edu.common.dynamicextensions.domain.nui.SkipCondition.RelationalOp;
 import edu.common.dynamicextensions.domain.nui.SkipRule.LogicalOp;
@@ -1101,6 +1103,9 @@ public class Container implements Serializable {
 //		XStream xstream = new XStream(new KXml2Driver());
 		XStream xstream = new XStream();
 		xstream.setMode(XStream.ID_REFERENCES);
+		xstream.addPermission(NoTypePermission.NONE);
+		xstream.addPermission(AnyTypePermission.ANY);
+
 		setUpAliases(xstream);
 		return xstream.toXML(this);
 	}
@@ -1115,6 +1120,9 @@ public class Container implements Serializable {
 		try {
 			XStream xstream = new XStream(new DomDriver());
 			xstream.setMode(XStream.ID_REFERENCES);
+			xstream.addPermission(NoTypePermission.NONE);
+			xstream.addPermission(AnyTypePermission.ANY);
+
 			setUpAliases(xstream);
 
 			Container container = (Container)xstream.fromXML(xml);

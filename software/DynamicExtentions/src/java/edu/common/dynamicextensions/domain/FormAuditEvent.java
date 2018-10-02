@@ -11,7 +11,9 @@ public class FormAuditEvent {
 	private Long userId;
 	
 	private String operation;
-	
+
+	private Long formId;
+
 	private String formName;
 	
 	private Long recordId;
@@ -48,6 +50,14 @@ public class FormAuditEvent {
 
 	public void setOperation(String operation) {
 		this.operation = operation;
+	}
+
+	public Long getFormId() {
+		return formId;
+	}
+
+	public void setFormId(Long formId) {
+		this.formId = formId;
 	}
 
 	public String getFormName() {

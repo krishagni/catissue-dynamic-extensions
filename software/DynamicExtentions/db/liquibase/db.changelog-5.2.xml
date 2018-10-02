@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+  <changeSet author="vpawar" id="Add form ID column to form data audit events">
+    <addColumn tableName="DYEXTN_AUDIT_EVENTS">
+      <column name="FORM_ID" type="${int.type}"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Initialise form ID column of form data audit events" dbms="mysql">
+    <sql>
+      update
+        dyextn_audit_events e
+        inner join dyextn_containers f on f.name = e.form_name
+      set
+        e.form_id = f.identifier
+    </sql>
+  </changeSet>
+
+  <changeSet id="vpawar" author="Initialise form ID column of form data audit events" dbms="oracle">
+    <sql>
+      merge into dyextn_audit_events e
+      using (
+        select
+          identifier, name
+        from
+          dyextn_containers
+      ) f on (f.name = e.form_name)
+      when matched then
+        update set e.form_id = f.identifier
+    </sql>
+  </changeSet>
+  
+  <changeSet author="vpawar" id="Index on form ID of form data audit events">
+    <createIndex tableName="DYEXTN_AUDIT_EVENTS" indexName="DYEXTN_AUDIT_EVENTS_FORM_IDX">
+      <column name="FORM_ID"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Index on record ID of form data audit events">
+    <createIndex tableName="DYEXTN_AUDIT_EVENTS" indexName="DYEXTN_AUDIT_EVENTS_REC_IDX">
+      <column name="RECORD_ID"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

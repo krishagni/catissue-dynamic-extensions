@@ -1425,7 +1425,7 @@
 			<junit fork="yes" printsummary="yes" haltonfailure="yes" haltonerror = "yes">
 				<classpath>
 			    	<pathelement location="${target.dir}"/>
-					<pathelement location="${lib.dir}/xstream-1.4.4.jar"/>
+					<pathelement location="${lib.dir}/xstream-1.4.10.jar"/>
 					<pathelement location="${lib.dir}/xerces.jar"/>
 			 		<fileset dir="${client.lib.dir}">
 	    				<include name="*.jar"/>

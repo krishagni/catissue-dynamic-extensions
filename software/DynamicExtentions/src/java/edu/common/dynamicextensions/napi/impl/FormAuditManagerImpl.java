@@ -46,6 +46,8 @@ public class FormAuditManagerImpl implements FormAuditManager {
 	@Override
 	public void audit(UserContext userCtxt, FormData formData, String operation, JdbcDao jdbcDao) {
 		FormAuditEvent formAuditEvent = new FormAuditEvent();
+
+		formAuditEvent.setFormId(formData.getContainer().getId());
 		formAuditEvent.setFormName(formData.getContainer().getName());
 		formAuditEvent.setRecordId(formData.getRecordId());
 		formAuditEvent.setFormData(getAuditDataJson(userCtxt, formData));
@@ -142,6 +144,7 @@ public class FormAuditManagerImpl implements FormAuditManager {
 		params.add(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		params.add(auditEvent.getUserId());
 		params.add(auditEvent.getOperation());
+		params.add(auditEvent.getFormId());
 		params.add(auditEvent.getFormName());
 		params.add(auditEvent.getRecordId());
 
@@ -182,15 +185,15 @@ public class FormAuditManagerImpl implements FormAuditManager {
 
 	private static final String INSERT_AUDIT_EVENT_SQL_ORA =
 			"INSERT INTO " +
-			"  DYEXTN_AUDIT_EVENTS(IDENTIFIER, IP_ADDRESS, EVENT_TIMESTAMP, USER_ID, EVENT_TYPE, FORM_NAME, RECORD_ID, FORM_DATA) " +
+			"  DYEXTN_AUDIT_EVENTS(IDENTIFIER, IP_ADDRESS, EVENT_TIMESTAMP, USER_ID, EVENT_TYPE, FORM_ID, FORM_NAME, RECORD_ID, FORM_DATA) " +
 			"VALUES" +
-			"  (DYEXTN_AUDIT_EVENTS_SEQ.NEXTVAL, ?, ?, ?, ?, ?, ?, empty_clob())";
+			"  (DYEXTN_AUDIT_EVENTS_SEQ.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, empty_clob())";
 
 	private static final String INSERT_AUDIT_EVENT_SQL_MSQL =
 			"INSERT INTO " +
-			"  DYEXTN_AUDIT_EVENTS(IDENTIFIER, IP_ADDRESS, EVENT_TIMESTAMP, USER_ID, EVENT_TYPE, FORM_NAME, RECORD_ID, FORM_DATA) " +
+			"  DYEXTN_AUDIT_EVENTS(IDENTIFIER, IP_ADDRESS, EVENT_TIMESTAMP, USER_ID, EVENT_TYPE, FORM_ID, FORM_NAME, RECORD_ID, FORM_DATA) " +
 			"VALUES" +
-			"  (default, ?, ?, ?, ?, ?, ?, ?)";
+			"  (default, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	private static final String GET_AUDIT_DATA_BY_ID_SQL =
 			"SELECT " +
