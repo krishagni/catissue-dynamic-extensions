@@ -12,27 +12,46 @@
     </addColumn>
   </changeSet>
 
-  <changeSet author="vpawar" id="Initialise form ID column of form data audit events" dbms="mysql">
+  <changeSet author="vpawar" id="Init form ID column of form data audit events" dbms="mysql">
     <sql>
       update
         dyextn_audit_events e
-        inner join dyextn_containers f on f.name = e.form_name
+        inner join (
+          select
+            ie.identifier,
+            cast(substr(ie.form_data, t.pos, instr(substr(ie.form_data, t.pos), ',') - 1) as unsigned integer) as form_id
+          from
+            dyextn_audit_events ie
+            inner join (
+              select
+                identifier, instr(form_data, '"formId":') + 9 as pos
+              from
+                dyextn_audit_events
+            ) t on t.identifier = ie.identifier
+        ) me on me.identifier = e.identifier
       set
-        e.form_id = f.identifier
+        e.form_id = me.form_id
     </sql>
   </changeSet>
 
-  <changeSet id="vpawar" author="Initialise form ID column of form data audit events" dbms="oracle">
+  <changeSet id="vpawar" author="Init form ID column of form data audit events" dbms="oracle">
     <sql>
       merge into dyextn_audit_events e
       using (
         select
-          identifier, name
+          ie.identifier,
+          to_number(substr(ie.form_data, t.pos, instr(substr(ie.form_data, t.pos), ',') - 1)) as form_id
         from
-          dyextn_containers
-      ) f on (f.name = e.form_name)
+          dyextn_audit_events ie
+          inner join (
+            select
+              identifier, instr(form_data, '"formId":') + 9 as pos
+            from
+              dyextn_audit_events
+          ) t on t.identifier = ie.identifier
+      ) me on (me.identifier = e.identifier)
       when matched then
-        update set e.form_id = f.identifier
+        update set e.form_id = me.form_id
     </sql>
   </changeSet>
   
