@@ -294,9 +294,13 @@ public class QueryResultData {
 				Date dateObj = Util.getDateFromOraTimestamp(row[j]);
 				result[j] = toTime(dateObj);
 			} else if (row[j] instanceof Number) {
-				result[j] = new BigDecimal(((Number)row[j]).doubleValue())
-					.setScale(getResultColumns().get(j).getScale(), BigDecimal.ROUND_HALF_UP)
-					.toString();
+            	BigDecimal bd = new BigDecimal(((Number)row[j]).doubleValue());
+            	int scale = getResultColumns().get(j).getScale();
+            	if (scale > 0) {
+            		bd = bd.setScale(scale, BigDecimal.ROUND_HALF_UP);
+				}
+
+				result[j] = bd.toString();
             } else {
             	result[j] = row[j].toString();
             }
