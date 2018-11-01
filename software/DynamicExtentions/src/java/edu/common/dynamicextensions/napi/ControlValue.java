@@ -18,6 +18,11 @@ public class ControlValue {
 	 */
 	private Object value;
 
+	/*
+	 * Used by lookup control
+	 */
+	private Object uiValue;
+
 	/**
 	 * Updated by EnableAction and DisbleAction
 	 */
@@ -75,6 +80,14 @@ public class ControlValue {
 
 	public void setValue(Object value) {
 		this.value = value;
+	}
+
+	public Object getUiValue() {
+		return uiValue;
+	}
+
+	public void setUiValue(Object uiValue) {
+		this.uiValue = uiValue;
 	}
 
 	public boolean isReadOnly() {

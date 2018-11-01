@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
+import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.ValidationErrors;
@@ -252,18 +253,18 @@ public class FormData {
 	}
 
 	public Map<String, Object> getFieldValueMap() {
-		Map<String, Object> props = new HashMap<String, Object>();
+		Map<String, Object> props = new HashMap<>();
 		props.put("appData", getAppData());
 		props.put("containerId", container.getId());
 		props.put("caption", container.getCaption());
 		props.put("name", container.getName());
 		props.put("id", recordId);
 
-		List<Map<String, Object>> fields = new ArrayList<Map<String, Object>>();
+		List<Map<String, Object>> fields = new ArrayList<>();
 		props.put("fields", fields);
 
 		for (ControlValue fieldValue : getOrderedFieldValues()) {
-			Map<String, Object> fieldData = new HashMap<String, Object>();
+			Map<String, Object> fieldData = new HashMap<>();
 			fields.add(fieldData);
 
 			fieldData.put("name", fieldValue.getControl().getName());
@@ -278,7 +279,7 @@ public class FormData {
 			} else if (value instanceof List) {
 				List<FormData> formDataList = (List<FormData>)value;
 
-				List<Map<String, Object>> sfData = new ArrayList<Map<String, Object>>();
+				List<Map<String, Object>> sfData = new ArrayList<>();
 				for (FormData formData : formDataList) {
 					sfData.add(formData.getFieldValueMap());
 				}
@@ -290,6 +291,9 @@ public class FormData {
 
 			if (value != null) {
 				fieldData.put("value", value);
+				if (fieldValue.getUiValue() != null) {
+					fieldData.put("displayValue", fieldValue.getUiValue());
+				}
 			}
 		}
 

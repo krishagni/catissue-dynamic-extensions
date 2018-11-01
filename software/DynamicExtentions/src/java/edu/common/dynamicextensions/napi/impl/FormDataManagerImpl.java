@@ -345,20 +345,36 @@ public class FormDataManagerImpl implements FormDataManager {
 	
 	private String buildQuery(List<Control> simpleCtrls, String tableName, String idColumn, int numIds) {
 		StringBuilder query = new StringBuilder("SELECT ");
+		List<String> joins = new ArrayList<>();
+		int tabCnt = 0;
+
 		for (Control ctrl : simpleCtrls) {
+			String column = "mt." + ctrl.getDbColumnName();
 			if (ctrl instanceof FileUploadControl) {
-				query.append(ctrl.getDbColumnName()).append("_NAME, ")
-					.append(ctrl.getDbColumnName()).append("_TYPE, ")
-					.append(ctrl.getDbColumnName()).append("_ID, ");
+				query.append(column).append("_NAME, ")
+					.append(column).append("_TYPE, ")
+					.append(column).append("_ID, ");
 			} else {
-				query.append(ctrl.getDbColumnName()).append(", ");
+				query.append(column).append(", ");
+				if (ctrl instanceof LookupControl) {
+					LookupControl luCtrl = (LookupControl) ctrl;
+					String tabAlias = "lut" + ++tabCnt;
+					String columnAlias = tabAlias + "v";
+					query.append(tabAlias).append(".").append(luCtrl.getValueColumn()).append(" ").append(columnAlias).append(", ");
+					joins.add(getJoinClause(tabAlias, luCtrl.getTableName(), luCtrl.getLookupKey(), column));
+				}
 			}
 		}
 
-		return query.append("IDENTIFIER").append(idColumn.equals("IDENTIFIER") ?  "" : ", " + idColumn)
-			.append(" FROM ").append(tableName)
-			.append(" WHERE ").append(getInClause(idColumn, numIds))
+		return query.append("mt.IDENTIFIER").append(idColumn.equals("IDENTIFIER") ?  "" : ", mt." + idColumn)
+			.append(" FROM ").append(tableName).append(" mt ")
+			.append(String.join("", joins))
+			.append(" WHERE ").append(getInClause("mt." + idColumn, numIds))
 			.toString();
+	}
+
+	private String getJoinClause(String alias, String joinTab, String foreignKey, String parentKey) {
+		return " LEFT JOIN " + joinTab + " " + alias + " on " + alias + "." + foreignKey + " = " + parentKey;
 	}
 	
 	private String buildRecsSummaryQuery(List<Control> ctrls, String tableName, String identifyingColumn, int noOfRecords) {
@@ -777,6 +793,8 @@ public class FormDataManagerImpl implements FormDataManager {
 
 	private void extractSimpleValues(List<Control> ctrls, ResultSet rs, FormData formData) 
 	throws SQLException {
+		int tabCnt = 0;
+
 		for (Control ctrl : ctrls) {
 			ControlValue ctrlValue = null;
 
@@ -796,9 +814,15 @@ public class FormDataManagerImpl implements FormDataManager {
 				} else {
 					rsObj = rs.getObject(ctrl.getDbColumnName());
 				}
-				
-				String value = ctrl.toString(rsObj);
-				ctrlValue = new ControlValue(ctrl, value);
+
+				ctrlValue = new ControlValue(ctrl, ctrl.toString(rsObj));
+				if (ctrl instanceof LookupControl) {
+					String tabAlias = "lut" + ++tabCnt;
+					String columnAlias = tabAlias + "v";
+
+					Object uiValue = rs.getString(columnAlias);
+					ctrlValue.setUiValue(uiValue);
+				}
 			}
 				
 			formData.addFieldValue(ctrlValue);
