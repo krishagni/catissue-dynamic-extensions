@@ -138,6 +138,78 @@ public interface AQLListener extends ParseTreeListener {
 	 */
 	void exitParensFilterExpr(AQLParser.ParensFilterExprContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code HavingExpr}
+	 * labeled alternative in {@link AQLParser#having_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterHavingExpr(AQLParser.HavingExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code HavingExpr}
+	 * labeled alternative in {@link AQLParser#having_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitHavingExpr(AQLParser.HavingExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NotAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterNotAggFilterExpr(AQLParser.NotAggFilterExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NotAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitNotAggFilterExpr(AQLParser.NotAggFilterExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AndAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterAndAggFilterExpr(AQLParser.AndAggFilterExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AndAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitAndAggFilterExpr(AQLParser.AndAggFilterExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code SimpleAggFilter}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterSimpleAggFilter(AQLParser.SimpleAggFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code SimpleAggFilter}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitSimpleAggFilter(AQLParser.SimpleAggFilterContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ParensAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterParensAggFilterExpr(AQLParser.ParensAggFilterExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ParensAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitParensAggFilterExpr(AQLParser.ParensAggFilterExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code OrAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrAggFilterExpr(AQLParser.OrAggFilterExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code OrAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrAggFilterExpr(AQLParser.OrAggFilterExprContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code OrderExpr}
 	 * labeled alternative in {@link AQLParser#order_expr}.
 	 * @param ctx the parse tree
@@ -317,6 +389,18 @@ public interface AQLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBetweenFilter(AQLParser.BetweenFilterContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AggFilter}
+	 * labeled alternative in {@link AQLParser#agg_filter}.
+	 * @param ctx the parse tree
+	 */
+	void enterAggFilter(AQLParser.AggFilterContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AggFilter}
+	 * labeled alternative in {@link AQLParser#agg_filter}.
+	 * @param ctx the parse tree
+	 */
+	void exitAggFilter(AQLParser.AggFilterContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link AQLParser#literal_values}.
 	 * @param ctx the parse tree

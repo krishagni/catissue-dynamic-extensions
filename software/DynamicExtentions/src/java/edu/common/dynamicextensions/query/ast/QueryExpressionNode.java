@@ -8,6 +8,8 @@ public class QueryExpressionNode implements Node {
 	
 	private FilterExpressionNode filterExpr;
 
+	private FilterExpressionNode havingExpr;
+
 	private OrderExprListNode orderExpr;
 	
 	private LimitExprNode limitExpr;
@@ -39,6 +41,14 @@ public class QueryExpressionNode implements Node {
 
 	public void setFilterExpr(FilterExpressionNode filterExpr) {
 		this.filterExpr = filterExpr;
+	}
+
+	public FilterExpressionNode getHavingExpr() {
+		return havingExpr;
+	}
+
+	public void setHavingExpr(FilterExpressionNode havingExpr) {
+		this.havingExpr = havingExpr;
 	}
 
 	public OrderExprListNode getOrderExpr() {
@@ -84,7 +94,7 @@ public class QueryExpressionNode implements Node {
 	}
 
 	public boolean isAggregateQuery() {
-		return selectList.hasAggregateExpr();
+		return selectList.hasAggregateExpr() || havingExpr != null;
 	}
 	
 	public boolean hasResultPostProc() {

@@ -3,7 +3,7 @@ grammar AQL;
 query         : query_expr EOF
               ;
 
-query_expr    : (SELECT select_list WHERE)? filter_expr order_expr? limit_expr? (crosstab_expr | report_expr)? #QueryExpr
+query_expr    : (SELECT select_list WHERE)? filter_expr having_expr? order_expr? limit_expr? (crosstab_expr | report_expr)? #QueryExpr
               ;
       
 select_list   : DISTINCT? select_element (',' select_element)* #SelectExpr
@@ -20,6 +20,16 @@ filter_expr   : filter_expr AND filter_expr          #AndFilterExpr
               | NOT filter_expr                      #NotFilterExpr
               | filter                               #SimpleFilter
               ;
+
+having_expr   : HAVING agg_filter_expr               #HavingExpr
+              ;
+
+agg_filter_expr : agg_filter_expr AND agg_filter_expr  #AndAggFilterExpr
+                | agg_filter_expr OR  agg_filter_expr  #OrAggFilterExpr
+                | LP agg_filter_expr RP                #ParensAggFilterExpr
+                | NOT agg_filter_expr                  #NotAggFilterExpr
+                | agg_filter                           #SimpleAggFilter
+                ;
 
 order_expr    : ORDER order_element (',' order_element)*  #OrderExpr
               ;
@@ -46,6 +56,9 @@ filter        : arith_expr     OP   arith_expr          #BasicFilter
               | arith_expr     UOP                      #UnaryFilter
               | date_range                              #DateRangeFilter
               | arith_expr     BETWEEN LP arith_expr ',' arith_expr RP #BetweenFilter
+              ;
+
+agg_filter    : agg_expr OP (INT | FLOAT)  #AggFilter
               ;
               
 literal_values: '(' literal (',' literal)* ')'
@@ -111,6 +124,7 @@ MIN      : 'min';
 MAX      : 'max';
 AVG      : 'avg';
 DISTINCT : 'distinct';
+HAVING   : 'having';
 ORDER    : 'order by';
 ORD_DIR  : ('desc' | 'asc');
 LIMIT    : 'limit';

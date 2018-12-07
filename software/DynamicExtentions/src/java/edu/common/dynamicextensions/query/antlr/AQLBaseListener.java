@@ -148,6 +148,78 @@ public class AQLBaseListener implements AQLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterHavingExpr(AQLParser.HavingExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitHavingExpr(AQLParser.HavingExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNotAggFilterExpr(AQLParser.NotAggFilterExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNotAggFilterExpr(AQLParser.NotAggFilterExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAndAggFilterExpr(AQLParser.AndAggFilterExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAndAggFilterExpr(AQLParser.AndAggFilterExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSimpleAggFilter(AQLParser.SimpleAggFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSimpleAggFilter(AQLParser.SimpleAggFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterParensAggFilterExpr(AQLParser.ParensAggFilterExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParensAggFilterExpr(AQLParser.ParensAggFilterExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOrAggFilterExpr(AQLParser.OrAggFilterExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOrAggFilterExpr(AQLParser.OrAggFilterExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOrderExpr(AQLParser.OrderExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -323,6 +395,18 @@ public class AQLBaseListener implements AQLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBetweenFilter(AQLParser.BetweenFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAggFilter(AQLParser.AggFilterContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAggFilter(AQLParser.AggFilterContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

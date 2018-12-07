@@ -118,7 +118,7 @@ public class QueryGenerator {
 		ensureTablesLimit(joinTree);
 
     	StringBuilder countSql = new StringBuilder();
-    	if (wideRowSupport) {
+    	if (isWideRowSupport(queryExpr)) {
         	String fromClause  = buildFromClause(joinTree);
         	String whereClause = buildWhereClause(joinTree, queryExpr.getFilterExpr());
         	String activeClause = buildActiveCond(joinTree);
@@ -142,12 +142,13 @@ public class QueryGenerator {
     public String getDataSql(QueryExpressionNode queryExpr, JoinTree joinTree) {
 		ensureTablesLimit(joinTree);
 
-    	String selectClause = buildSelectClause(queryExpr.getSelectList(), joinTree);
+    	String selectClause = buildSelectClause(queryExpr, joinTree);
         String fromClause  = buildFromClause(joinTree);
         String whereClause = buildWhereClause(joinTree, queryExpr.getFilterExpr());
         String activeClause = buildActiveCond(joinTree);
+		String havingClause = buildHavingClause(joinTree, queryExpr.getHavingExpr());
 		String linkClause = buildLinkCond(joinTree);
-        String groupBy = buildGroupBy(queryExpr.getSelectList());
+        String groupBy = buildGroupBy(queryExpr);
 
 		whereClause = and(and(whereClause, activeClause), linkClause);
         String sql = new StringBuilder("select ").append(selectClause)
@@ -156,7 +157,7 @@ public class QueryGenerator {
 			.toString();
 
 		String orderBy = null;
-		if (wideRowSupport) {
+		if (isWideRowSupport(queryExpr)) {
 			if (StringUtils.isBlank(groupBy)) {
 				orderBy = joinTree.getAlias() + "." + joinTree.getForm().getPrimaryKey();
 			}
@@ -166,6 +167,10 @@ public class QueryGenerator {
 
 		if (StringUtils.isNotBlank(groupBy)) {
 			sql += " group by " + groupBy;
+		}
+
+		if (StringUtils.isNotBlank(havingClause)) {
+			sql += " having " + havingClause;
 		}
 
 		if (StringUtils.isNotBlank(orderBy)) {
@@ -187,7 +192,7 @@ public class QueryGenerator {
             result = dataSql;          
         } else {
         	String orderedQuery = dataSql;
-        	if (!wideRowSupport && queryExpr.getOrderExpr() == null) {
+        	if (!isWideRowSupport(queryExpr) && queryExpr.getOrderExpr() == null) {
         		orderedQuery += " order by " + joinTree.getAlias() + "." + joinTree.getForm().getPrimaryKey();
         	}
         	
@@ -216,7 +221,13 @@ public class QueryGenerator {
 		}
 	}
 
-	private String buildSelectClause(SelectListNode selectList, JoinTree joinTree) {
+	private boolean isWideRowSupport(QueryExpressionNode queryExpr) {
+    	return wideRowSupport && !queryExpr.isAggregateQuery();
+	}
+
+	private String buildSelectClause(QueryExpressionNode queryExpr, JoinTree joinTree) {
+    	SelectListNode selectList = queryExpr.getSelectList();
+
     	StringBuilder select = new StringBuilder();
     	if (selectList.isDistinct()) {
     		select.append("distinct ");
@@ -235,7 +246,7 @@ public class QueryGenerator {
     	if (select.length() == 0) {
     		select.append("*"); 
     	} else {
-    		if (wideRowSupport) {
+    		if (isWideRowSupport(queryExpr)) {
     			addWideRowMarkerCols(select, selectList, joinTree);    			
     		}
     		
@@ -460,13 +471,13 @@ public class QueryGenerator {
 		return orderBy.toString();
 	}
 
-    private String buildGroupBy(SelectListNode selectList) {
+    private String buildGroupBy(QueryExpressionNode queryExpr) {
     	StringBuilder groupBy = new StringBuilder();
-    	if (!selectList.hasAggregateExpr()) {
+    	if (!queryExpr.isAggregateQuery()) {
     		return groupBy.toString();
-    	}
-    	
-    	for (ExpressionNode node : selectList.getElements()) {
+		}
+
+    	for (ExpressionNode node : queryExpr.getSelectList().getElements()) {
     		if (node.isAggregateExpression()) {
     			continue;
     		}
@@ -480,6 +491,10 @@ public class QueryGenerator {
     	
     	return groupBy.toString(); 
     }
+
+    private String buildHavingClause(JoinTree joinTree, Node havingClause) {
+    	return havingClause != null ? buildWhereClause(joinTree, havingClause) : null;
+	}
 
 	private boolean isMvFilter(FilterNode filter) {
 		ExpressionNode lhsNode = filter.getLhs();

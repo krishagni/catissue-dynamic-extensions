@@ -62,6 +62,10 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	queryExpr.setSelectList(selectList);    	
     	queryExpr.setFilterExpr((FilterExpressionNode)visit(ctx.filter_expr()));
 
+    	if (ctx.having_expr() != null) {
+    		queryExpr.setHavingExpr((FilterExpressionNode)visit(ctx.having_expr()));
+		}
+
 		if (ctx.order_expr() != null) {
 			queryExpr.setOrderExpr((OrderExprListNode)visit(ctx.order_expr()));
 		}
@@ -297,6 +301,62 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 		filter.setRelOp(RelationalOp.BETWEEN);
 		filter.setLhs(betweenNode);
 		return setAql(filter, ctx);
+	}
+
+	@Override
+	public FilterExpressionNode visitHavingExpr(AQLParser.HavingExprContext ctx) {
+    	FilterExpressionNode node = (FilterExpressionNode) visit(ctx.agg_filter_expr());
+    	return setAql(node, ctx);
+	}
+
+	@Override
+	public FilterExpressionNode visitAndAggFilterExpr(AQLParser.AndAggFilterExprContext ctx) {
+		FilterExpressionNode node = FilterExpressionNode.andExpr(
+			(FilterNodeMarker)visit(ctx.agg_filter_expr(0)),
+			(FilterNodeMarker)visit(ctx.agg_filter_expr(1)));
+		return setAql(node, ctx);
+	}
+
+	@Override
+	public Node visitOrAggFilterExpr(AQLParser.OrAggFilterExprContext ctx) {
+		FilterExpressionNode node = FilterExpressionNode.orExpr(
+			(FilterNodeMarker)visit(ctx.agg_filter_expr(0)),
+			(FilterNodeMarker)visit(ctx.agg_filter_expr(1)));
+		return setAql(node, ctx);
+	}
+
+	@Override
+	public Node visitNotAggFilterExpr(AQLParser.NotAggFilterExprContext ctx) {
+		return setAql(FilterExpressionNode.notExpr((FilterNodeMarker)visit(ctx.agg_filter_expr())), ctx);
+	}
+
+	@Override
+	public FilterExpressionNode visitParensAggFilterExpr(AQLParser.ParensAggFilterExprContext ctx) {
+		return setAql(FilterExpressionNode.parenExpr((FilterNodeMarker)visit(ctx.agg_filter_expr())), ctx);
+	}
+
+	@Override
+	public FilterExpressionNode visitSimpleAggFilter(AQLParser.SimpleAggFilterContext ctx) {
+		return setAql(FilterExpressionNode.identity((FilterNodeMarker)visit(ctx.agg_filter())), ctx);
+	}
+
+	@Override
+	public FilterNode visitAggFilter(AQLParser.AggFilterContext ctx) {
+    	FilterNode filter = new FilterNode();
+    	filter.setLhs((ExpressionNode)visit(ctx.agg_expr()));
+    	filter.setRelOp(RelationalOp.getBySymbol(ctx.OP().getText()));
+
+    	LiteralValueNode rhs = null;
+    	if (ctx.INT() != null) {
+    		rhs = new LiteralValueNode(DataType.INTEGER);
+			rhs.getValues().add(Long.parseLong(ctx.INT().getText()));
+		} else {
+    		rhs = new LiteralValueNode(DataType.FLOAT);
+			rhs.getValues().add(Double.parseDouble(ctx.FLOAT().getText()));
+		}
+
+    	filter.setRhs(rhs);
+    	return setAql(filter, ctx);
 	}
     
     public LiteralValueListNode visitLiteral_values(AQLParser.Literal_valuesContext ctx) {

@@ -87,6 +87,48 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParensFilterExpr(AQLParser.ParensFilterExprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code HavingExpr}
+	 * labeled alternative in {@link AQLParser#having_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitHavingExpr(AQLParser.HavingExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NotAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNotAggFilterExpr(AQLParser.NotAggFilterExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AndAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAndAggFilterExpr(AQLParser.AndAggFilterExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code SimpleAggFilter}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSimpleAggFilter(AQLParser.SimpleAggFilterContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ParensAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParensAggFilterExpr(AQLParser.ParensAggFilterExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code OrAggFilterExpr}
+	 * labeled alternative in {@link AQLParser#agg_filter_expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrAggFilterExpr(AQLParser.OrAggFilterExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code OrderExpr}
 	 * labeled alternative in {@link AQLParser#order_expr}.
 	 * @param ctx the parse tree
@@ -191,6 +233,13 @@ public interface AQLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBetweenFilter(AQLParser.BetweenFilterContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AggFilter}
+	 * labeled alternative in {@link AQLParser#agg_filter}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAggFilter(AQLParser.AggFilterContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link AQLParser#literal_values}.
 	 * @param ctx the parse tree

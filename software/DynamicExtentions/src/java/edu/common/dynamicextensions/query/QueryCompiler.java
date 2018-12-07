@@ -316,6 +316,10 @@ public class QueryCompiler
         analyzeFilterNodeMarker(0, expr.getFilterExpr(), joinMap);
         expr.setSelectList(analyzeSelectList(expr.getSelectList(), joinMap));
 
+        if (expr.getHavingExpr() != null) {
+        	analyzeFilterNodeMarker(0, expr.getHavingExpr(), joinMap);
+		}
+
         if (expr.getOrderExpr() != null) {
             expr.setOrderExpr(analyzeOrderExpr(expr.getOrderExpr(), joinMap));
         }
