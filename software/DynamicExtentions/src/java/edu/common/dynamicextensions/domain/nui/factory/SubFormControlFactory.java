@@ -36,6 +36,7 @@ public class SubFormControlFactory extends AbstractControlFactory {
 		subForm.setForeignKey(getTextValue(ele, "foreignKey"));
 		subForm.setPathLink(getBooleanValue(ele, "pathLink"));
 		subForm.setCustomFieldsInfo(getTextValue(ele, "customFieldsInfo"));
+		subForm.setFlatten(getBooleanValue(ele, "flatten", true));
 		subForm.setExtnFkColumn(getTextValue(ele, "extnFkCol"));
 		subForm.setFormIdColumn(getTextValue(ele, "formIdCol", "FORM_ID"));
 

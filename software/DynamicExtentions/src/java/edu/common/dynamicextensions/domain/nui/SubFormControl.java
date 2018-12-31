@@ -1,15 +1,14 @@
 
 package edu.common.dynamicextensions.domain.nui;
 
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElement;
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementEnd;
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
+import static edu.common.dynamicextensions.nutility.XmlUtil.*;
 
 import java.io.Serializable;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -50,6 +49,11 @@ public class SubFormControl extends Control implements Serializable {
 	// Used in AQ. Specifies the entity type, whether CP based etc
 	//
 	private String customFieldsInfo;
+
+	//
+	// Used in AQ. Specifies whether to flatten the sub form fields or not.
+	//
+	private Boolean flatten = true;
 		
 	//
 	// If this sub-form is used as an entry point into extensions,
@@ -153,6 +157,14 @@ public class SubFormControl extends Control implements Serializable {
 		this.customFieldsInfo = customFieldsInfo;
 	}
 
+	public boolean isFlatten() {
+		return flatten == null || flatten;
+	}
+
+	public void setFlatten(Boolean flatten) {
+		this.flatten = flatten;
+	}
+
 	public String getExtnFkColumn() {
 		return extnFkColumn;
 	}
@@ -182,6 +194,7 @@ public class SubFormControl extends Control implements Serializable {
 		result = prime * result	+ ((foreignKeyColumn == null) ? 0 : foreignKeyColumn.hashCode());
 		result = prime * result + (pathLink ? 1231 : 1237);
 		result = prime * result + (customFieldsInfo == null ? 0 : customFieldsInfo.hashCode());
+		result = prime * result + (flatten ? 1 : 0);
 		result = prime * result + (extnFkColumn == null ? 0 : extnFkColumn.hashCode());
 		result = prime * result + (formIdColumn == null ? 0 : formIdColumn.hashCode());
 		return result;
@@ -208,6 +221,7 @@ public class SubFormControl extends Control implements Serializable {
 			!StringUtils.equals(foreignKeyColumn, other.foreignKeyColumn) || 
 			pathLink != other.pathLink ||
 			!StringUtils.equals(customFieldsInfo, other.customFieldsInfo) ||
+			!Objects.equals(flatten, other.flatten) ||
 			!StringUtils.equals(extnFkColumn, other.extnFkColumn) ||
 			!StringUtils.equals(formIdColumn, other.formIdColumn)) {
 			

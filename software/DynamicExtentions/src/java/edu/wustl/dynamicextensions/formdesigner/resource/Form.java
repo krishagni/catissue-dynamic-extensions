@@ -316,6 +316,7 @@ public class Form {
 			output.put("status", "success");
 			output.put("containerIds", containerIds);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			output.put("status", "error");
 			if (txn != null) {
 				TransactionManager.getInstance().rollback(txn);
