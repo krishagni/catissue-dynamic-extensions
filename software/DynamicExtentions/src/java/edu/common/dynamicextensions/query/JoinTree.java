@@ -268,9 +268,9 @@ public class JoinTree
     	if (tree1.getParent() == tree2.getParent()) {
     		return getNonLinkParentNode(tree1);
     	}
-    	
-    	JoinTree tree1Parent = getNonLinkParentNode(tree1.getParent());
-    	JoinTree tree2Parent = getNonLinkParentNode(tree2.getParent());
+
+    	JoinTree tree1Parent = tree1.getParent() != null ? getNonLinkParentNode(tree1.getParent()) : tree1;
+    	JoinTree tree2Parent = tree2.getParent() != null ? getNonLinkParentNode(tree2.getParent()) : tree2;
     	return getCommonAncestor(tree1Parent, tree2Parent);
     }
     
