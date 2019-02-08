@@ -243,6 +243,10 @@ public class Container implements Serializable {
 
 	public void setMaxPvListSize(int maxPvListSize) {
 		this.maxPvListSize = maxPvListSize;
+		getControlsMap().values().stream()
+			.filter(ctrl -> ctrl instanceof SubFormControl)
+			.map(ctrl -> (SubFormControl) ctrl)
+			.forEach(sfCtrl -> sfCtrl.getSubContainer().setMaxPvListSize(maxPvListSize));
 	}
 
 	public void setControls(Set<Control> controls) {
