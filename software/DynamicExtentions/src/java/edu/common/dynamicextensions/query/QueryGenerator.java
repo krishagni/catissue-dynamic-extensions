@@ -901,6 +901,30 @@ public class QueryGenerator {
     }
 
 	private String getDateRangeFuncNodeSql(DateRangeFuncNode range) {
+    	Date[] minMax = null;
+
+		if (range.getRangeType().direction() <= 0) {
+			minMax = getPastDateRangeFuncNodeSql(range);
+		} else {
+			minMax = getFutureDateRangeFuncNodeSql(range);
+		}
+
+		SimpleDateFormat sdf = new SimpleDateFormat(dateTimeFormat);
+
+		LiteralValueNode minNode = new LiteralValueNode(DataType.STRING);
+		minNode.setValues(Collections.singletonList("\"" + sdf.format(minMax[0]) + "\""));
+
+		LiteralValueNode maxNode = new LiteralValueNode(DataType.STRING);
+		maxNode.setValues(Collections.singletonList("\"" + sdf.format(minMax[1]) + "\""));
+
+		BetweenNode node = new BetweenNode();
+		node.setLhs(range.getDateExpr());
+		node.setMinNode(minNode);
+		node.setMaxNode(maxNode);
+		return getBetweenNodeSql(node);
+	}
+
+	private Date[] getPastDateRangeFuncNodeSql(DateRangeFuncNode range) {
 		int monthsRange = 0, daysRange = 0, dayOffset = -1;
 
 		Calendar cal = Calendar.getInstance();
@@ -963,20 +987,70 @@ public class QueryGenerator {
 		cal.set(Calendar.MILLISECOND, 999);
 		Date to = cal.getTime();
 
-		SimpleDateFormat sdf = new SimpleDateFormat(dateTimeFormat);
+		return new Date[] {from, to};
+	}
 
-		LiteralValueNode minNode = new LiteralValueNode(DataType.STRING);
-		minNode.setValues(Collections.singletonList("\"" + sdf.format(from) + "\""));
+	private Date[] getFutureDateRangeFuncNodeSql(DateRangeFuncNode range) {
+		int monthsRange = 0, daysRange = 0, dayOffset = -1;
 
-		LiteralValueNode maxNode = new LiteralValueNode(DataType.STRING);
-		maxNode.setValues(Collections.singletonList("\"" + sdf.format(to) + "\""));
+		Calendar cal = Calendar.getInstance();
+		switch (range.getRangeType()) {
+			case NEXT_CAL_QTR:
+				cal.set(Calendar.DAY_OF_MONTH, 1);
+				cal.set(Calendar.MONTH, (cal.get(Calendar.MONTH) / 3) * 3); // start month of current quarter
+				cal.add(Calendar.MONTH, 3); // move to start month of next quarter
+				monthsRange = 3 * range.getRange();
+				break;
 
-		BetweenNode node = new BetweenNode();
-		node.setLhs(range.getDateExpr());
-		node.setMinNode(minNode);
-		node.setMaxNode(maxNode);
+			case NEXT_QTR:
+				cal.add(Calendar.MONTH, 1);
+				cal.set(Calendar.DAY_OF_MONTH, 1);
+				monthsRange = 3 * range.getRange();
+				break;
 
-		return getBetweenNodeSql(node);
+			case NEXT_CAL_MONTH:
+				cal.add(Calendar.MONTH, 1);
+				cal.set(Calendar.DAY_OF_MONTH, 1);
+				monthsRange = range.getRange();
+				break;
+
+			case NEXT_MONTH:
+				cal.add(Calendar.DAY_OF_MONTH, 1);
+				monthsRange = range.getRange();
+				break;
+
+			case NEXT_WEEK:
+				cal.add(Calendar.DAY_OF_MONTH, 7 + (Calendar.SUNDAY - cal.get(Calendar.DAY_OF_WEEK)));
+				daysRange = 7 * range.getRange();
+				break;
+
+			case NEXT_DAYS:
+				cal.add(Calendar.DAY_OF_MONTH, 1);
+				daysRange = range.getRange();
+				break;
+
+			case TOMORROW:
+				cal.add(Calendar.DAY_OF_MONTH, 1);
+				daysRange = 1;
+				break;
+		}
+
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		Date from = cal.getTime();
+
+		cal.add(Calendar.MONTH, monthsRange);
+		cal.add(Calendar.DATE, daysRange);
+		cal.add(Calendar.DATE, dayOffset);
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		cal.set(Calendar.MILLISECOND, 999);
+		Date to = cal.getTime();
+
+		return new Date[] {from, to};
 	}
 
     private String getCurrentDateSql() {

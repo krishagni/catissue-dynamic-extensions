@@ -8,28 +8,49 @@ import edu.common.dynamicextensions.domain.nui.DataType;
 
 public class DateRangeFuncNode extends ExpressionNode implements Serializable {
 	public enum RangeType {
-		LAST_CAL_QTR("last_cal_qtr"),
+		LAST_CAL_QTR("last_cal_qtr", -1),
 
-		LAST_QTR("last_qtr"),
+		NEXT_CAL_QTR("next_cal_qtr", 1),
 
-		LAST_CAL_MONTH("last_cal_month"),
+		LAST_QTR("last_qtr", -1),
 
-		LAST_MONTH("last_month"),
+		NEXT_QTR("next_qtr", 1),
 
-		LAST_WEEK("last_week"),
+		LAST_CAL_MONTH("last_cal_month", -1),
 
-		CURRENT_WEEK("current_week"),
+		NEXT_CAL_MONTH("next_cal_month", 1),
 
-		LAST_DAYS("last_days"),
+		LAST_MONTH("last_month", -1),
 
-		YESTERDAY("yesterday"),
+		NEXT_MONTH("next_month", 1),
 
-		TODAY("today");
+		LAST_WEEK("last_week", -1),
+
+		NEXT_WEEK("next_week", 1),
+
+		CURRENT_WEEK("current_week", 0),
+
+		LAST_DAYS("last_days", -1),
+
+		NEXT_DAYS("next_days", 1),
+
+		YESTERDAY("yesterday", -1),
+
+		TOMORROW("tomorrow", 1),
+
+		TODAY("today", 0);
 
 		private String type;
 
-		RangeType(String type) {
+		private int direction;
+
+		RangeType(String type, int direction) {
 			this.type = type;
+			this.direction = direction;
+		}
+
+		public int direction() {
+			return direction;
 		}
 
 		public static RangeType from(String type) {
