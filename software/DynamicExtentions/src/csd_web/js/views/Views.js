@@ -65,13 +65,20 @@ var Views = {
                     model.updateControlIdProp(response.controlCollection);
                   } else {
                     $("#formWaitingImage").hide();
-                           Utility.notify($("#notifications"), "Could not save the form successfully", "error");
+                    var message = "Error saving the form";
+                    if (model.get('message')) {
+                      message += ": " + model.get('message');
+                    } else {
+                      message += ".";
+                    }
+
+                    Utility.notify($("#notifications"), message, "error");
                   }
                 },
             
                 error : function(model, response) {
                   $("#formWaitingImage").hide();
-                         Utility.notify($("#notifications"), message, "success");
+                  Utility.notify($("#notifications"), "Error saving the form.", "error");
                 }
               }
             );
@@ -1890,7 +1897,14 @@ var Views = {
                         $("#form-import-dialog")
                             .dialog("close");
                       } else {
-                        alert("Error importing file.");
+                        var message = "Error importing the file";
+                        if (receivedData.message) {
+                          message += ": " + receivedData.message;
+                        } else {
+                          message += ".";
+                        }
+
+                        alert(message);
                       }
                     }
                   });

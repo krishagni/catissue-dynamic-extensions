@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -87,6 +88,8 @@ public class Form {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			propertiesMap.put("status", "error");
+			propertiesMap.put("message", ex.getMessage());
+
 			if (txn != null) {
 				TransactionManager.getInstance().rollback(txn);
 			}
@@ -126,7 +129,11 @@ public class Form {
 			return containerProps.getAllProperties();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return Collections.<String, Object>singletonMap("status", "error");
+
+			Map<String, Object> error = new HashMap<>();
+			error.put("status", "error");
+			error.put("message", ex.getMessage());
+			return error;
 		} finally {
 			if (txn != null) {
 				TransactionManager.getInstance().rollback(txn);
@@ -156,7 +163,7 @@ public class Form {
 					containerFacade.getHTML(request).replaceAll("images/", "../../images/"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return "Error";
+			return "Error: " + ex.getMessage();
 		} finally {
 			//request.getSession().removeAttribute(CONTAINER_SESSION_ATTR);
 		}
@@ -185,6 +192,7 @@ public class Form {
 			return container.getProperties().getAllProperties();
 		} catch (Exception ex) {
 			propertiesMap.put("status", "error");
+			propertiesMap.put("message", ex.getMessage());
 			ex.printStackTrace();
 			if (txn != null) {
 				TransactionManager.getInstance().rollback(txn);
@@ -318,6 +326,7 @@ public class Form {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			output.put("status", "error");
+			output.put("message", ex.getMessage());
 			if (txn != null) {
 				TransactionManager.getInstance().rollback(txn);
 			}

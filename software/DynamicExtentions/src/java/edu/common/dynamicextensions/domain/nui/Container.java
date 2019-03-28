@@ -2,6 +2,7 @@ package edu.common.dynamicextensions.domain.nui;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
@@ -39,8 +41,8 @@ import edu.common.dynamicextensions.ndao.TransactionManager;
 import edu.common.dynamicextensions.ndao.TransactionManager.Transaction;
 import edu.common.dynamicextensions.nutility.ContainerCache;
 import edu.common.dynamicextensions.nutility.ContainerParser;
-import edu.common.dynamicextensions.nutility.IdGenerator;
 import edu.common.dynamicextensions.nutility.FormulaParser;
+import edu.common.dynamicextensions.nutility.IdGenerator;
 
 public class Container implements Serializable {
 	private static final Logger logger = Logger.getLogger(Container.class);
@@ -122,7 +124,7 @@ public class Container implements Serializable {
 	}
 
 	public void setName(String name) {
-		if (notAllowed.matcher(name).find()) {
+		if (StringUtils.isNotBlank(name) && notAllowed.matcher(name).find()) {
 			throw new RuntimeException("Following special characters in form names not allowed: " + specialChars);
 		}
 		
@@ -719,7 +721,10 @@ public class Container implements Serializable {
 	
 	public Long save(UserContext userCtxt, JdbcDao jdbcDao) {		
 		throwExceptionIfDto();
-		
+
+		ContainerDao dao = new ContainerDao(jdbcDao);
+		validateContainer(dao);
+
 		try {
 			boolean insert = (id == null);
 			if (!insert) {
@@ -740,8 +745,7 @@ public class Container implements Serializable {
 					}
 				}
 			}
-			
-			ContainerDao dao = new ContainerDao(jdbcDao);
+
 			List<Long> ids = null;			
 			if (numIds > 0) {
 				ids = dao.getContainerIds(numIds);
@@ -1095,6 +1099,21 @@ public class Container implements Serializable {
 	private void throwExceptionIfDto() {
 		if (isDto) {
 			throw new RuntimeException("Cannot invoke this operation on DTO");
+		}
+	}
+
+	private void validateContainer(ContainerDao dao) {
+		if (StringUtils.isBlank(name)) {
+			throw new RuntimeException("Form name cannot be empty or blank");
+		}
+
+		try {
+			Long dbId = dao.getIdByName(name);
+			if (!Objects.equals(id, dbId)) {
+				throw new RuntimeException("Form with the same name " + name + " already exists");
+			}
+		} catch (SQLException e) {
+			throw new RuntimeException("Error querying database", e);
 		}
 	}
 	

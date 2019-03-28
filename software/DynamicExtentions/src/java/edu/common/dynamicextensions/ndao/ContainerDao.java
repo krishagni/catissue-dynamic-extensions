@@ -40,6 +40,9 @@ public class ContainerDao {
 	
 	private static final String GET_CONTAINER_NAME_BY_ID =  
 			"SELECT NAME FROM DYEXTN_CONTAINERS WHERE IDENTIFIER = ? AND DELETED_ON IS NULL";
+
+	private static final String GET_CONTAINER_ID_BY_NAME =
+			"SELECT IDENTIFIER FROM DYEXTN_CONTAINERS WHERE NAME = ? AND DELETED_ON IS NULL";
 		
 	private static final String GET_CONTAINER_INFO =
 			"SELECT IDENTIFIER, NAME, CAPTION, CREATED_BY, CREATE_TIME, LAST_MODIFIED_BY, LAST_MODIFY_TIME " +
@@ -261,6 +264,15 @@ public class ContainerDao {
 			public String extract(ResultSet rs) throws SQLException {
 				return rs.next() ? rs.getString("NAME") : null;
 			}				
+		});
+	}
+
+	public Long getIdByName(String name) throws SQLException {
+		return jdbcDao.getResultSet(GET_CONTAINER_ID_BY_NAME, Collections.singletonList(name), new ResultExtractor<Long>() {
+			@Override
+			public Long extract(ResultSet rs) throws SQLException {
+				return rs.next() ? rs.getLong("IDENTIFIER") : null;
+			}
 		});
 	}
 	
