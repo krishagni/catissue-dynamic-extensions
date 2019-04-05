@@ -101,16 +101,24 @@ var Views = {
           $('#previewFrame').hide();
           $('#preview').empty();
           
-          var scope = parent.angular.element(".container.os-de-form").scope()
-          var deJson = getDEJson({json: this.model});
-          this.form = new edu.common.de.Form({
-            formDef       : deJson,
-            formDiv       : 'preview',
-            showActionBtns: false,
-            dateFormat    : scope.global.dateFmt 
-          });
-          this.form.render();
-          $('#formWaitingImage').hide();
+          var that = this;
+          var el = parent.angular.element(".container.os-de-form");
+          var scope = el.scope();
+          var SettingUtil = el.injector().get('SettingUtil');
+          SettingUtil.getSetting('common', 'de_form_html_markup').then(
+            function(setting) {
+              var deJson = getDEJson({json: that.model});
+              that.form = new edu.common.de.Form({
+                formDef          : deJson,
+                formDiv          : 'preview',
+                showActionBtns   : false,
+                dateFormat       : scope.global.dateFmt,
+                allowHtmlCaptions: setting.value
+              });
+              that.form.render();
+              $('#formWaitingImage').hide();
+            }
+          );
         },
 
         loadModelInSession : function() {
