@@ -12,6 +12,7 @@ import java.util.Properties;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -82,6 +83,11 @@ public class ContainerParser {
 		Node viewNode = nodes.item(0);
 
 		Container container = parse((Element) viewNode, true);
+		nodes = doc.getElementsByTagName("undoDeletedFields");
+		if (nodes != null && nodes.getLength() == 1) {
+			parseAndSetUndoDeletesList(container, (Element) nodes.item(0));
+		}
+
 		nodes = doc.getElementsByTagName("skipRules");
 		if (nodes != null && nodes.getLength() == 1) {
 			parseAndSetSkipRules(container, (Element) nodes.item(0));
@@ -283,5 +289,24 @@ public class ContainerParser {
 				conditionBuilder.ge(ctrlName, value);
 			}			
 		}
-	}	
+	}
+
+	private void parseAndSetUndoDeletesList(Container container, Element undoDeletesEle) {
+		NodeList controls = undoDeletesEle.getElementsByTagName("field");
+		if (controls == null) {
+			return;
+		}
+
+		for(int i = 0 ; i < controls.getLength() ; i++) {
+			Node node = controls.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+
+			String udn = ((Element) node).getAttribute("udn");
+			if (StringUtils.isNotBlank(udn)) {
+				container.addToUndoDeleteList(udn);
+			}
+		}
+	}
 }

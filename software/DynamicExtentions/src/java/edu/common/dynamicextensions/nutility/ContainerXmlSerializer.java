@@ -1,9 +1,6 @@
 package edu.common.dynamicextensions.nutility;
 
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeCDataElement;
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElement;
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementEnd;
-import static edu.common.dynamicextensions.nutility.XmlUtil.writeElementStart;
+import static edu.common.dynamicextensions.nutility.XmlUtil.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import edu.common.dynamicextensions.domain.nui.Container;
@@ -31,6 +30,7 @@ import edu.common.dynamicextensions.domain.nui.SkipAction;
 import edu.common.dynamicextensions.domain.nui.SkipCondition;
 import edu.common.dynamicextensions.domain.nui.SkipRule;
 import edu.common.dynamicextensions.domain.nui.SkipRule.LogicalOp;
+import edu.common.dynamicextensions.domain.nui.SubFormControl;
 
 public class ContainerXmlSerializer implements ContainerSerializer  {
 	private static Map<Class<?>, String> actionNameMap = initializeSkipActionNameMap();;
@@ -60,7 +60,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 				.append(outDir).append(File.separator)
 				.append(container.getName()).append(".xml")
 				.toString();
-			
+
 			writer = new BufferedWriter(new FileWriter(xmlFile));
 		} catch (IOException e) {
 			throw new RuntimeException("Error creating output file writer", e);
@@ -80,7 +80,11 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 			emitViewStart();
 			serializeView(container);			
 			emitViewEnd();
-	
+
+			emitDeletedControlsStart();
+			serializeDeletedFields();
+			emitDeletedControlsEnd();
+
 			emitSkipRulesStart();
 			serializeSkipRules(container.getSkipRules());
 			emitSkipRulesEnd();
@@ -187,6 +191,39 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 	
 	private void emitEndRow() {
 		writeElementEnd(writer, "row");
+	}
+
+	private void emitDeletedControlsStart() {
+		writeElementStart(writer, "deletedFields");
+	}
+
+	private void emitDeletedControlsEnd() {
+		writeElementEnd(writer, "deletedFields");
+	}
+
+	private void serializeDeletedFields() {
+		serializeDeletedFields(container, "");
+	}
+
+	private void serializeDeletedFields(Container container, String prefix) {
+		if (StringUtils.isNotBlank(prefix)) {
+			prefix += ".";
+		}
+
+		for (Control deletedField : container.getDeletedCtrls()) {
+			String udn = prefix + deletedField.getUserDefinedName();
+
+			writeElement(writer, "field", null, Collections.singletonMap("udn", udn));
+			if (deletedField instanceof SubFormControl) {
+				serializeDeletedFields(((SubFormControl) deletedField).getSubContainer(), udn);
+			}
+		}
+
+		for (Control field : container.getOrderedControlList()) {
+			if (field instanceof SubFormControl) {
+				serializeDeletedFields(((SubFormControl) field).getSubContainer(), prefix + field.getUserDefinedName());
+			}
+		}
 	}
 
 	private void emitSkipRulesStart() {

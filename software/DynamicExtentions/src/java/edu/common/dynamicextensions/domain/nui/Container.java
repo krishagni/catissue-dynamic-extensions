@@ -83,19 +83,21 @@ public class Container implements Serializable {
 	
 	private boolean managedTables = false;
 	
-	private Map<String, Control> controlsMap = new LinkedHashMap<String, Control>();
+	private Map<String, Control> controlsMap = new LinkedHashMap<>();
 	
-	private Set<String> userDefCtrlNames = new HashSet<String>();
+	private Set<String> userDefCtrlNames = new HashSet<>();
+
+	private List<Control> deletedCtrls = new ArrayList<>();
 	
-	private List<SkipRule> skipRules = new ArrayList<SkipRule>();
+	private List<SkipRule> skipRules = new ArrayList<>();
 		
 	private transient boolean isDto;
 		
-	private transient List<Control> addLog = new ArrayList<Control>();
+	private transient List<Control> addLog = new ArrayList<>();
 	
-	private transient List<Control> editLog = new ArrayList<Control>();
+	private transient List<Control> editLog = new ArrayList<>();
 	
-	private transient List<Control> delLog = new ArrayList<Control>();
+	private transient List<Control> delLog = new ArrayList<>();
 	
 	private transient Long createdBy;
 
@@ -106,6 +108,8 @@ public class Container implements Serializable {
 	private transient Date lastUpdatedTime;
 	
 	private transient int maxPvListSize;
+
+	private transient List<String> undoDeletesList = new ArrayList<>();
 
 	public void useAsDto() {
 		this.isDto = true;
@@ -510,16 +514,8 @@ public class Container implements Serializable {
 		}		
 	}
 		
-	public void addControl(Control control) {		
-		if (control.getName() == null || controlsMap.containsKey(control.getName())) {
-			// change this exception to status code
-			throw new RuntimeException("Control with same name already exists or control name is null " + control.getName());
-		}
-		
-		if (control.getUserDefinedName() == null || userDefCtrlNames.contains(control.getUserDefinedName())) {
-			throw new RuntimeException("Control with same user defined name already exists or user defined name of control is null " + control.getName());
-		}
-				
+	public void addControl(Control control) {
+		ensureUniqueNameAndUdn(control);
 		validateNameAndUdn(control);
 		
 		if (control.getSequenceNumber() == 0) {
@@ -549,7 +545,35 @@ public class Container implements Serializable {
 		userDefCtrlNames.add(control.getUserDefinedName());
 		control.setContainer(this);
 	}
-	
+
+	private void ensureUniqueNameAndUdn(Control control) {
+		if (StringUtils.isBlank(control.getName())) {
+			throw new IllegalArgumentException("Control name cannot be null");
+		}
+
+		if (controlsMap.containsKey(control.getName())) {
+			throw new IllegalArgumentException("Control with the same name '" + control.getName() + "' already exists");
+		}
+
+		if (StringUtils.isBlank(control.getUserDefinedName())) {
+			throw new IllegalArgumentException("Control user defined name cannot be null");
+		}
+
+		if (userDefCtrlNames.contains(control.getUserDefinedName())) {
+			throw new IllegalArgumentException("Control with the same user defined name '" + control.getUserDefinedName() + "' already exists");
+		}
+
+		for (Control deletedCtrl : deletedCtrls) {
+			if (control.getName().equals(deletedCtrl.getName())) {
+				throw new IllegalArgumentException("Control with the same name '" + control.getName() + "' was already used");
+			}
+
+			if (control.getUserDefinedName().equals(deletedCtrl.getUserDefinedName())) {
+				throw new IllegalArgumentException("Control with the same user defined name '" + control.getUserDefinedName() + "' was already used");
+			}
+		}
+	}
+
 	private void validateNameAndUdn(Control control) {		
 		if (notAllowed.matcher(control.getName()).find()) {
 			throw new RuntimeException("Control name contains spl characters: " + specialChars + ", " + control.getName());
@@ -674,6 +698,14 @@ public class Container implements Serializable {
 		//
 		// TODO: Remove skip rules of deleted controls
 		//
+	}
+
+	public List<Control> getDeletedCtrls() {
+		return deletedCtrls;
+	}
+
+	public void addToUndoDeleteList(String udn) {
+		undoDeletesList.add(udn);
 	}
 	
 	public Control getControl(String name) {
@@ -942,6 +974,11 @@ public class Container implements Serializable {
 		}
 		
 		deleteRemovedControls(newContainer);
+
+
+		for (String undoUdn : newContainer.undoDeletesList) {
+			undoDelete(undoUdn);
+		}
 		
 		//
 		// TODO: Simply copying skip rules of new container.
@@ -954,16 +991,58 @@ public class Container implements Serializable {
 
 	protected void deleteRemovedControls(Container newContainer) {
 		Collection<Control> existingCtrls = getControls();
-		Collection<String> removedCtrls = new ArrayList<String>();
+		Collection<Control> removedCtrls = new ArrayList<Control>();
 		for (Control ctrl : existingCtrls) {
 			if (newContainer.getControl(ctrl.getName()) == null) {
 				//deleteControl(ctrl.getName());
-				removedCtrls.add(ctrl.getName());
+				removedCtrls.add(ctrl);
 			}			
 		}
 		
-		for (String removedCtrl : removedCtrls) {
-			deleteControl(removedCtrl);
+		for (Control removedCtrl : removedCtrls) {
+			deleteControl(removedCtrl.getName());
+		}
+
+		deletedCtrls.addAll(removedCtrls);
+	}
+
+	protected void undoDelete(String undoUdn) {
+		String[] parts = undoUdn.split("\\.", 2);
+		if (parts.length == 1) {
+			int idx = -1;
+			for (Control ctrl : deletedCtrls) {
+				++idx;
+				if (ctrl.getUserDefinedName().equals(parts[0])) {
+					break;
+				}
+			}
+
+			if (idx < 0 || idx >= deletedCtrls.size()) {
+				throw new IllegalArgumentException("No control with UDN '" + parts[0] + "' is in deleted state.");
+			}
+
+
+			Control ctrl = deletedCtrls.remove(idx);
+			if (ctrl.getSequenceNumber() > sequenceNo ) {
+				sequenceNo = ctrl.getSequenceNumber();
+			} else {
+				ctrl.setSequenceNumber(++sequenceNo);
+			}
+			
+			controlsMap.put(ctrl.getName(), ctrl);
+			userDefCtrlNames.add(ctrl.getUserDefinedName());
+		} else {
+			Control ctrl = getControlByUdn(parts[0]);
+			if (ctrl == null) {
+				throw new IllegalArgumentException("No control with UDN: '" + parts[0] + "' exists.");
+			}
+
+			if (ctrl instanceof SubFormControl) {
+				Container subForm = ((SubFormControl) ctrl).getSubContainer();
+				subForm.undoDelete(parts[1]);
+			} else {
+				throw new IllegalArgumentException("Control with UDN '" + parts[0] + "' is not a subform.");
+			}
 		}
 	}
 	
