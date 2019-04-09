@@ -563,7 +563,7 @@ public class Container implements Serializable {
 			throw new IllegalArgumentException("Control with the same user defined name '" + control.getUserDefinedName() + "' already exists");
 		}
 
-		for (Control deletedCtrl : deletedCtrls) {
+		for (Control deletedCtrl : getDeletedCtrls()) {
 			if (control.getName().equals(deletedCtrl.getName())) {
 				throw new IllegalArgumentException("Control with the same name '" + control.getName() + "' was already used");
 			}
@@ -701,6 +701,10 @@ public class Container implements Serializable {
 	}
 
 	public List<Control> getDeletedCtrls() {
+		if (deletedCtrls == null) {
+			deletedCtrls = new ArrayList<>();
+		}
+
 		return deletedCtrls;
 	}
 
@@ -1003,32 +1007,32 @@ public class Container implements Serializable {
 			deleteControl(removedCtrl.getName());
 		}
 
-		deletedCtrls.addAll(removedCtrls);
+		getDeletedCtrls().addAll(removedCtrls);
 	}
 
 	protected void undoDelete(String undoUdn) {
 		String[] parts = undoUdn.split("\\.", 2);
 		if (parts.length == 1) {
 			int idx = -1;
-			for (Control ctrl : deletedCtrls) {
+			for (Control ctrl : getDeletedCtrls()) {
 				++idx;
 				if (ctrl.getUserDefinedName().equals(parts[0])) {
 					break;
 				}
 			}
 
-			if (idx < 0 || idx >= deletedCtrls.size()) {
+			if (idx < 0 || idx >= getDeletedCtrls().size()) {
 				throw new IllegalArgumentException("No control with UDN '" + parts[0] + "' is in deleted state.");
 			}
 
 
-			Control ctrl = deletedCtrls.remove(idx);
+			Control ctrl = getDeletedCtrls().remove(idx);
 			if (ctrl.getSequenceNumber() > sequenceNo ) {
 				sequenceNo = ctrl.getSequenceNumber();
 			} else {
 				ctrl.setSequenceNumber(++sequenceNo);
 			}
-			
+
 			controlsMap.put(ctrl.getName(), ctrl);
 			userDefCtrlNames.add(ctrl.getUserDefinedName());
 		} else {
