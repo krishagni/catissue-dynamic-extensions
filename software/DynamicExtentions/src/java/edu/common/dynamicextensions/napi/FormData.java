@@ -28,11 +28,13 @@ public class FormData {
 
 	private Long parentRecordId;
 	
-	private Map<String, Object> appData = new HashMap<String, Object>();
+	private Map<String, Object> appData = new HashMap<>();
 	
-	private Map<String, ControlValue> fieldValues = new LinkedHashMap<String, ControlValue>();
+	private Map<String, ControlValue> fieldValues = new LinkedHashMap<>();
 	
 	private FormData parentFormData;
+
+	private int revision;
 
 	public FormData(Container container) {
 		this.container = container;
@@ -113,7 +115,14 @@ public class FormData {
 		return result;		
 	}
 
-	
+	public int getRevision() {
+		return revision;
+	}
+
+	public void incrementRevision() {
+		++revision;
+	}
+
 	public String toJson() {
 		return toJson(false);
 	}
@@ -236,16 +245,18 @@ public class FormData {
 			} else if (value instanceof List) {
 				List<FormData> formDataList = (List<FormData>)value;
 				
-				List<Map<String, Object>> sfData = new ArrayList<Map<String, Object>>();
+				List<Map<String, Object>> sfData = new ArrayList<>();
 				for (FormData formData : formDataList) {
 					sfData.add(formData.getFieldNameValueMap(includeUdn));
 				}
 				
 				props.put(name, sfData);
 			} else if (value instanceof FormData) {
-				props.put(name, ((FormData)value).getFieldNameValueMap(includeUdn));
-			} else if (value != null) {
+				props.put(name, ((FormData) value).getFieldNameValueMap(includeUdn));
+			} else if (value != null && value.getClass().isArray()) {
 				props.put(name, value);
+			} else {
+				props.put(name, fieldValue.getControl().toString(value));
 			}			
 		}
 		

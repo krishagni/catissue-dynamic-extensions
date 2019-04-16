@@ -196,20 +196,28 @@ public class FormDataManagerImpl implements FormDataManager {
 		try {
 			ensureUniqueConstraints(jdbcDao, formData);
 			ensureLinkConstraints(jdbcDao, formData.getContainer(), formData);
+			FormData prevData = null;
+			if (formData.getRecordId() != null) {
+				prevData = getFormData(formData.getContainer(), formData.getRecordId());
+			}
 
 			formData = getFilterMgr().executePreFilters(userCtxt, formData);
-			
-			String operation = formData.getRecordId() == null ? "INSERT" : "UPDATE";
-			Long recordId = saveOrUpdateFormData(jdbcDao, formData, null);
-			formData.setRecordId(recordId);
-			
-			if(auditEnable) {
-				FormAuditManager auditManager = new FormAuditManagerImpl();
-				auditManager.audit(userCtxt, formData, operation, jdbcDao);
+
+			FormAuditManager auditManager = new FormAuditManagerImpl();
+			List<ControlValue> dirtyFields = auditManager.getDirtyFields(prevData, formData);
+			if (!dirtyFields.isEmpty()) {
+				Long recordId = saveOrUpdateFormData(jdbcDao, formData, null);
+				formData.setRecordId(recordId);
+				formData.incrementRevision();
+
+				if (auditEnable) {
+					String op = formData.getRecordId() == null ? "INSERT" : "UPDATE";
+					auditManager.audit(userCtxt, formData.getContainer(), dirtyFields, op, formData.getRecordId());
+				}
 			}
-			
+
 			formData = getFilterMgr().executePostFilters(userCtxt, formData);
-			return recordId;
+			return formData.getRecordId();
 		} catch (IllegalArgumentException|DataAccessException ae) {
 			throw ae;
 		} catch (Exception e) {
