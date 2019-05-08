@@ -31,6 +31,8 @@ public interface FormDataManager {
 	void anonymize(UserContext userCtxt, Container form, Long recordId);
 
 	FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName);
+
+	FileControlValue getFileControlValue(Long formId, String ctrlName, String fileId);
 	
 	FormDataFilterManager getFilterMgr();
 

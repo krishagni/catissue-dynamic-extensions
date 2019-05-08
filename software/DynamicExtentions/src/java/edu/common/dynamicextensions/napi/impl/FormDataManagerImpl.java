@@ -58,6 +58,8 @@ public class FormDataManagerImpl implements FormDataManager {
 	
 	private static final String GET_FILE_CONTROL_VALUES = "SELECT %s, %s, %s from %s where IDENTIFIER = ?";
 
+	private static final String GET_BY_FILE_ID = "SELECT %s, %s from %s where %s = ?";
+
 	private boolean auditEnable = true;
 
 	private String activeRecordsJoinSql;
@@ -255,6 +257,74 @@ public class FormDataManagerImpl implements FormDataManager {
 		}
 
 		return getRecordIds(JdbcDaoFactory.getJdbcDao(), ctrl, value, (ctrlName.split("\\.").length > 1));
+	}
+
+	@Override
+	public FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName) {
+		Container form = Container.getContainer(formId);
+		if (form == null) {
+			return null;
+		}
+
+		Control ctrl = form.getControl(ctrlName, "\\.");
+		if (!(ctrl instanceof FileUploadControl)) {
+			return null;
+		}
+
+		FileUploadControl fileCtrl = (FileUploadControl)ctrl;
+		String dbTable = fileCtrl.getContainer().getDbTableName();
+		String column = fileCtrl.getDbColumnName();
+
+		String query = String.format(GET_FILE_CONTROL_VALUES, column + "_NAME", column +"_TYPE", column + "_ID", dbTable);
+		return JdbcDaoFactory.getJdbcDao().getResultSet(
+			query, Collections.singletonList(recordId),
+			new ResultExtractor<FileControlValue>() {
+				@Override
+				public FileControlValue extract(ResultSet rs)
+					throws SQLException {
+					if (!rs.next()) {
+						return null;
+					}
+
+					FileControlValue fcv = new FileControlValue(rs.getString(1), rs.getString(2), rs.getString(3));
+					fcv.setPath(filePath(fcv.getFileId()));
+					return fcv;
+				}
+			});
+	}
+
+	@Override
+	public FileControlValue getFileControlValue(Long formId, String ctrlName, String fileId) {
+		Container form = Container.getContainer(formId);
+		if (form == null) {
+			return null;
+		}
+
+		Control ctrl = form.getControl(ctrlName, "\\.");
+		if (!(ctrl instanceof FileUploadControl)) {
+			return null;
+		}
+
+		FileUploadControl fileCtrl = (FileUploadControl)ctrl;
+		String dbTable = fileCtrl.getContainer().getDbTableName();
+		String column = fileCtrl.getDbColumnName();
+
+		String query = String.format(GET_BY_FILE_ID, column + "_NAME", column +"_TYPE", dbTable, column + "_ID");
+		return JdbcDaoFactory.getJdbcDao().getResultSet(
+			query, Collections.singletonList(fileId),
+			new ResultExtractor<FileControlValue>() {
+				@Override
+				public FileControlValue extract(ResultSet rs)
+					throws SQLException {
+					if (!rs.next()) {
+						return null;
+					}
+
+					FileControlValue fcv = new FileControlValue(rs.getString(1), rs.getString(2), fileId);
+					fcv.setPath(filePath(fcv.getFileId()));
+					return fcv;
+				}
+			});
 	}
 
 	private FormData getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Long recordId)
@@ -472,39 +542,6 @@ public class FormDataManagerImpl implements FormDataManager {
 		}
 
 		return "(" + inClause.toString() + ")";
-	}
-	
-	public FileControlValue getFileControlValue(Long formId, Long recordId, String ctrlName) {
-		Container form = Container.getContainer(formId);
-		if (form == null) {
-			return null;
-		}
-		
-		Control ctrl = form.getControl(ctrlName, "\\.");
-		if (!(ctrl instanceof FileUploadControl)) {
-			return null;
-		}
-		
-		FileUploadControl fileCtrl = (FileUploadControl)ctrl;
-		String dbTable = fileCtrl.getContainer().getDbTableName();
-		String column = fileCtrl.getDbColumnName();
-		
-		String query = String.format(GET_FILE_CONTROL_VALUES, column + "_NAME", column +"_TYPE", column + "_ID", dbTable);
-		return JdbcDaoFactory.getJdbcDao().getResultSet(
-				query, Collections.singletonList(recordId),
-				new ResultExtractor<FileControlValue>() {
-					@Override
-					public FileControlValue extract(ResultSet rs)
-					throws SQLException {
-						if (!rs.next()) {
-							return null;
-						}
-						
-						FileControlValue fcv = new FileControlValue(rs.getString(1), rs.getString(2), rs.getString(3));
-						fcv.setPath(filePath(fcv.getFileId()));
-						return fcv;
-					}					
-				});		
 	}
 	
 	private Long saveOrUpdateFormData(JdbcDao jdbcDao, FormData formData, Long parentRecId)
