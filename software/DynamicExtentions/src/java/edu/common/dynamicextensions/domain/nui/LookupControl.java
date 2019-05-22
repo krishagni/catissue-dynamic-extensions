@@ -3,15 +3,21 @@ package edu.common.dynamicextensions.domain.nui;
 import java.util.Properties;
 
 public interface LookupControl {	
-	public String getTableName();
+	String getTableName();
 	
-	public String getParentKey();
+	String getParentKey();
 	
-	public String getLookupKey();
+	String getLookupKey();
 
-	public String getValueColumn();
+	String getValueColumn();
 	
-	public DataType getValueType();
+	DataType getValueType();
 
-	public Properties getPvSourceProps();
+	Properties getPvSourceProps();
+
+	boolean isMultiValued();
+
+	String getCollectionTable();
+
+	String getCollectionKey();
 }

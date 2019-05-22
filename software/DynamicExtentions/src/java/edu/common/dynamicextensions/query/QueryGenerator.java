@@ -743,7 +743,7 @@ public class QueryGenerator {
     	return result;
     }
         
-    private String getFieldNodeSql(FieldNode field) {    	
+    private String getFieldNodeSql(FieldNode field) {
     	String column = field.getCtrl().getDbColumnName();
     	if (field.getCtrl() instanceof FileUploadControl) {
     		column += "_NAME";
