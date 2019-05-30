@@ -574,11 +574,27 @@ public class Container implements Serializable {
 		}
 	}
 
-	private void validateNameAndUdn(Control control) {		
-		if (notAllowed.matcher(control.getName()).find()) {
-			throw new RuntimeException("Control name contains spl characters: " + specialChars + ", " + control.getName());
+	private void validateNameAndUdn(Control control) {
+		if (StringUtils.isBlank(control.getName())) {
+			throw new RuntimeException("Control name cannot be empty");
+		} else if (Character.isDigit(control.getName().trim().charAt(0))) {
+			throw new RuntimeException(
+				"Control names like " + control.getName() +
+				" starting with numeric characters are not allowed!");
+		} else if (notAllowed.matcher(control.getName()).find()) {
+			throw new RuntimeException(
+				"Control name " + control.getName() + " contains special characters. " +
+				"Following characters are not allowed: " + specialChars);
+		} else if (StringUtils.isBlank(control.getUserDefinedName())) {
+			throw new RuntimeException("Control UDN cannot be empty");
+		} else if (Character.isDigit(control.getUserDefinedName().trim().charAt(0))) {
+			throw new RuntimeException(
+				"Control UDNs like " + control.getUserDefinedName() +
+				" starting with numeric characters are not allowed!");
 		} else if (notAllowed.matcher(control.getUserDefinedName()).find()) {
-			throw new RuntimeException("Control user defined name contains spl characters: " + specialChars + ", " +  control.getUserDefinedName());
+			throw new RuntimeException(
+				"Control UDN " + control.getUserDefinedName() + " contains special characters. " +
+				"Following characters are not allowed: " + specialChars);
 		}
 	}
 
@@ -1186,8 +1202,33 @@ public class Container implements Serializable {
 	}
 
 	private void validateContainer(ContainerDao dao) {
+		validateContainer(dao, false);
+	}
+
+	private void validateContainer(ContainerDao dao, boolean subForm) {
 		if (StringUtils.isBlank(name)) {
-			throw new RuntimeException("Form name cannot be empty or blank");
+			throw new RuntimeException("Form name cannot be empty or blank!");
+		}
+
+		if (Character.isDigit(name.trim().charAt(0))) {
+			throw new RuntimeException("Form names like " + name + " starting with numeric characters are not allowed!");
+		}
+
+		if (notAllowed.matcher(name).find()) {
+			throw new RuntimeException(
+				"Form name " + name + " contains special characters. " +
+				"Following characters are not allowed: " + notAllowed);
+		}
+
+		for (Control ctrl : getControls()) {
+			validateNameAndUdn(ctrl);
+			if (ctrl instanceof SubFormControl) {
+				((SubFormControl) ctrl).getSubContainer().validateContainer(dao, true);
+			}
+		}
+
+		if (subForm) {
+			return;
 		}
 
 		try {

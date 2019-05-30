@@ -21,7 +21,7 @@ var Views = {
             if (!Utility.checkNameForCorrectness($('#formName').val())) {
               Utility.notify(
                 $("#notifications"), 
-                "Form Name should not contain special characters and white spaces", "error");
+                "Form name should not contain special characters and white spaces", "error");
               return;
             }
             // Save Model
