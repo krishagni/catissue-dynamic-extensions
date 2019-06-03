@@ -560,6 +560,11 @@ var Views = {
             labelPos = "TOP"
           }
 
+          var settings = $('#fancySettings').val();
+          if (settings) {
+            settings = JSON.parse(settings);
+          }
+
           this.model
               .set({
                 caption : $('#controlCaption').val(),
@@ -595,7 +600,8 @@ var Views = {
                 toolTip : $('#toolTip').val(),
                 labelPosition : labelPos,
                 subFormName : $('#subFormName').val(),
-                fancyControlType : $('#fancyControlType').val()
+                fancyControlType : $('#fancyControlType').val(),
+                settings : settings
               });
 
           // set pvs
@@ -618,6 +624,11 @@ var Views = {
             labelPos = "LEFT"
           } else if (labelPos == "align_top") {
             labelPos = "TOP"
+          }
+
+          var settings = $('#fancySettings').val();
+          if (settings) {
+            settings = JSON.parse(settings);
           }
 
           model.set({
@@ -654,7 +665,8 @@ var Views = {
                 toolTip : $('#toolTip').val(),
                 labelPosition : labelPos,
                 subFormName : $('#subFormName').val(),
-                fancyControlType : $('#fancyControlType').val()
+                fancyControlType : $('#fancyControlType').val(),
+                settings: settings
               });
 
           // set pvs
@@ -824,6 +836,13 @@ var Views = {
               this.populateFancyControls();
             $("#fancyControlType").val(this.model.get('fancyControlType'))
               .prop('selected', true);
+
+            var settings = this.model.get('settings');
+            if (settings) {
+              settings = JSON.stringify(settings);
+            }
+
+            $("#fancySettings").val(settings);
             break;
 
           case "datePicker":
@@ -2158,6 +2177,7 @@ var getNewField = function(args) {
   newField['validationRules'] = field.validationRules || [];
   newField['fancyControlType'] = field.fancyControlType;
   newField['defaultValue'] = field.defaultPv
+  newField['settings'] = field.settings;
 
   // Correcting the type properties 
   if (field.type == 'numericField') {

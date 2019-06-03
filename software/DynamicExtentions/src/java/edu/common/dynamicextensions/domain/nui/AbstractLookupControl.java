@@ -26,6 +26,12 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 	private static final String IS_KEY_EXISTS_SQL = "select count(*) from %s where %s = ?";
 	
 	private static final String GET_KEY_BY_ALT_KEY = "select %s from %s where %s = ?";
+
+	private boolean multiValued;
+
+	private String collectionTable;
+
+	private String collectionKey;
 	
 	@Override
 	public DataType getDataType() {
@@ -79,7 +85,34 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 
 	@Override
 	public abstract Properties getPvSourceProps();
-	
+
+	@Override
+	public boolean isMultiValued() {
+		return multiValued;
+	}
+
+	public void setMultiValued(boolean multiValued) {
+		this.multiValued = multiValued;
+	}
+
+	@Override
+	public String getCollectionTable() {
+		return collectionTable;
+	}
+
+	public void setCollectionTable(String collectionTable) {
+		this.collectionTable = collectionTable;
+	}
+
+	@Override
+	public String getCollectionKey() {
+		return collectionKey;
+	}
+
+	public void setCollectionKey(String collectionKey) {
+		this.collectionKey = collectionKey;
+	}
+
 	protected void serializeToXml(String field, Writer writer, Properties props) {
 		writeElementStart(writer, field);
 		super.serializeToXml(writer, props);

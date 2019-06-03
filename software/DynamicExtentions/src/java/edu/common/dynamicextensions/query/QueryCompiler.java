@@ -300,9 +300,24 @@ public class QueryCompiler
 			fieldTree.setForeignKey(msCtrl.getForeignKey());
 		} else if (field instanceof LookupControl) {
 			LookupControl luCtrl = (LookupControl) field;
-			fieldTree.setTab(luCtrl.getTableName());
-			fieldTree.setParentKey(luCtrl.getParentKey());
-			fieldTree.setForeignKey(luCtrl.getLookupKey());
+			if (luCtrl.isMultiValued()) {
+				fieldTree.setTab(luCtrl.getCollectionTable());
+				fieldTree.setParentKey(parentNode.getForm().getPrimaryKey());
+				fieldTree.setForeignKey(luCtrl.getCollectionKey());
+
+				JoinTree valueTree = new JoinTree();
+				valueTree.setField(field);
+				valueTree.setParent(fieldTree);
+				valueTree.setAlias("t" + tabCnt++);
+				valueTree.setTab(luCtrl.getTableName());
+				valueTree.setParentKey(luCtrl.getParentKey());
+				valueTree.setForeignKey(luCtrl.getLookupKey());
+				fieldTree.addChild(valueTree.getAlias(), valueTree);
+			} else {
+				fieldTree.setTab(luCtrl.getTableName());
+				fieldTree.setParentKey(luCtrl.getParentKey());
+				fieldTree.setForeignKey(luCtrl.getLookupKey());
+			}
 		} else {
 			throw new RuntimeException("Cannot create field tree for unknown type: " + field.getClass());
 		}
@@ -682,6 +697,12 @@ public class QueryCompiler
         	}
         	
         	tabAlias = fieldTree.getAlias();
+        	if (ctrl instanceof LookupControl) {
+        		LookupControl luCtrl = (LookupControl) ctrl;
+        		if (luCtrl.isMultiValued()) {
+        			tabAlias = fieldTree.getChildren().iterator().next().getAlias();
+				}
+			}
         }
         
         captions[captions.length - 1] = ctrl.getCaption();
