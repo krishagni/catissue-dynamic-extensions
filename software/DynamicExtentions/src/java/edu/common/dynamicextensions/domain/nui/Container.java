@@ -111,6 +111,8 @@ public class Container implements Serializable {
 
 	private transient List<String> undoDeletesList = new ArrayList<>();
 
+	private transient boolean disableDeletedCtrlsTracking = false;
+
 	public void useAsDto() {
 		this.isDto = true;
 	}
@@ -670,6 +672,7 @@ public class Container implements Serializable {
 					Container newSfContainer = newSfCtrl.getSubContainer();
 					Container existingSfContainer = existingSfCtrl.getSubContainer();
 					newSfContainer.setId(existingSfContainer.getId());
+					newSfContainer.disableDeletedCtrlsTracking(disableDeletedCtrlsTracking);
 					if (!isManagedTables()) {
 						newSfContainer.setDbTableName(existingSfContainer.getDbTableName());
 					} else {
@@ -726,6 +729,10 @@ public class Container implements Serializable {
 
 	public void addToUndoDeleteList(String udn) {
 		undoDeletesList.add(udn);
+	}
+
+	public void disableDeletedCtrlsTracking(boolean input) {
+		this.disableDeletedCtrlsTracking = input;
 	}
 	
 	public Control getControl(String name) {
@@ -984,6 +991,11 @@ public class Container implements Serializable {
 		setHierarchyAncestorCol(newContainer.getHierarchyAncestorCol());
 		setHierarchyDescendentCol(newContainer.getHierarchyDescendentCol());
 		setActiveCond(newContainer.getActiveCond());
+		disableDeletedCtrlsTracking(newContainer.disableDeletedCtrlsTracking);
+
+		if (disableDeletedCtrlsTracking) {
+			getDeletedCtrls().clear();
+		}
 		
 		for (Control  ctrl : newContainer.getControls()) {
 			if (getControl(ctrl.getName()) == null) {
@@ -1023,7 +1035,9 @@ public class Container implements Serializable {
 			deleteControl(removedCtrl.getName());
 		}
 
-		getDeletedCtrls().addAll(removedCtrls);
+		if (!disableDeletedCtrlsTracking) {
+			getDeletedCtrls().addAll(removedCtrls);
+		}
 	}
 
 	protected void undoDelete(String undoUdn) {
