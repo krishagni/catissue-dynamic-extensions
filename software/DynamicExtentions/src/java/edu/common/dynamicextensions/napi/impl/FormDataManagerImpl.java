@@ -519,7 +519,10 @@ public class FormDataManagerImpl implements FormDataManager {
 					Object value = rs.getObject(++idx);
 
 					List<String> values = results.computeIfAbsent(recordId, (u) -> new ArrayList<>());
-					values.add(ctrl.toString(value));
+					String valueStr = ctrl.toString(value);
+					if (values.indexOf(valueStr) == -1) {
+						values.add(valueStr);
+					}
 				}
 				
 				return results;
