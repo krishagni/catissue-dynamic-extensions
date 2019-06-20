@@ -5,11 +5,13 @@ import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -769,7 +771,7 @@ public class FormDataManagerImpl implements FormDataManager {
 	
 	private void updateMultiSelectValues(JdbcDao jdbcDao, ControlValue msCtrlValue, Long recordId) 
 	throws Exception {
-		String[] strValues =  msCtrlValue != null ? (String[])msCtrlValue.getValue() : null;
+		String[] strValues =  msCtrlValue != null ? (String[]) msCtrlValue.getValue() : null;
 		MultiSelectControl msCtrl = msCtrlValue != null ? (MultiSelectControl)msCtrlValue.getControl() : null;
 			
 		if (msCtrl != null) {
@@ -779,9 +781,9 @@ public class FormDataManagerImpl implements FormDataManager {
 		
 		if (strValues != null) {
 			String insertSql = String.format(INSERT_MULTI_SELECT_VALUES_SQL, msCtrl.getTableName());
-			
-			List<Object> params = new ArrayList<Object>();
-			for (String strValue : strValues) {
+
+			List<Object> params = new ArrayList<>();
+			for (String strValue : new LinkedHashSet<>(Arrays.asList(strValues))) {
 				Object value = msCtrl.fromString(strValue);
 				
 				params.clear();
