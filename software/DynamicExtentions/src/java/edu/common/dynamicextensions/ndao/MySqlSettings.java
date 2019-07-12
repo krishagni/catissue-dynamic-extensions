@@ -34,7 +34,7 @@ public class MySqlSettings implements DbSettings {
 
 	@Override
 	public String getDateColType() {
-		return "TIMESTAMP NULL";
+		return "DATETIME";
 	}
 
 	@Override
