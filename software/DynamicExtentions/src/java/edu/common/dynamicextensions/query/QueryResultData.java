@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import edu.common.dynamicextensions.domain.nui.Control;
+import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.nutility.Util;
 import edu.common.dynamicextensions.query.ast.AggregateNode;
@@ -281,18 +283,18 @@ public class QueryResultData {
     }
     
     public String[] stringifyRow(Object[] row) {
-        String result[] = new String[row.length];
+        String[] result = new String[row.length];
         
         for(int j = 0; j < row.length; j++) {
             if (row[j] == null) {
                 result[j] = null;
             } else if (row[j] instanceof Timestamp) {
-                result[j] = toTime((Date)row[j]);
+            	result[j] = toDateTime(j, (Date)row[j], true);
             } else if (row[j] instanceof Date){
-                result[j] = toDate((Date)row[j]);
+				result[j] = toDateTime(j, (Date)row[j], false);
             } else if (Util.isOraTimestamp(row[j])) {
 				Date dateObj = Util.getDateFromOraTimestamp(row[j]);
-				result[j] = toTime(dateObj);
+				result[j] = toDateTime(j, dateObj, true);
 			} else if (row[j] instanceof Number) {
             	BigDecimal bd = new BigDecimal(((Number)row[j]).doubleValue());
             	int scale = getResultColumns().get(j).getScale();
@@ -352,19 +354,24 @@ public class QueryResultData {
    		};
     }
 
-    private String toTime(Date input) {
-		if (input == null) {
-			return  null;
-		}
-
-		return tsf.format(input);
-	}
-
-	private String toDate(Date input) {
+	private String toDateTime(int columnIdx, Date input, boolean dateTime) {
 		if (input == null) {
 			return null;
 		}
 
-		return sdf.format(input);
+		ResultColumn col = null;
+		if (columnIdx < resultColumns.size()) {
+			col = resultColumns.get(columnIdx);
+		}
+
+		if (col != null && col.getExpression() instanceof FieldNode) {
+			Control ctrl = ((FieldNode) col.getExpression()).getCtrl();
+			if (ctrl instanceof DatePicker) {
+				DatePicker dp = (DatePicker) ctrl;
+				dateTime = dp.getFormat() != null && dp.getFormat().contains("HH:mm");
+			}
+		}
+
+		return dateTime ? tsf.format(input) : sdf.format(input);
 	}
 }
