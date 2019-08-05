@@ -9,13 +9,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
-import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.ValidationErrors;
@@ -278,10 +279,15 @@ public class FormData {
 			Map<String, Object> fieldData = new HashMap<>();
 			fields.add(fieldData);
 
-			fieldData.put("name", fieldValue.getControl().getName());
-			fieldData.put("udn", fieldValue.getControl().getUserDefinedName());
-			fieldData.put("caption", fieldValue.getControl().getCaption());
-			fieldData.put("type", fieldValue.getControl().getCtrlType());
+			Control ctrl = fieldValue.getControl();
+			fieldData.put("name", ctrl.getName());
+			fieldData.put("udn", ctrl.getUserDefinedName());
+			fieldData.put("caption", ctrl.getCaption());
+			fieldData.put("type", ctrl.getCtrlType());
+			if (StringUtils.isNotBlank(ctrl.getShowWhenExpr())) {
+				fieldData.put("showWhen", ctrl.getShowWhenExpr());
+			}
+
 
 			Object value = fieldValue.getValue();
 			if (value instanceof FileControlValue) {
