@@ -107,6 +107,7 @@ public abstract class DefaultControlMapper {
 			control.setShowInGrid(Boolean.parseBoolean(showInGrid));
 		}
 
+		control.setShowWhenExpr(controlProps.getString("showWhenExpr"));
 	}
 
 	protected LabelPosition getLabelPosition(String labelPos) {
@@ -162,5 +163,6 @@ public abstract class DefaultControlMapper {
 		controlProps.setProperty(CSDConstants.STATUS, CSDConstants.STATUS_SAVED);
 		controlProps.setProperty("userDefinedName", control.getUserDefinedName());
 		controlProps.setProperty("showInGrid", control.showInGrid());
+		controlProps.setProperty("showWhenExpr", control.getShowWhenExpr());
 	}
 }
