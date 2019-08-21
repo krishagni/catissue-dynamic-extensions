@@ -27,19 +27,22 @@ public class Crosstab implements ResultPostProc {
 	private static final String NULL_STR_MARKER = "\0\0\0\0\0";
 	
 	private QueryExpressionNode queryExpr;
+
+	private String timeZone;
 	
-	private Map<String, Row> rows = new TreeMap<String, Row>();
+	private Map<String, Row> rows = new TreeMap<>();
 	
-	private Set<Object> dynamicCols = new TreeSet<Object>();
+	private Set<Object> dynamicCols = new TreeSet<>();
 	
-	private Set<String> measureCols = new LinkedHashSet<String>();
+	private Set<String> measureCols = new LinkedHashSet<>();
 	
-	private Set<String> rollupExcludeCols = new LinkedHashSet<String>();
+	private Set<String> rollupExcludeCols = new LinkedHashSet<>();
 
 	private boolean numericMeasure;
 			
-	public Crosstab(QueryExpressionNode queryExpr) {
+	public Crosstab(QueryExpressionNode queryExpr, String timeZone) {
 		this.queryExpr = queryExpr;
+		this.timeZone = timeZone;
 		
 		CrosstabNode ctSpec = queryExpr.getCrosstabSpec();
 

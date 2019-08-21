@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,8 @@ public class QueryResultData {
     private List<Object[]> rows = null;
     
     private ShallowWideRowGenerator rowGen = null;
+
+    private SimpleDateFormat dateOnly = null;
             
     private SimpleDateFormat sdf = null;
 
@@ -48,23 +51,39 @@ public class QueryResultData {
 
     private String[] columnLabels;
 
-	public QueryResultData(List<ResultColumn> resultColumns) {
-		this.resultColumns = resultColumns;
-		sdf = new SimpleDateFormat(ISO_DATE_FMT);
-		tsf = new SimpleDateFormat(ISO_DATE_TIME_FMT);
+	public QueryResultData(List<ResultColumn> resultColumns, String timeZone) {
+		this(resultColumns, null, null, timeZone);
 	}
 
-    public QueryResultData(List<ResultColumn> resultColumns, String dateFormat, String timeFormat) {
-		this(resultColumns);
+    public QueryResultData(List<ResultColumn> resultColumns, String dateFormat, String timeFormat, String timeZone) {
+		this.resultColumns = resultColumns;
 
         if (dateFormat != null) {
+        	dateOnly = new SimpleDateFormat(dateFormat);
 			sdf = new SimpleDateFormat(dateFormat);
 			if (timeFormat != null) {
 				tsf = new SimpleDateFormat(dateFormat + " " + timeFormat);
 			}
         } else {
+        	dateOnly = new SimpleDateFormat(ISO_DATE_FMT);
 			sdf = new SimpleDateFormat(ISO_DATE_FMT);
 			tsf = new SimpleDateFormat(ISO_DATE_TIME_FMT);
+		}
+
+        if (timeZone != null) {
+        	try {
+				TimeZone tz = TimeZone.getTimeZone(timeZone);
+				if (sdf != null) {
+					sdf.setTimeZone(tz);
+				}
+
+				if (tsf != null) {
+					tsf.setTimeZone(tz);
+				}
+			} catch (Exception e) {
+        		System.err.println("Error setting the timezone: " + timeZone);
+        		e.printStackTrace();
+			}
 		}
     }
 
@@ -82,7 +101,7 @@ public class QueryResultData {
     }
 
     public Integer[] getColumnIndices(String name) {
-    	List<Integer> indices = new ArrayList<Integer>();
+    	List<Integer> indices = new ArrayList<>();
     	
     	int i = 0;
     	for (ResultColumn column : getResultColumns()) {
@@ -364,14 +383,18 @@ public class QueryResultData {
 			col = resultColumns.get(columnIdx);
 		}
 
+		boolean strictlyDate = false;
 		if (col != null && col.getExpression() instanceof FieldNode) {
 			Control ctrl = ((FieldNode) col.getExpression()).getCtrl();
 			if (ctrl instanceof DatePicker) {
 				DatePicker dp = (DatePicker) ctrl;
-				dateTime = dp.getFormat() != null && dp.getFormat().contains("HH:mm");
+				if (dp.getFormat() != null) {
+					dateTime = dp.getFormat().contains("HH:mm");
+					strictlyDate = !dateTime && dp.getFormat().endsWith("/dateOnly");
+				}
 			}
 		}
 
-		return dateTime ? tsf.format(input) : sdf.format(input);
+		return dateTime ? tsf.format(input) : (strictlyDate ? dateOnly.format(input) : sdf.format(input));
 	}
 }

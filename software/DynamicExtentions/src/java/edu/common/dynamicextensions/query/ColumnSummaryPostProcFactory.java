@@ -9,7 +9,7 @@ public class ColumnSummaryPostProcFactory implements ResultPostProcFactory {
 	}
 	
 	@Override
-	public ResultPostProc create(QueryExpressionNode queryExpr) {
-		return new ColumnSummaryPostProc(queryExpr);
+	public ResultPostProc create(QueryExpressionNode queryExpr, String timeZone) {
+		return new ColumnSummaryPostProc(queryExpr, timeZone);
 	}
 }

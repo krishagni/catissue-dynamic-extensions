@@ -9,7 +9,7 @@ public class CrosstabFactory implements ResultPostProcFactory {
 	}
 	
 	@Override
-	public ResultPostProc create(QueryExpressionNode queryExpr) {
-		return new Crosstab(queryExpr);
+	public ResultPostProc create(QueryExpressionNode queryExpr, String timeZone) {
+		return new Crosstab(queryExpr, timeZone);
 	}
 }

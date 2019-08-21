@@ -33,6 +33,8 @@ public class Query {
     private String dateFormat = "MM-dd-yyyy";
 
     private String timeFormat = "HH:mm";
+
+    private String timeZone;
     
     private boolean vcEnabled;
     
@@ -76,6 +78,11 @@ public class Query {
         this.timeFormat = timeFormat;
         return this;
     }
+
+    public Query timeZone(String timeZone) {
+    	this.timeZone = timeZone;
+    	return this;
+	}
     
     public Query enableVersionedForms(boolean vcEnabled) {
     	this.vcEnabled = vcEnabled;
@@ -100,7 +107,7 @@ public class Query {
         if (queryExpr.hasResultPostProc()) {
         	String procName = queryExpr.getResultPostProcName();
         	ResultPostProcFactory factory = ResultPostProcManager.getInstance().getFactory(procName);
-        	resultPostProc = factory.create(queryExpr);
+        	resultPostProc = factory.create(queryExpr, timeZone);
         }        
     }
 
@@ -233,9 +240,9 @@ public class Query {
 
     private QueryResultData getQueryResultData(List<ResultColumn> columns) {
 		if (outputIsoDateTime) {
-			return new QueryResultData(columns);
+			return new QueryResultData(columns, timeZone);
 		} else {
-			return new QueryResultData(columns, dateFormat, timeFormat);
+			return new QueryResultData(columns, dateFormat, timeFormat, timeZone);
 		}
 	}
             

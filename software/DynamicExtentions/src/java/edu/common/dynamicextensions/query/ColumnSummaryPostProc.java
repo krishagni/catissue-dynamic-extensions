@@ -20,14 +20,17 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 	private Map<Integer, BigDecimal> columnAvgs = new HashMap<>();
 	
 	private QueryExpressionNode queryExpr;
+
+	private String timeZone;
 	
 	private QueryResultData qrd;
 
 	private List<Object[]> rows = new ArrayList<>();
 	
-	public ColumnSummaryPostProc(QueryExpressionNode queryExpr) {
+	public ColumnSummaryPostProc(QueryExpressionNode queryExpr, String timeZone) {
 		this.queryExpr = queryExpr;
-		
+		this.timeZone = timeZone;
+
 		int columnCount = queryExpr.getSelectList().getElements().size();
 		List<String> args = queryExpr.getResultPostProc().getArgs();
 		for (int i = 0; i < args.size(); ) {
@@ -65,7 +68,7 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 	@Override
 	public int processResultSet(ResultSet rs) {
 		DeConfiguration cfg = DeConfiguration.getInstance();
-		qrd = new QueryResultData(getResultColumns(queryExpr), cfg.dateFormat(), cfg.timeFormat());
+		qrd = new QueryResultData(getResultColumns(queryExpr), cfg.dateFormat(), cfg.timeFormat(), timeZone);
 		qrd.dataSource(rs);
 
 		rows = qrd.getRows();
