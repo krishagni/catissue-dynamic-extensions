@@ -32,6 +32,8 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 	private String collectionTable;
 
 	private String collectionKey;
+
+	private String parentKey;
 	
 	@Override
 	public DataType getDataType() {
@@ -65,7 +67,11 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 
 	@Override
 	public String getParentKey() {
-		return getDbColumnName();
+		return parentKey;
+	}
+
+	public void setParentKey(String parentKey) {
+		this.parentKey = parentKey;
 	}
 
 	@Override

@@ -485,7 +485,7 @@ public class FormDataManagerImpl implements FormDataManager {
 				LookupControl lu = (LookupControl)ctrl;
 				String alias = "l" + lookup;
 				query.append(" left join ").append(lu.getTableName()).append(" ").append(alias)
-					.append(" on ").append(alias).append(".").append(lu.getLookupKey()).append(" = ").append("m.").append(lu.getParentKey());
+					.append(" on ").append(alias).append(".").append(lu.getLookupKey()).append(" = ").append("m.").append(ctrl.getDbColumnName());
 				
 				lookup++;
 			}

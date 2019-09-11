@@ -20,6 +20,7 @@ public abstract class AbstractLookupControlFactory extends AbstractControlFactor
 			luCtrl.setMultiValued(ParserUtil.getBooleanValue(ele, "multiple"));
 			luCtrl.setCollectionTable(ParserUtil.getTextValue(ele, "collectionTable"));
 			luCtrl.setCollectionKey(ParserUtil.getTextValue(ele, "collectionKey"));
+			luCtrl.setParentKey(ParserUtil.getTextValue(ele, "parentKey"));
 		}
 
 

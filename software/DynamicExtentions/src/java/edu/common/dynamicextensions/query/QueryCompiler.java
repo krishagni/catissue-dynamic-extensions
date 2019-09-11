@@ -302,7 +302,7 @@ public class QueryCompiler
 			LookupControl luCtrl = (LookupControl) field;
 			if (luCtrl.isMultiValued()) {
 				fieldTree.setTab(luCtrl.getCollectionTable());
-				fieldTree.setParentKey(parentNode.getForm().getPrimaryKey());
+				fieldTree.setParentKey(luCtrl.getParentKey() != null ? luCtrl.getParentKey() : parentNode.getForm().getPrimaryKey());
 				fieldTree.setForeignKey(luCtrl.getCollectionKey());
 
 				JoinTree valueTree = new JoinTree();
@@ -310,12 +310,12 @@ public class QueryCompiler
 				valueTree.setParent(fieldTree);
 				valueTree.setAlias("t" + tabCnt++);
 				valueTree.setTab(luCtrl.getTableName());
-				valueTree.setParentKey(luCtrl.getParentKey());
+				valueTree.setParentKey(field.getDbColumnName());
 				valueTree.setForeignKey(luCtrl.getLookupKey());
 				fieldTree.addChild(valueTree.getAlias(), valueTree);
 			} else {
 				fieldTree.setTab(luCtrl.getTableName());
-				fieldTree.setParentKey(luCtrl.getParentKey());
+				fieldTree.setParentKey(field.getDbColumnName());
 				fieldTree.setForeignKey(luCtrl.getLookupKey());
 			}
 		} else {
