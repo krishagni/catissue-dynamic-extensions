@@ -2,39 +2,29 @@ package edu.common.dynamicextensions.domain.nui;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class Page implements Serializable {
 	private static final long serialVersionUID = 5552295077941247997L;
 
-	private Long id;
-	
-	private List<Control> controls = new ArrayList<Control>();
+	private List<PageRow> rows = new ArrayList<>();
 
-	public Page() {
-	}
-
-	public Long getId() {
-		return id;
-	}
-	
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	public boolean isEmptyPage() {
-		return controls.isEmpty();
+	public List<PageRow> getRows() {
+		return rows;
 	}
 
-	public List<Control> getControls() {
-		return controls;
+	public void setRows(List<PageRow> rows) {
+		this.rows = rows;
 	}
 
-	public void setControls(List<Control> controls) {
-		this.controls = controls;
-	}
-	
-	public void addControl(Control ctrl) {
-		this.controls.add(ctrl);
+	public Map<String, Object> getProps() {
+		List<List<Map<String, Object>>> rowProps = new ArrayList<>();
+		for (PageRow row : rows) {
+			rowProps.add(row.getProps());
+		}
+
+		return Collections.singletonMap("rows", rowProps);
 	}
 }

@@ -90,6 +90,8 @@ public class Container implements Serializable {
 	private List<Control> deletedCtrls = new ArrayList<>();
 	
 	private List<SkipRule> skipRules = new ArrayList<>();
+
+	private List<Layout> layouts = new ArrayList<>();
 		
 	private transient boolean isDto;
 		
@@ -283,7 +285,15 @@ public class Container implements Serializable {
 		
 		skipRules.remove(i);
 	}
-	
+
+	public List<Layout> getLayouts() {
+		return layouts;
+	}
+
+	public void setLayouts(List<Layout> layouts) {
+		this.layouts = layouts;
+	}
+
 	public Set<String> getUserDefCtrlNames() {
 		return userDefCtrlNames;
 	}
@@ -292,19 +302,6 @@ public class Container implements Serializable {
 		this.userDefCtrlNames = userDefCtrlNames;
 	}
 	
-	public boolean isSurveyForm() {
-		boolean result = false;
-		
-		for (Control ctrl : controlsMap.values()) {
-			if (ctrl instanceof PageBreak) {
-				result = true;
-				break;
-			}
-		}
-		
-		return result;
-	}
-
 	public boolean hasPhiFields() {
 		boolean hasPhiFields = false;
 		for (Control control : getAllControls()) {
@@ -1019,6 +1016,16 @@ public class Container implements Serializable {
 		//
 		this.skipRules.clear();
 		this.skipRules.addAll(newContainer.getSkipRules());
+
+		if (this.layouts != null) {
+			this.layouts.clear();
+		} else {
+			this.layouts = new ArrayList<>();
+		}
+
+		if (newContainer.getLayouts() != null) {
+			this.layouts.addAll(newContainer.getLayouts());
+		}
 	}
 
 	protected void deleteRemovedControls(Container newContainer) {
@@ -1340,6 +1347,10 @@ public class Container implements Serializable {
 		xstream.alias("disableAction", DisableAction.class);
 		xstream.alias("showPvAction", ShowPvAction.class);
 		xstream.alias("permissibleValue", PermissibleValue.class);
+		xstream.alias("layout", Layout.class);
+		xstream.alias("page", Page.class);
+		xstream.alias("pageRow", PageRow.class);
+		xstream.alias("pageField", PageField.class);
 	}
 	
 	private String getUniqueTableName() {
@@ -1416,34 +1427,6 @@ public class Container implements Serializable {
 		}		
 	}
 	 	
-	public List<Page> getPages() {
-		List<Page> pages = new ArrayList<Page>();		
-		Long pageId = 1L;
-		
-		Page page = new Page();
-		page.setId(pageId);
-		
-		for (Control ctrl :getOrderedControlList()) {
-			if (ctrl instanceof PageBreak) {
-				if (!page.isEmptyPage()) {
-					pages.add(page);
-				}
-				
-				++pageId;
-				page = new Page();
-				page.setId(pageId);				
-			} else {
-				page.addControl(ctrl);
-			}
-		}
-		
-		if (!page.isEmptyPage()) {
-			pages.add(page);
-		}
-		
-		return pages;
-	}
-		
 	//
 	// Works if the input control belongs to container
 	// on which this method is invoked
@@ -1589,10 +1572,20 @@ public class Container implements Serializable {
 	}
 	
 	public Map<String, Object> getProps() {
-		Map<String, Object> props = new HashMap<String, Object>();		
+		Map<String, Object> props = new HashMap<>();
 		props.put("name", getName());
 		props.put("caption", getCaption());
 		putControls(props);
+
+		if (getLayouts() != null) {
+			List<Map<String, Object>> layoutProps = new ArrayList<>();
+			for (Layout layout : getLayouts()) {
+				layoutProps.add(layout.getProps());
+			}
+
+			props.put("layouts", layoutProps);
+		}
+
 		return props;
 	}
 	

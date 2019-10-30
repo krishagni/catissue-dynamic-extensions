@@ -20,8 +20,12 @@ import org.w3c.dom.NodeList;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
+import edu.common.dynamicextensions.domain.nui.Layout;
 import edu.common.dynamicextensions.domain.nui.NumberField;
+import edu.common.dynamicextensions.domain.nui.Page;
 import edu.common.dynamicextensions.domain.nui.PageBreak;
+import edu.common.dynamicextensions.domain.nui.PageField;
+import edu.common.dynamicextensions.domain.nui.PageRow;
 import edu.common.dynamicextensions.domain.nui.PermissibleValue;
 import edu.common.dynamicextensions.domain.nui.SkipRule;
 import edu.common.dynamicextensions.domain.nui.SkipRuleBuilder;
@@ -91,6 +95,11 @@ public class ContainerParser {
 		nodes = doc.getElementsByTagName("skipRules");
 		if (nodes != null && nodes.getLength() == 1) {
 			parseAndSetSkipRules(container, (Element) nodes.item(0));
+		}
+
+		nodes = doc.getElementsByTagName("layouts");
+		if (nodes != null && nodes.getLength() == 1) {
+			parseAndSetLayouts(container, (Element) nodes.item(0));
 		}
 		
 		updateCalculatedSourceControls(container, container);
@@ -308,5 +317,117 @@ public class ContainerParser {
 				container.addToUndoDeleteList(udn);
 			}
 		}
+	}
+
+	private void parseAndSetLayouts(Container container, Element layoutsEle) {
+		NodeList layoutNodes = layoutsEle.getElementsByTagName("layout");
+		if (layoutNodes == null || layoutNodes.getLength() == 0) {
+			return;
+		}
+
+		List<Layout> layouts = new ArrayList<>();
+		for (int i = 0; i < layoutNodes.getLength(); ++i) {
+			Node node = layoutNodes.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+
+			Layout layout = createLayout(container, (Element) node);
+			if (layout != null) {
+				layouts.add(layout);
+			}
+		}
+
+		container.setLayouts(layouts);
+	}
+
+	private Layout createLayout(Container container, Element layoutEle) {
+		NodeList pageNodes = layoutEle.getElementsByTagName("page");
+		if (pageNodes == null || pageNodes.getLength() == 0) {
+			return null;
+		}
+
+		List<Page> pages = new ArrayList<>();
+		for (int i = 0; i < pageNodes.getLength(); ++i) {
+			Node node = pageNodes.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+
+			Page page = createPage(container, (Element) node);
+			if (page != null) {
+				pages.add(page);
+			}
+		}
+
+		if (pages.isEmpty()) {
+			return null;
+		}
+
+		Layout layout = new Layout();
+		layout.setPages(pages);
+		return layout;
+	}
+
+	private Page createPage(Container container, Element pageEle) {
+		NodeList pageRowNodes = pageEle.getElementsByTagName("pageRow");
+		if (pageRowNodes == null || pageRowNodes.getLength() == 0) {
+			return null;
+		}
+
+		List<PageRow> rows = new ArrayList<>();
+		for (int i = 0; i < pageRowNodes.getLength(); ++i) {
+			Node node = pageRowNodes.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+
+			PageRow row = createPageRow(container, (Element) node);
+			if (row != null) {
+				rows.add(row);
+			}
+		}
+
+		if (rows.isEmpty()) {
+			return null;
+		}
+
+		Page page = new Page();
+		page.setRows(rows);
+		return page;
+	}
+
+	private PageRow createPageRow(Container container, Element pageRowEle) {
+		NodeList fieldNodes = pageRowEle.getElementsByTagName("pageField");
+		if (fieldNodes == null || fieldNodes.getLength() == 0) {
+			return null;
+		}
+
+		List<PageField> fields = new ArrayList<>();
+		for (int i = 0; i < fieldNodes.getLength(); ++i) {
+			Node node = fieldNodes.item(i);
+			if (node.getNodeType() != Node.ELEMENT_NODE) {
+				continue;
+			}
+
+			Element el = (Element) node;
+			String fieldName = el.getAttribute("name");
+			Control ctrl = container.getControl(fieldName);
+			if (ctrl == null) {
+				continue;
+			}
+
+			PageField field = new PageField();
+			field.setCtrl(ctrl);
+			fields.add(field);
+		}
+
+		if (fields.isEmpty()) {
+			return null;
+		}
+
+		PageRow pageRow = new PageRow();
+		pageRow.setFields(fields);
+		return pageRow;
 	}
 }
