@@ -365,6 +365,7 @@ public class ContainerParser {
 		}
 
 		Layout layout = new Layout();
+		layout.setName(layoutEle.getAttribute("name"));
 		layout.setPages(pages);
 		return layout;
 	}
