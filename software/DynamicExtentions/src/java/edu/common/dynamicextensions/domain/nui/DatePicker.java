@@ -25,11 +25,13 @@ import edu.common.dynamicextensions.nutility.Util;
 public class DatePicker extends Control implements Serializable {
 	private static final long serialVersionUID = 6046956576964435896L;
 
+	private static final SimpleDateFormat YYYY_MM_DD = new SimpleDateFormat("yyyy-MM-dd");
+
 	private static final String DEFAULT_DATE_FORMAT = "MM-dd-yyyy";
 	
 	private static final String DEFAULT_TIME_FORMAT = "HH:mm";
 	
-	public static enum DefaultDateType {
+	public enum DefaultDateType {
 		PREDEFINED,
 		CURRENT_DATE,
 		NONE
@@ -106,7 +108,7 @@ public class DatePicker extends Control implements Serializable {
 			if (StringUtils.isBlank(timeFormat)) {
 				timeFormat = DEFAULT_TIME_FORMAT;
 			}
-			fmt = fmt.concat(" "+ timeFormat);
+			fmt = fmt + " " + timeFormat;
 		}
 
 		value = value.trim();
@@ -125,7 +127,11 @@ public class DatePicker extends Control implements Serializable {
 				try {
 					return new Date(Long.parseLong(value));
 				} catch (Exception e1) {
-					throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + fmt, e);
+					try {
+						return YYYY_MM_DD.parse(value);
+					} catch (Exception e2) {
+						throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + fmt, e);
+					}
 				}
 			}
 		}
