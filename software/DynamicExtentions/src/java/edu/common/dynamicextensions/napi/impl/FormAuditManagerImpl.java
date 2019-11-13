@@ -54,6 +54,10 @@ public class FormAuditManagerImpl implements FormAuditManager {
 		List<ControlValue> dirtyFields = new ArrayList<>();
 		for (ControlValue prevCv : previous.getFieldValues()) {
 			ControlValue currCv = currValueMap.remove(prevCv.getControl().getUserDefinedName());
+			if (currCv == null) {
+				currCv = new ControlValue(prevCv.getControl(), null);
+			}
+
 			if (isModified(prevCv, currCv)) {
 				dirtyFields.add(currCv);
 			}
@@ -305,6 +309,10 @@ public class FormAuditManagerImpl implements FormAuditManager {
 
 		List<Map<String, Object>> fieldProps = new ArrayList<>();
 		for (ControlValue fieldValue : fields) {
+			if (fieldValue == null) {
+				continue;
+			}
+
 			Control ctrl = fieldValue.getControl();
 			Object val = fieldValue.getValue();
 
