@@ -258,7 +258,8 @@ public class SubFormControl extends Control implements Serializable {
 		writeElement(writer, "maxEntries",         getNoOfEntries());		
 		writeElement(writer, "showAddMoreLink",    showAddMoreLink());	
 		writeElement(writer, "udn",                getUserDefinedName());	
-		writeElement(writer, "pasteButtonEnabled", isPasteButtonEnabled());			
+		writeElement(writer, "pasteButtonEnabled", isPasteButtonEnabled());
+		writeCDataElement(writer, "showWhen", getShowWhenExpr());
 
 		new ContainerXmlSerializer(getSubContainer(), writer, props).serializeView();			
 		writeElementEnd(writer, "subForm");				
