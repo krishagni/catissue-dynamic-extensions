@@ -154,7 +154,7 @@ public class Query {
         });
         
         long t2 = System.currentTimeMillis();
-        logger.info("Count SQL: " + countSql + "; Query Exec Time: " + (t2 - t1));            
+        logger.debug("Count SQL: " + countSql + "; Query Exec Time: " + (t2 - t1));
         return count;
     }
 
@@ -186,7 +186,7 @@ public class Query {
 
 				resultData.setOutputExpression(!(resultPostProc instanceof Crosstab) && outputExpression);
         		long t3 = System.currentTimeMillis();        		
-        		logger.info("Data SQL: " + dataSql + "; Query Exec Time: " + (t2 - t1) + "; Result Prep Time: " + (t3 - t2));
+        		logger.debug("Data SQL: " + dataSql + "; Query Exec Time: " + (t2 - t1) + "; Result Prep Time: " + (t3 - t2));
         		
         		QueryResponse resp = new QueryResponse();
         		resp.setSql(dataSql);																																																																																										
