@@ -58,6 +58,8 @@ public class Container implements Serializable {
 	private static Pattern notAllowed = Pattern.compile(specialChars, Pattern.CASE_INSENSITIVE);
 
 	private static final String primaryKeyCtrlName = "_?primary_key?_";
+
+	private static final String CREATE_IDX_DDL = "create index %s_%sX on %s(%s)";
 			
 	private Long id;
 	
@@ -1109,7 +1111,7 @@ public class Container implements Serializable {
 		//
 		// 1. Execute DDL referring to addLog, editLog and delLog
 		//
-		List<ColumnDef> columnDefs = new ArrayList<ColumnDef>();
+		List<ColumnDef> columnDefs = new ArrayList<>();
 		for (Control ctrl : addLog) {
 			if (isNonDataField(ctrl) || isMultiValued(ctrl) || isOneToOneNonInverse(ctrl)) {				
 				continue;
@@ -1119,13 +1121,15 @@ public class Container implements Serializable {
 		}
 
 		if (id == null) {
-			dbTableName = getUniqueTableName();			
+			dbTableName = getUniqueTableName();
 
+			List<String> indexCols = new ArrayList<>();
 			if (parentTableName != null) {
 				columnDefs.add(ColumnDef.get("PARENT_RECORD_ID", ColumnTypeHelper.getIntegerColType()));
+				indexCols.add("PARENT_RECORD_ID");
 			}
 			
-			createTable(jdbcDao, dbTableName, columnDefs, true);
+			createTable(jdbcDao, dbTableName, columnDefs, indexCols, true);
 		} else {
 			addTableColumns(jdbcDao, dbTableName, columnDefs);
 		}
@@ -1134,7 +1138,9 @@ public class Container implements Serializable {
 			if (ctrl instanceof MultiSelectControl) {
 				MultiSelectControl mCtrl = (MultiSelectControl)ctrl;
 				mCtrl.setTableName(getUniqueTableName());
-				createTable(jdbcDao, mCtrl.getTableName(), ctrl.getColumnDefs(), false);
+
+				List<String> indexCols = Collections.singletonList("RECORD_ID");
+				createTable(jdbcDao, mCtrl.getTableName(), ctrl.getColumnDefs(), indexCols, false);
 			} else if (ctrl instanceof SubFormControl) {
 				SubFormControl sfCtrl = (SubFormControl)ctrl;
 				sfCtrl.getSubContainer().executeDDL(jdbcDao, dbTableName);
@@ -1168,7 +1174,7 @@ public class Container implements Serializable {
 		}
 	}
 	
-	private void createTable(JdbcDao jdbcDao, String tableName, List<ColumnDef> columnDefs, boolean crtIdColumn) { 
+	private void createTable(JdbcDao jdbcDao, String tableName, List<ColumnDef> columnDefs, List<String> indexCols, boolean crtIdColumn) {
 		StringBuilder ddl = new StringBuilder();
 		ddl.append("CREATE TABLE ").append(tableName).append(" (");
 		
@@ -1182,6 +1188,12 @@ public class Container implements Serializable {
 		ddl.replace(ddl.length() - 2, ddl.length(), ")");
 		
 		jdbcDao.executeDDL(ddl.toString());
+
+		if (indexCols != null) {
+			for (String indexCol : indexCols) {
+				jdbcDao.executeDDL(String.format(CREATE_IDX_DDL, tableName, indexCol, tableName, indexCol));
+			}
+		}
 	}
 	
 	private void addTableColumns(JdbcDao jdbcDao, String tableName, List<ColumnDef> columnDefs) {
