@@ -2146,6 +2146,16 @@ var getDEJson = function (args) {
 
   var rowList = [];
   $.each(rows, function(key, value) {
+    value = value.sort(
+      function(f1, f2) {
+        if ((f1.xPos != null && f1.xPos != undefined) && (f2.xPos != null && f2.xPos != undefined)) {
+          return f1.xPos - f2.xPos;
+        } else {
+          return 1;
+        }
+      }
+    );
+
     rowList.push(value);
   })
   
@@ -2178,6 +2188,7 @@ var getNewField = function(args) {
   newField['fancyControlType'] = field.fancyControlType;
   newField['defaultValue'] = field.defaultPv
   newField['settings'] = field.settings;
+  newField['xPos'] = field.xPos;
 
   // Correcting the type properties 
   if (field.type == 'numericField') {

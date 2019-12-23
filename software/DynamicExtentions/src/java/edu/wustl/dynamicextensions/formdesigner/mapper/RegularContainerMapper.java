@@ -123,8 +123,8 @@ public class RegularContainerMapper extends ContainerMapper {
 
 		propertiesMap.put("id", container.getId());
 		propertiesMap.put("status", CSDConstants.STATUS_SAVED);
-		List<Map<String, Object>> controlPropertiesCollection = new ArrayList<Map<String, Object>>();
-		for (Control control : container.getControls()) {
+		List<Map<String, Object>> controlPropertiesCollection = new ArrayList<>();
+		for (Control control : container.getOrderedControlList()) {
 			controlPropertiesCollection.add(controlMapper.controlToProperties(control, container).getAllProperties());
 		}
 		propertiesMap.put("controlCollection", controlPropertiesCollection);

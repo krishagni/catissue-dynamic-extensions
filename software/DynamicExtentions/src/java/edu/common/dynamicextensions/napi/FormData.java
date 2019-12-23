@@ -288,7 +288,6 @@ public class FormData {
 				fieldData.put("showWhen", ctrl.getShowWhenExpr());
 			}
 
-
 			Object value = fieldValue.getValue();
 			if (value instanceof FileControlValue) {
 				FileControlValue fcv = (FileControlValue)value;
