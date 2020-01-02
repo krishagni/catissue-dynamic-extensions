@@ -79,7 +79,7 @@ public abstract class AbstractControlFactory implements ControlFactory {
 				pvVersion.setDefaultValue(pv);
 			}
 						
-			List<PvVersion> pvVersions = new ArrayList<PvVersion>();
+			List<PvVersion> pvVersions = new ArrayList<>();
 			pvVersions.add(pvVersion);			
 			pvDataSource.setPvVersions(pvVersions);
 		} else {

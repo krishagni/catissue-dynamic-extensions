@@ -22,7 +22,11 @@ import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DisableAction;
 import edu.common.dynamicextensions.domain.nui.EnableAction;
 import edu.common.dynamicextensions.domain.nui.HideAction;
+import edu.common.dynamicextensions.domain.nui.Layout;
+import edu.common.dynamicextensions.domain.nui.Page;
 import edu.common.dynamicextensions.domain.nui.PageBreak;
+import edu.common.dynamicextensions.domain.nui.PageField;
+import edu.common.dynamicextensions.domain.nui.PageRow;
 import edu.common.dynamicextensions.domain.nui.PermissibleValue;
 import edu.common.dynamicextensions.domain.nui.ShowAction;
 import edu.common.dynamicextensions.domain.nui.ShowPvAction;
@@ -88,6 +92,8 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 			emitSkipRulesStart();
 			serializeSkipRules(container.getSkipRules());
 			emitSkipRulesEnd();
+
+			serializeLayouts(container.getLayouts());
 	
 			emitContainerEnd();
 			
@@ -292,7 +298,51 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 		
 		return logicalOpStr;
 	}
-	
+
+	private void serializeLayouts(List<Layout> layouts) {
+		if (layouts == null || layouts.isEmpty()) {
+			return;
+		}
+
+		writeElementStart(writer, "layouts");
+		layouts.forEach(this::serializeLayout);
+		writeElementEnd(writer, "layouts");
+	}
+
+	private void serializeLayout(Layout layout) {
+		if (layout.getPages() == null || layout.getPages().isEmpty()) {
+			return;
+		}
+
+		writeElementStart(writer, "layout");
+		layout.getPages().forEach(this::serializePage);
+		writeElementEnd(writer, "layout");
+	}
+
+	private void serializePage(Page page) {
+		if (page.getRows() == null || page.getRows().isEmpty()) {
+			return;
+		}
+
+		writeElementStart(writer, "page");
+		page.getRows().forEach(this::serializeRow);
+		writeElementEnd(writer, "page");
+	}
+
+	private void serializeRow(PageRow row) {
+		if (row.getFields() == null || row.getFields().isEmpty()) {
+			return;
+		}
+
+		writeElementStart(writer, "pageRow");
+		row.getFields().forEach(this::serializeField);
+		writeElementEnd(writer, "pageRow");
+	}
+
+	private void serializeField(PageField field) {
+		writeElement(writer, "pageField", null, Collections.singletonMap("name", field.getCtrl().getName()));
+	}
+
 	private static String createCsvFile(
 			List<PermissibleValue> permissibleValues, 
 			String fileName, String outDir) {
