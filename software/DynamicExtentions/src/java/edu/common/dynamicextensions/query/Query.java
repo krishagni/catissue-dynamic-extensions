@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -41,6 +42,8 @@ public class Query {
     private ResultPostProc resultPostProc;
 
 	private PathConfig pathConfig;
+
+	private Map<String, String> autoJoinParams;
         
     public static Query createQuery() {
         return new Query();
@@ -93,6 +96,11 @@ public class Query {
 		this.pathConfig = pathConfig;
 		return this;
 	}
+
+	public Query autoJoinParams(Map<String, String> autoJoinParams) {
+		this.autoJoinParams = autoJoinParams;
+		return this;
+	}
   
     public void compile(String rootFormName, String query) {
         compile(rootFormName, query, null);
@@ -143,6 +151,7 @@ public class Query {
 
     public long getCount() {
         QueryGenerator gen = new QueryGenerator(false, ic, dateFormat, timeFormat);
+        gen.setAutoJoinParams(autoJoinParams);
         String countSql = gen.getCountSql(queryExpr, queryJoinTree);
 
         long t1 = System.currentTimeMillis();            
@@ -208,6 +217,7 @@ public class Query {
     
     private String getDataSql(boolean wideRows, int start, int numRows) {
         QueryGenerator gen = new QueryGenerator(wideRows, ic, dateFormat, timeFormat);
+        gen.setAutoJoinParams(autoJoinParams);
         return gen.getDataSql(queryExpr, queryJoinTree, start, numRows);        
     }
 

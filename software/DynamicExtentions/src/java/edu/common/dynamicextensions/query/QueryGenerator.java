@@ -103,6 +103,8 @@ public class QueryGenerator {
 
 	private int innerTabCount = 0;
 
+	private Map<String, String> autoJoinParams;
+
     public QueryGenerator() {
     }
     
@@ -113,8 +115,12 @@ public class QueryGenerator {
         this.timeFormat = timeFormat;
         this.dateTimeFormat = dateFormat + " " + timeFormat;
     }
-   
-    public String getCountSql(QueryExpressionNode queryExpr, JoinTree joinTree) {
+
+	public void setAutoJoinParams(Map<String, String> autoJoinParams) {
+		this.autoJoinParams = autoJoinParams;
+	}
+
+	public String getCountSql(QueryExpressionNode queryExpr, JoinTree joinTree) {
 		ensureTablesLimit(joinTree);
 
     	StringBuilder countSql = new StringBuilder();
@@ -333,6 +339,7 @@ public class QueryGenerator {
                 .append(" = ").append(parentTree.getAlias()).append(".").append(joinTree.getParentKey());
 
 			addActiveJoinCond(joinTree, from);
+			addAutoJoinCond(joinTree, from);
         } else if (joinTree.isExtensionForm() && parentTree != null) {
         	//
         	// Extension form
@@ -369,6 +376,36 @@ public class QueryGenerator {
 		if (form != null && StringUtils.isNotBlank(form.getActiveCond())) {
 			clause.append(addAnd ? " and " : "").append(tree.getAlias()).append(".").append(form.getActiveCond());
 		}
+	}
+
+	private void addAutoJoinCond(JoinTree tree, StringBuilder clause) {
+		if (tree.getForm() == null || StringUtils.isBlank(tree.getForm().getName()) || autoJoinParams == null) {
+			return;
+		}
+
+		String formName = tree.getForm().getName();
+		if (!formName.startsWith("__")) {
+			return;
+		}
+
+		StringBuilder var = new StringBuilder();
+		for (int i = 2; i < formName.length(); ++i) {
+			char ch = formName.charAt(i);
+			if (!Character.isLetterOrDigit(ch) || !Character.isLowerCase(ch)) {
+				break;
+			}
+
+			var.append(ch);
+		}
+
+		if (var.length() == 0 || autoJoinParams.get(var.toString()) == null) {
+			return;
+		}
+
+
+		String column = tree.getAlias() + "." + var.toString() + "_id";
+		String condition = column + " is null or " + column + " = " + autoJoinParams.get(var.toString());
+		clause.append(" and ").append(" (").append(condition).append(") ");
 	}
 
     private String buildWhereClause(JoinTree joinTree, Node root) {
