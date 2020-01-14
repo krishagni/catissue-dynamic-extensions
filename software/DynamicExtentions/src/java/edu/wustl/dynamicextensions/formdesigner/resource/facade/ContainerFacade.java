@@ -3,6 +3,7 @@ package edu.wustl.dynamicextensions.formdesigner.resource.facade;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +49,8 @@ public class ContainerFacade {
 	public void updateContainer(Properties containerProps) throws Exception {
 		Container containerFromUI = containerMapper.propertiesToContainer(containerProps, null);
 		container.setManagedTables(false);
+
+		containerFromUI.setLayouts(new ArrayList<>(container.getLayouts()));
 		container.editContainer(containerFromUI);
 		//containerMapper.propertiesToContainer(containerProps, container, null);
 	}
