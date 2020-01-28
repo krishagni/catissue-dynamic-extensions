@@ -49,8 +49,10 @@ public class ContainerFacade {
 	public void updateContainer(Properties containerProps) throws Exception {
 		Container containerFromUI = containerMapper.propertiesToContainer(containerProps, null);
 		container.setManagedTables(false);
+		if (container.getLayouts() != null) {
+			containerFromUI.setLayouts(new ArrayList<>(container.getLayouts()));
+		}
 
-		containerFromUI.setLayouts(new ArrayList<>(container.getLayouts()));
 		container.editContainer(containerFromUI);
 		//containerMapper.propertiesToContainer(containerProps, container, null);
 	}
