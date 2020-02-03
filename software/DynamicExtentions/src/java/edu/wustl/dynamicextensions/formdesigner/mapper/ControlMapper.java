@@ -12,17 +12,19 @@ import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.domain.nui.DatePicker.DefaultDateType;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
 import edu.common.dynamicextensions.domain.nui.Label;
-//import edu.common.dynamicextensions.domain.nui.ListBox;
 import edu.common.dynamicextensions.domain.nui.MultiSelectCheckBox;
 import edu.common.dynamicextensions.domain.nui.MultiSelectListBox;
 import edu.common.dynamicextensions.domain.nui.NumberField;
 import edu.common.dynamicextensions.domain.nui.PageBreak;
 import edu.common.dynamicextensions.domain.nui.RadioButton;
+import edu.common.dynamicextensions.domain.nui.SignatureControl;
 import edu.common.dynamicextensions.domain.nui.StringTextField;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.TextArea;
 import edu.common.dynamicextensions.domain.nui.TextField;
 import edu.wustl.dynamicextensions.formdesigner.utility.CSDConstants;
+
+//import edu.common.dynamicextensions.domain.nui.ListBox;
 
 /**
  * @author Sanjay
@@ -59,6 +61,7 @@ public class ControlMapper {
 		registerControlMapper(CSDConstants.MULTISELECT_CHECK_BOX, new MultiSelectCheckBoxMapper());
 		registerControlMapper(CSDConstants.DATE_PICKER, new DatePickerMapper());
 		registerControlMapper(CSDConstants.FILE_UPLOAD, new FileUploadMapper());
+		registerControlMapper(CSDConstants.SIGNATURE, new SignatureControlMapper());
 		registerControlMapper(CSDConstants.NOTE, new NoteMapper());
 		registerControlMapper(CSDConstants.HEADING, new HeadingMapper());
 		registerControlMapper(CSDConstants.SUB_FORM, new SubFormMapper());
@@ -100,6 +103,8 @@ public class ControlMapper {
 			type = CSDConstants.MULTISELECT_CHECK_BOX;
 		} else if (control instanceof FileUploadControl) {
 			type = CSDConstants.FILE_UPLOAD;
+		} else if (control instanceof SignatureControl) {
+			type = CSDConstants.SIGNATURE;
 		} else if (control instanceof ComboBox) {
 			type = CSDConstants.COMBO_BOX;
 		} else if (control instanceof Label) {
@@ -477,6 +482,23 @@ public class ControlMapper {
 		public Properties controlToProperties(Control control, Container container) {
 			Properties controlProps = new Properties();
 			controlProps.setProperty(CSDConstants.CONTROL_TYPE, CSDConstants.FILE_UPLOAD);
+			getCommonProperties(controlProps, control);
+			return controlProps;
+		}
+	}
+
+	private class SignatureControlMapper extends DefaultControlMapper {
+		@Override
+		public Control propertiesToControl(Properties controlProps, Container container) {
+			SignatureControl control = new SignatureControl();
+			setCommonProperties(controlProps, control);
+			return control;
+		}
+
+		@Override
+		public Properties controlToProperties(Control control, Container container) {
+			Properties controlProps = new Properties();
+			controlProps.setProperty(CSDConstants.CONTROL_TYPE, CSDConstants.SIGNATURE);
 			getCommonProperties(controlProps, control);
 			return controlProps;
 		}

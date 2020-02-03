@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
+
 public class FileUploadMgr {
 	private static FileUploadMgr instance = new FileUploadMgr();
 	
@@ -14,9 +16,19 @@ public class FileUploadMgr {
 	}
 	
 	public String saveFile(InputStream in) {
+		return saveFile(in, null);
+	}
+
+	public String saveFile(InputStream in, String extn) {
+		if (StringUtils.isNotBlank(extn)) {
+			extn = "." + extn;
+		} else {
+			extn = "";
+		}
+
 		OutputStream out = null;
 		try {			
-			String fileId = UUID.randomUUID().toString();
+			String fileId = UUID.randomUUID().toString() + extn;
 			String path = getFilePath(fileId);
 			out = new FileOutputStream(path);
 			IoUtil.copy(in, out);

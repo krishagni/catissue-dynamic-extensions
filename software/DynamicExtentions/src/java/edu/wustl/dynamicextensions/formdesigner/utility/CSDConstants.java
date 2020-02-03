@@ -16,6 +16,7 @@ public class CSDConstants {
 	public static final String MULTISELECT_CHECK_BOX = "multiselectCheckBox";
 	public static final String DATE_PICKER = "datePicker";
 	public static final String FILE_UPLOAD = "fileUpload";
+	public static final String SIGNATURE = "signature";
 	public static final String NOTE = "note";
 	public static final String HEADING = "heading";
 	public static final String LABEL = "label";

@@ -18,6 +18,7 @@ var Utility = {
     "multiselectCheckBox": "MCB", 
     "datePicker": "DP",
     "fileUpload": "FU", 
+    "signature": "SGN",
     "fancyControl": "FC", 
     "note": "N",
     "heading": "H", 
@@ -39,7 +40,7 @@ var Utility = {
   resetCarouselControlSelect : function() {
     var controlTypes = [ "stringTextField", "numericField", "textArea",
         "radioButton", "checkBox", "listBox", "multiselectBox",
-        "multiselectCheckBox", "datePicker", "fileUpload", "note",
+        "multiselectCheckBox", "datePicker", "fileUpload", "signature", "note",
         "heading", "subForm", "label", "comboBox", "fancyControl" ];
 
     for ( var cntr = 0; cntr < controlTypes.length; cntr++) {
@@ -100,28 +101,32 @@ var Utility = {
       return 11;
       break;
 
-    case "fancyControl":
+    case "signature":
       return 12;
       break;
 
-    case "note":
+    case "fancyControl":
       return 13;
       break;
 
-    case "heading":
+    case "note":
       return 14;
       break;
 
-    case "subForm":
+    case "heading":
       return 15;
       break;
 
-    case "label":
+    case "subForm":
       return 16;
       break;
 
-    case "pageBreak":
+    case "label":
       return 17;
+      break;
+
+    case "pageBreak":
+      return 18;
       break;
 
     default:
@@ -312,6 +317,18 @@ var Utility = {
       return controlModel;
   },
 
+  addSignature : function(controlModel, show, container) {
+    controlModel.set({
+      template : Templates.templateList['signatureTemplate']
+          + Templates.templateList['submitButtonTemplate']
+    });
+
+    if (show)
+      return Views.showControl(container, controlModel);
+    else
+      return controlModel;
+  },
+
   addNote : function(controlModel, show, container) {
     controlModel.set({
       template : Templates.templateList['noteTemplate']
@@ -396,6 +413,7 @@ var Utility = {
     this.addFieldHandlerMap['multiselectCheckBox'] = this.addMultiselectCheckBox;
     this.addFieldHandlerMap['datePicker'] = this.addDatePicker;
     this.addFieldHandlerMap['fileUpload'] = this.addFileUpload;
+    this.addFieldHandlerMap['signature']  = this.addSignature;
     this.addFieldHandlerMap['note'] = this.addNote;
     this.addFieldHandlerMap['heading'] = this.addHeading;
     this.addFieldHandlerMap['label'] = this.addLabel;

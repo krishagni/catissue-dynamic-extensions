@@ -1347,6 +1347,7 @@ public class Container implements Serializable {
 		xstream.alias("numberField", NumberField.class);
 		xstream.alias("stringField", StringTextField.class);
 		xstream.alias("textArea", TextArea.class);
+		xstream.alias("signature", SignatureControl.class);
 		xstream.alias("pageBreak", PageBreak.class);
 		
 		xstream.alias("validationRule", ValidationRule.class);

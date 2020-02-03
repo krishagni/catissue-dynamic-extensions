@@ -22,6 +22,7 @@ public class ControlManager {
 		registerFactory(DropdownFactory.getInstance());
 		registerFactory(DatePickerFactory.getInstance());
 		registerFactory(FileUploadFactory.getInstance());
+		registerFactory(SignatureFactory.getInstance());
 		registerFactory(ListBoxFactory.getInstance());
 		registerFactory(MultiSelectCheckboxFactory.getInstance());
 		registerFactory(RadioButtonFactory.getInstance());

@@ -31,6 +31,7 @@ import edu.common.dynamicextensions.domain.nui.LinkControl;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.PageBreak;
+import edu.common.dynamicextensions.domain.nui.SignatureControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.UserContext;
 import edu.common.dynamicextensions.domain.nui.ValidationErrors;
@@ -303,30 +304,40 @@ public class FormDataManagerImpl implements FormDataManager {
 		}
 
 		Control ctrl = form.getControl(ctrlName, "\\.");
-		if (!(ctrl instanceof FileUploadControl)) {
-			return null;
+		if (ctrl instanceof FileUploadControl) {
+			FileUploadControl fileCtrl = (FileUploadControl)ctrl;
+			String dbTable = fileCtrl.getContainer().getDbTableName();
+			String column = fileCtrl.getDbColumnName();
+
+			String query = String.format(GET_BY_FILE_ID, column + "_NAME", column + "_TYPE", dbTable, column + "_ID");
+			return JdbcDaoFactory.getJdbcDao().getResultSet(
+				query, Collections.singletonList(fileId),
+				new ResultExtractor<FileControlValue>() {
+					@Override
+					public FileControlValue extract(ResultSet rs)
+						throws SQLException {
+						if (!rs.next()) {
+							return null;
+						}
+
+						FileControlValue fcv = new FileControlValue(rs.getString(1), rs.getString(2), fileId);
+						fcv.setPath(filePath(fcv.getFileId()));
+						return fcv;
+					}
+				});
+		} else if (ctrl instanceof SignatureControl) {
+			File file = new File(filePath(fileId));
+			if (!file.exists()) {
+				return null;
+			}
+
+			String type = fileId.substring(fileId.lastIndexOf("."));
+			FileControlValue fcv = new FileControlValue(fileId, "image/" + type, fileId);
+			fcv.setPath(file.getAbsolutePath());
+			return fcv;
 		}
 
-		FileUploadControl fileCtrl = (FileUploadControl)ctrl;
-		String dbTable = fileCtrl.getContainer().getDbTableName();
-		String column = fileCtrl.getDbColumnName();
-
-		String query = String.format(GET_BY_FILE_ID, column + "_NAME", column +"_TYPE", dbTable, column + "_ID");
-		return JdbcDaoFactory.getJdbcDao().getResultSet(
-			query, Collections.singletonList(fileId),
-			new ResultExtractor<FileControlValue>() {
-				@Override
-				public FileControlValue extract(ResultSet rs)
-					throws SQLException {
-					if (!rs.next()) {
-						return null;
-					}
-
-					FileControlValue fcv = new FileControlValue(rs.getString(1), rs.getString(2), fileId);
-					fcv.setPath(filePath(fcv.getFileId()));
-					return fcv;
-				}
-			});
+		return null;
 	}
 
 	private FormData getFormData(final JdbcDao jdbcDao, final Container container, String identifyingColumn, Long recordId)

@@ -87,6 +87,12 @@ var Templates = {
 			async : false
 		}).responseText;
 		this.templateList['fileUploadTemplate'] = result;
+
+		result = $.ajax({
+			url : "../pages/templates/signature.html",
+			async : false
+		}).responseText;
+		this.templateList['signatureTemplate'] = result;
 		
 		result = $.ajax({
 			url : "../pages/templates/pvTemplate.html",

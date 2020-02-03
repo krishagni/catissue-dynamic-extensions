@@ -37,6 +37,7 @@ var ControlBizLogic = {
 		'multiselectCheckBox' : 'Multi Select Check Box',
 		'datePicker' : 'Date Picker',
 		'fileUpload' : 'File Upload',
+		'signature' : 'Signature',
 		'note' : 'Note',
 		'heading' : 'Heading',
 		'label' : 'Label',
