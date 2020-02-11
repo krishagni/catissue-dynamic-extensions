@@ -47,6 +47,7 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		ctrl.setxPos(xPos);
 		ctrl.setRecordUrl(getTextValue(ctrlEle, "recordUrl", null));
 		ctrl.setShowWhenExpr(getTextValue(ctrlEle, "showWhen", null));
+		ctrl.setHidden(getBooleanValue(ctrlEle, "hidden", false));
 		
 		String dbColumn = getTextValue(ctrlEle, "column");
 		if (dbColumn != null && !dbColumn.trim().isEmpty()) {

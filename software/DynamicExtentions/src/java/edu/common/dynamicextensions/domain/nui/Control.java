@@ -62,6 +62,8 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	private String showWhenExpr;
 
+	private boolean hidden;
+
 	private String conceptCode;
 
 	private String conceptPreferredName;
@@ -224,6 +226,14 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	public void setShowWhenExpr(String showWhenExpr) {
 		this.showWhenExpr = showWhenExpr;
+	}
+
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
 	}
 
 	public String getDbColumnName() {
@@ -475,6 +485,7 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		ctrlProps.put("conceptDefinition", getConceptDefinition());
 		ctrlProps.put("validationRules", getValidationRules());
 		ctrlProps.put("showWhen", getShowWhenExpr());
+		ctrlProps.put("hidden", isHidden());
 		
 		getProps(ctrlProps);
 		return ctrlProps;
@@ -495,6 +506,7 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		writeElement(writer, "showLabel",   showLabel());
 		writeElement(writer, "showInGrid",  showInGrid());
 		writeCDataElement(writer, "showWhen", getShowWhenExpr());
+		writeElement(writer, "hidden", isHidden());
 	}
 
 	private boolean isRuleEnabled(String ruleName) {

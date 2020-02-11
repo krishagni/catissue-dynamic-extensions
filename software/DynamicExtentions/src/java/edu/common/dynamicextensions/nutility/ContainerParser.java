@@ -446,14 +446,22 @@ public class ContainerParser {
 					continue;
 				}
 
+				Control ctrl = null;
 				Element field = (Element) hiddenFields.item(j);
 				String udn = field.getAttribute("udn");
 				if (StringUtils.isNotBlank(udn)) {
-					fields.add(udn);
+					ctrl = container.getControlByUdn(udn, ".");
+				} else {
+					String name = field.getAttribute("name");
+					if (StringUtils.isNotBlank(name)) {
+						ctrl = container.getControl(name, ".");
+					}
+				}
+
+				if (ctrl != null) {
+					ctrl.setHidden(true);
 				}
 			}
 		}
-
-		container.setHiddenFields(fields);
 	}
 }

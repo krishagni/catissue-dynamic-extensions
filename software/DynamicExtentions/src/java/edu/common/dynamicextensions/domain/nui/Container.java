@@ -95,8 +95,6 @@ public class Container implements Serializable {
 
 	private List<Layout> layouts = new ArrayList<>();
 
-	private List<String> hiddenFields = new ArrayList<>(); // mostly used in query
-		
 	private transient boolean isDto;
 		
 	private transient List<Control> addLog = new ArrayList<>();
@@ -296,14 +294,6 @@ public class Container implements Serializable {
 
 	public void setLayouts(List<Layout> layouts) {
 		this.layouts = layouts;
-	}
-
-	public List<String> getHiddenFields() {
-		return hiddenFields;
-	}
-
-	public void setHiddenFields(List<String> hiddenFields) {
-		this.hiddenFields = hiddenFields;
 	}
 
 	public Set<String> getUserDefCtrlNames() {
@@ -625,6 +615,7 @@ public class Container implements Serializable {
 		userDefCtrlNames.remove(existingControl.getUserDefinedName());
 
 		validateNameAndUdn(control);
+		existingControl.setHidden(control.isHidden());
 
 		if (control.getSequenceNumber() == 0) {
 			control.setSequenceNumber(existingControl.getSequenceNumber());
@@ -1038,16 +1029,6 @@ public class Container implements Serializable {
 
 		if (newContainer.getLayouts() != null) {
 			this.layouts.addAll(newContainer.getLayouts());
-		}
-
-		if (this.hiddenFields != null) {
-			this.hiddenFields.clear();
-		} else {
-			this.hiddenFields = new ArrayList<>();
-		}
-
-		if (newContainer.getHiddenFields() != null) {
-			this.hiddenFields.addAll(newContainer.getHiddenFields());
 		}
 	}
 
