@@ -438,7 +438,6 @@ public class ContainerParser {
 	}
 
 	private void parseAndSetHiddenFields(Container container, NodeList nodes) {
-		List<String> fields = new ArrayList<>();
 		for (int i = 0; i < nodes.getLength(); ++i) {
 			NodeList hiddenFields = ((Element) nodes.item(i)).getElementsByTagName("field");
 			for (int j = 0; j < hiddenFields.getLength(); ++j) {
@@ -450,11 +449,11 @@ public class ContainerParser {
 				Element field = (Element) hiddenFields.item(j);
 				String udn = field.getAttribute("udn");
 				if (StringUtils.isNotBlank(udn)) {
-					ctrl = container.getControlByUdn(udn, ".");
+					ctrl = container.getControlByUdn(udn, "\\.");
 				} else {
 					String name = field.getAttribute("name");
 					if (StringUtils.isNotBlank(name)) {
-						ctrl = container.getControl(name, ".");
+						ctrl = container.getControl(name, "\\.");
 					}
 				}
 
