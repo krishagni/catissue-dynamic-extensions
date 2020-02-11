@@ -101,7 +101,12 @@ public class ContainerParser {
 		if (nodes != null && nodes.getLength() == 1) {
 			parseAndSetLayouts(container, (Element) nodes.item(0));
 		}
-		
+
+		nodes = doc.getElementsByTagName("hiddenFields");
+		if (nodes != null && nodes.getLength() > 0) {
+			parseAndSetHiddenFields(container, nodes);
+		}
+
 		updateCalculatedSourceControls(container, container);
 		return container;
 	}
@@ -198,7 +203,7 @@ public class ContainerParser {
 			String ctrlName = ctrlEle.getNodeName();
 			ControlFactory factory = ControlManager.getInstance().getFactory(ctrlName);
 			if (factory == null) {
-				throw new IllegalArgumentException("Invalid contro type: " + ctrlName);
+				throw new IllegalArgumentException("Invalid control type: " + ctrlName);
 			}
 			
 			controls.add(factory.parseControl(ctrlEle, currentRow, xpos, props));
@@ -430,5 +435,25 @@ public class ContainerParser {
 		PageRow pageRow = new PageRow();
 		pageRow.setFields(fields);
 		return pageRow;
+	}
+
+	private void parseAndSetHiddenFields(Container container, NodeList nodes) {
+		List<String> fields = new ArrayList<>();
+		for (int i = 0; i < nodes.getLength(); ++i) {
+			NodeList hiddenFields = ((Element) nodes.item(i)).getElementsByTagName("field");
+			for (int j = 0; j < hiddenFields.getLength(); ++j) {
+				if (hiddenFields.item(j).getNodeType() != Node.ELEMENT_NODE) {
+					continue;
+				}
+
+				Element field = (Element) hiddenFields.item(j);
+				String udn = field.getAttribute("udn");
+				if (StringUtils.isNotBlank(udn)) {
+					fields.add(udn);
+				}
+			}
+		}
+
+		container.setHiddenFields(fields);
 	}
 }

@@ -70,7 +70,7 @@ public abstract class Control implements Comparable<Control>, Serializable {
 
 	private String conceptDefinition;
 
-	private Set<ValidationRule> validationRules = new HashSet<ValidationRule>();
+	private Set<ValidationRule> validationRules = new HashSet<>();
 
 	private Container container;
 	
