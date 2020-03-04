@@ -16,6 +16,7 @@ import com.google.gson.reflect.TypeToken;
 
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
+import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.domain.nui.FileUploadControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
@@ -286,6 +287,10 @@ public class FormData {
 			fieldData.put("type", ctrl.getCtrlType());
 			if (StringUtils.isNotBlank(ctrl.getShowWhenExpr())) {
 				fieldData.put("showWhen", ctrl.getShowWhenExpr());
+			}
+
+			if (ctrl instanceof DatePicker) {
+				fieldData.put("format", ((DatePicker) ctrl).getFormat());
 			}
 
 			Object value = fieldValue.getValue();
