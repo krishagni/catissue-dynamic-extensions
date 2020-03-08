@@ -83,9 +83,29 @@ public class WideRowUtil {
 			} else if (rightNode.isAncestorOf(leftNode)) {
 				return leftTabAlias;
 			} else {
-				JoinTree commonAncestor = rootNode.getCommonAncestor(leftNode, rightNode);
-				return new String[] {commonAncestor.getAlias(), commonAncestor.getForm().getPrimaryKey()};
-			}    			
-		}    	
+				JoinTree leftAncestor  = getTopLevelForm(leftNode);
+				JoinTree rightAncestor = getTopLevelForm(rightNode);
+				if (leftAncestor.isAncestorOf(rightAncestor)) {
+					return rightTabAlias;
+				} else if (rightAncestor.isAncestorOf(leftAncestor)) {
+					return leftTabAlias;
+				} else {
+					JoinTree commonAncestor = rootNode.getCommonAncestor(leftNode, rightNode);
+					return new String[] {commonAncestor.getAlias(), commonAncestor.getForm().getPrimaryKey()};
+				}
+			}
+		}
     }
+
+    private static JoinTree getTopLevelForm(JoinTree tree) {
+    	if (tree.getParent() == null) {
+    		return tree;
+		}
+
+    	if (tree.isSubForm() || tree.isNonTopLevelExtensionForm()) {
+    		return getTopLevelForm(tree.getParent());
+		}
+
+    	return tree;
+	}
 }
