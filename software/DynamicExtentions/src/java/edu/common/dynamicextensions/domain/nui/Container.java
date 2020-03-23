@@ -60,6 +60,8 @@ public class Container implements Serializable {
 	private static final String primaryKeyCtrlName = "_?primary_key?_";
 
 	private static final String CREATE_IDX_DDL = "create index %s_%sX on %s(%s)";
+
+	private static final String ADD_FK = "alter table %s add constraint %s foreign key (%s) references %s(%s)";
 			
 	private Long id;
 	
@@ -1195,6 +1197,8 @@ public class Container implements Serializable {
 				jdbcDao.executeDDL(String.format(CREATE_IDX_DDL, tableName, indexCol, tableName, indexCol));
 			}
 		}
+
+		addFks(jdbcDao, tableName, columnDefs);
 	}
 	
 	private void addTableColumns(JdbcDao jdbcDao, String tableName, List<ColumnDef> columnDefs) {
@@ -1211,6 +1215,21 @@ public class Container implements Serializable {
 		ddl.append(")");
 		
 		jdbcDao.executeDDL(ddl.toString());
+		addFks(jdbcDao, tableName, columnDefs);
+	}
+
+	private void addFks(JdbcDao jdbcDao, String tableName, List<ColumnDef> columnDefs) {
+		for (ColumnDef def : columnDefs) {
+			if (def.getRefTable() == null || def.getRefColumn() == null) {
+				continue;
+			}
+
+			jdbcDao.executeDDL(String.format(
+				ADD_FK, tableName, "FK_" + tableName + "_" + def.getColumnName(), def.getColumnName(),
+				def.getRefTable(), def.getRefColumn()
+			));
+		}
+
 	}
 	
 	private void add(List<Control> list, Control ctrl) {

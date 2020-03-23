@@ -9,6 +9,10 @@ public class ColumnDef implements Serializable {
 	private String columnName;
 	
 	private String dbType;
+
+	private String refTable;
+
+	private String refColumn;
 	
 	public static ColumnDef get(String columnName, String dbType) {
 		ColumnDef columnDef = new ColumnDef();
@@ -31,5 +35,21 @@ public class ColumnDef implements Serializable {
 
 	public void setDbType(String dbType) {
 		this.dbType = dbType;
+	}
+
+	public String getRefTable() {
+		return refTable;
+	}
+
+	public void setRefTable(String refTable) {
+		this.refTable = refTable;
+	}
+
+	public String getRefColumn() {
+		return refColumn;
+	}
+
+	public void setRefColumn(String refColumn) {
+		this.refColumn = refColumn;
 	}
 }

@@ -42,7 +42,10 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 
 	@Override
 	public List<ColumnDef> getColumnDefs() {
-		return Collections.singletonList(ColumnDef.get(getDbColumnName(), ColumnTypeHelper.getIntegerColType()));
+		ColumnDef def = ColumnDef.get(getDbColumnName(), ColumnTypeHelper.getIntegerColType());
+		def.setRefTable(getTableName());
+		def.setRefColumn(getLookupKey());
+		return Collections.singletonList(def);
 	}
 
 	@SuppressWarnings("unchecked")
