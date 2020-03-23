@@ -106,6 +106,7 @@ public class RegularContainerMapper extends ContainerMapper {
 		Map<String, Object> propertiesMap = new HashMap<String, Object>();
 		propertiesMap.put("formName", container.getName());
 		propertiesMap.put("caption", container.getCaption());
+		propertiesMap.put("deletedCtrls", container.getDeletedCtrls().size());
 		// get from api
 		AppUserContextProvider userContextProvider = CSDProperties.getInstance().getUserContextProvider();
 		Long createdBy = container.getCreatedBy();

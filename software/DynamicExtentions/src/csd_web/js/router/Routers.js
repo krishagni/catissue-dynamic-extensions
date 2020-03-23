@@ -286,6 +286,10 @@ var Routers = {
 
     loadControlsInModelAndTree : function(model) {
       var formModel = Main.formView.getFormModel();
+      if (GlobalMemory.nodeCounter == 2) {
+        GlobalMemory.nodeCounter = 2 + model.get('deletedCtrls');
+      }
+
       for (var i = 0; i < model.get('controlCollection').length; i++) {
         var control = new Models.Field(model.get('controlCollection')[i]);
         this.populateModelWithControls(formModel, control, false);
@@ -337,6 +341,7 @@ var Routers = {
     populateTreeWithControlNodes : function(parentId, control) {
       var tree =  Main.treeView.getTree();
       var id = GlobalMemory.nodeCounter++;
+
       var label = $("<span/>").text(control.get('caption') + " (" + control.get('userDefinedName') + ")").html();
       tree.insertNewChild(parentId, id, label, 0, 0, 0, 0);
       tree.setUserData(id, "controlName", control.get('controlName'));
