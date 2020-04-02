@@ -139,7 +139,8 @@ public class WideRowNode implements Serializable {
         				throw new RuntimeException("Unexpected scenario: child node is null");
         			}
         			
-        			addEmptyChildRows(tabFieldsMap, maxRowCntMap, childNode.alias, childNode.getAliases(false), row, rowCount, maxCount);        				
+        			// addEmptyChildRows(tabFieldsMap, maxRowCntMap, childNode.alias, childNode.getAliases(false), row, rowCount, maxCount);
+					addEmptyChildRows(childTabRows.getValue(), maxRowCntMap, tabWideRowMode, tabFieldsMap, row, rowCount, maxCount);
         			currentRows.add(row);
     			}
     		}
@@ -149,59 +150,85 @@ public class WideRowNode implements Serializable {
     	
     	return rows;
     }
-        
-    private Set<String> getAliases(boolean incThisNodeAlias) {   	
-		Set<String> aliases = new HashSet<>();
-		if (incThisNodeAlias) {
-			aliases.add(alias);
-		}
-		
-		for (Map<String, WideRowNode> childrenRows : childrenRowsMap.values()) {
-			for (Map.Entry<String, WideRowNode> wideRow : childrenRows.entrySet()) {
-				if (wideRow.getValue() != null) {
-					aliases.addAll(wideRow.getValue().getAliases(true));
-					break;
-				}
-			}
-		}
 
-		return aliases;
-    }
-    
-    private void addEmptyChildRows(
-    		Map<String, List<ExpressionNode>> tabFieldsMap,
-    		Map<String, Integer> maxRowCntMap,    		
-    		String alias, Set<String> childAliases,    		
-    		List<ResultColumn> parentRow, 
-    		int from, int to) {
-    	
-		List<ResultColumn> childColumns = new ArrayList<ResultColumn>();
-		for (String childAlias : childAliases) {
-			List<ExpressionNode> fields = tabFieldsMap.get(childAlias);
-			if (fields == null) {
-				continue;
-			}
+	private void addEmptyChildRows(
+		Map<String, WideRowNode> tabRow,
+		Map<String, Integer> maxRowCntMap,
+		Map<String, WideRowMode> tabWideRowMode,
+		Map<String, List<ExpressionNode>> tabFieldsMap,
+		List<ResultColumn> parentRow,
+		int from, int to) {
 
-			Integer maxRowCnt = maxRowCntMap.get(childAlias);
-			if (maxRowCnt == null) {
-				maxRowCnt = 0;
-			}
+		WideRowNode node = tabRow.values().iterator().next();
+		List<List<ResultColumn>> rows = node.flatten(maxRowCntMap, tabWideRowMode, tabFieldsMap);
 
-			addChildRows(childColumns, getResultColumns(fields), 0, maxRowCnt);
+		List<ResultColumn> childRows = new ArrayList<>();
+		for (ResultColumn column : rows.get(0)) {
+			childRows.add(new ResultColumn(column.getExpression(), 0));
 		}
 
-		List<ResultColumn> mainColumns = new ArrayList<ResultColumn>();
-		List<ExpressionNode> fields = tabFieldsMap.get(alias);
-		if (fields != null) {
-			mainColumns = getResultColumns(fields);
-		}
-
-		if (!childColumns.isEmpty()) {
-			addChildRow(mainColumns, childColumns);
-		}
-
-		addChildRows(parentRow, mainColumns, from, to);
+		addChildRows(parentRow, childRows, from, to);
 	}
+
+	//
+	// TODO: Apr 02, 2020: Remove this block of code after COVID-19 crisis is resolved!
+	// TODO: Apr 02, 2020: On a more serious note, remove this after couple of releases (7.0, 7.1, 7.2 etc)
+	//
+
+	// TODO: START
+//	private Set<String> getAliases(boolean incThisNodeAlias) {
+//		Set<String> aliases = new HashSet<>();
+//		if (incThisNodeAlias) {
+//			aliases.add(alias);
+//		}
+//
+//		for (Map<String, WideRowNode> childrenRows : childrenRowsMap.values()) {
+//			for (Map.Entry<String, WideRowNode> wideRow : childrenRows.entrySet()) {
+//				if (wideRow.getValue() != null) {
+//					aliases.addAll(wideRow.getValue().getAliases(true));
+//					break;
+//				}
+//			}
+//		}
+//
+//		return aliases;
+//    }
+//
+//    private void addEmptyChildRows(
+//    		Map<String, List<ExpressionNode>> tabFieldsMap,
+//    		Map<String, Integer> maxRowCntMap,
+//    		String alias, Set<String> childAliases,
+//    		List<ResultColumn> parentRow,
+//    		int from, int to) {
+//
+//		List<ResultColumn> childColumns = new ArrayList<ResultColumn>();
+//		for (String childAlias : childAliases) {
+//			List<ExpressionNode> fields = tabFieldsMap.get(childAlias);
+//			if (fields == null) {
+//				continue;
+//			}
+//
+//			Integer maxRowCnt = maxRowCntMap.get(childAlias);
+//			if (maxRowCnt == null) {
+//				maxRowCnt = 0;
+//			}
+//
+//			addChildRows(childColumns, getResultColumns(fields), 0, maxRowCnt);
+//		}
+//
+//		List<ResultColumn> mainColumns = new ArrayList<ResultColumn>();
+//		List<ExpressionNode> fields = tabFieldsMap.get(alias);
+//		if (fields != null) {
+//			mainColumns = getResultColumns(fields);
+//		}
+//
+//		if (!childColumns.isEmpty()) {
+//			addChildRow(mainColumns, childColumns);
+//		}
+//
+//		addChildRows(parentRow, mainColumns, from, to);
+//	}
+	// TODO: END
     
 	private Comparator<ResultColumn> getPosBasedComparator() {
 		return new Comparator<ResultColumn>() {

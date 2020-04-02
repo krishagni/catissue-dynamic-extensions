@@ -97,13 +97,14 @@ public class ShallowWideRowGenerator {
                         String id = "-1";
                         if (tabAliasIdMap.containsKey(joinNodes[j])) {
                         	id = tabAliasIdMap.get(joinNodes[j]);
+                        	id = joinNodes[j] + ":" + (id != null ? id : "null");
                         }
                         
                         WideRowNode childRow = childTabRows.get(id);
                         if (childRow == null) {
                             childRow = new WideRowNode(joinNodes[j], id);
                             childRow.setColumns(tabAliasColValuesMap.get(joinNodes[j]));
-                            childTabRows.put(id, childRow);                            
+                            childTabRows.put(id, childRow);
                         }
                         
                         wideRow = childRow;
