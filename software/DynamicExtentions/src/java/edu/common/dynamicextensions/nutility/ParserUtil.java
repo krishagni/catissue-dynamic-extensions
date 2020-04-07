@@ -114,6 +114,8 @@ public class ParserUtil {
 				
 				PermissibleValue pv = new PermissibleValue();
 				pv.setValue(getTextValue(optionEle, "value"));
+				pv.setShowWhen(getTextValue(optionEle, "showWhen"));
+				pv.setNumericCode(getLongValue(optionEle, "numericCode"));
 //				pv.setOptionName(pv.getValue());
 				
 				if (pv.getValue() != null) {
@@ -138,7 +140,21 @@ public class ParserUtil {
 
 			while ((option = csvReader.readNext()) != null) {
 				PermissibleValue pv = new PermissibleValue();
-				pv.setValue(option[0].isEmpty() ? null : option[0]);
+				if (option[0].isEmpty()) {
+					pv.setValue(null);
+				} else {
+					int idx = option[0].indexOf("##:");
+					if (idx != -1) {
+						pv.setNumericCode(Long.parseLong(option[0].substring(0, idx)));
+						pv.setValue(option[0].substring(idx + 3));
+					} else {
+						pv.setValue(option[0]);
+					}
+				}
+
+				if (option.length > 1 && option[1] != null && !option[1].isEmpty()) {
+					pv.setShowWhen(option[1]);
+				}
 //				pv.setOptionName(pv.getValue());				
 				pvs.add(pv);
 			}

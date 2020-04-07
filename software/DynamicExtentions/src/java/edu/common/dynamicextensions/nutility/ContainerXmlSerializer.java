@@ -134,8 +134,11 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 		} else {
 			for (PermissibleValue pv : pvs){
 				writeElementStart(writer, "option");
-				
+
+				writeElement(writer, "numericCode", pv.getNumericCode());
 				writeCDataElement(writer, "value", pv.getValue());
+				writeCDataElement(writer, "showWhen", pv.getShowWhen());
+
 				writeElementEnd(writer,"option");
 
 			}
@@ -364,7 +367,12 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 			
 			for(PermissibleValue pv : permissibleValues) {
 				String val = pv.getValue() != null ? pv.getValue() : "";
-				String[] pvDetails = {val};
+				if (pv.getNumericCode() != null) {
+					val = pv.getNumericCode().toString() + "##:" + val;
+				}
+
+				String showWhen = pv.getShowWhen() != null ? pv.getShowWhen() : "";
+				String[] pvDetails = {val, showWhen};
 				csvWriter.writeNext(pvDetails);
 			}
 			

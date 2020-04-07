@@ -16,6 +16,8 @@ public class PermissibleValue  implements Comparable<PermissibleValue>, Serializ
 	private String conceptCode;
 	
 	private String value;
+
+	private String showWhen;
 	
 	public String getOptionName() {
 		return optionName;
@@ -56,7 +58,15 @@ public class PermissibleValue  implements Comparable<PermissibleValue>, Serializ
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
+
+	public String getShowWhen() {
+		return showWhen;
+	}
+
+	public void setShowWhen(String showWhen) {
+		this.showWhen = showWhen;
+	}
+
 	public String toString() {
 		return value;
 	}
@@ -70,6 +80,7 @@ public class PermissibleValue  implements Comparable<PermissibleValue>, Serializ
 		result = prime * result	+ ((definitionSource == null) ? 0 : definitionSource.hashCode());
 		result = prime * result	+ ((conceptCode == null) ? 0 : conceptCode.hashCode());
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		result = prime * result + ((showWhen == null) ? 0 : showWhen.hashCode());
 		return result;
 	}
 
@@ -89,7 +100,8 @@ public class PermissibleValue  implements Comparable<PermissibleValue>, Serializ
 			(numericCode != null && !numericCode.equals(other.numericCode)) ||
 			!StringUtils.equals(definitionSource, other.definitionSource) ||
 			!StringUtils.equals(conceptCode, other.conceptCode) ||
-			!StringUtils.equals(value, other.value)) {
+			!StringUtils.equals(value, other.value) ||
+		    !StringUtils.equals(showWhen, other.showWhen)) {
 			return false;
 		}
 

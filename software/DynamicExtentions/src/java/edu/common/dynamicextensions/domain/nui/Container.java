@@ -1224,12 +1224,15 @@ public class Container implements Serializable {
 				continue;
 			}
 
-			jdbcDao.executeDDL(String.format(
-				ADD_FK, tableName, "FK_" + tableName + "_" + def.getColumnName(), def.getColumnName(),
-				def.getRefTable(), def.getRefColumn()
-			));
+			try {
+				jdbcDao.executeDDL(String.format(
+					ADD_FK, tableName, "FK_" + tableName + "_" + def.getColumnName(), def.getColumnName(),
+					def.getRefTable(), def.getRefColumn()
+				));
+			} catch (Throwable t) {
+				logger.error("Error adding foreign key", t);
+			}
 		}
-
 	}
 	
 	private void add(List<Control> list, Control ctrl) {
