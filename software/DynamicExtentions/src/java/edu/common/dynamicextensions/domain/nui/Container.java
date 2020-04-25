@@ -632,17 +632,48 @@ public class Container implements Serializable {
 			control.setId(existingControl.getId());
 			control.setDbColumnName(existingControl.getDbColumnName());			
 			add(addLog, control);
-		} else if (!existingControl.getClass().getName().equals(control.getClass().getName())) { 
+		} else if (!existingControl.getClass().getName().equals(control.getClass().getName())) {
 			//
-			// the control type got changed -> remove old + add new
+			// control type got changed...
 			//
-			control.setId(++ctrlId);
-			if (!(control instanceof MultiSelectControl) && !isManagedTables()) {	// For MSCtrls Column name is "VALUE"
-				control.setDbColumnName(String.format(columnNameFmt, ctrlId)); 	    // Set DB name here
+			if (isManagedTables()) {
+				//
+				// we allow arbitrary change for the managed tables
+				//
+				control.setId(++ctrlId);
+				if (!(control instanceof MultiSelectControl) && !isManagedTables()) {	// For MSCtrls Column name is "VALUE"
+					control.setDbColumnName(String.format(columnNameFmt, ctrlId)); 	    // Set DB name here
+				}
+
+				add(delLog, existingControl);
+				add(addLog, control);
+			} else if ((existingControl instanceof RadioButton && control instanceof ComboBox) ||
+				(existingControl instanceof ComboBox && control instanceof RadioButton) ||
+				(existingControl instanceof MultiSelectControl && control instanceof MultiSelectControl)) {
+
+				//
+				// only following change is allowed:
+				// radio button to dropdown and vice-versa
+				// check box to multi-select dropdown and vice-versa
+				//
+
+				control.setId(existingControl.getId());
+				control.setDbColumnName(existingControl.getDbColumnName());
+				control.setContainer(this);
+
+				if (existingControl instanceof MultiSelectControl) {
+					MultiSelectControl existingMsCtrl = (MultiSelectControl)existingControl;
+					MultiSelectControl newMsCtrl = (MultiSelectControl)control;
+					newMsCtrl.setTableName(existingMsCtrl.getTableName());
+				}
+
+				add(editLog, control);
+			} else {
+				throw new RuntimeException(
+					"Changing field type from " +
+					existingControl.getCtrlType() + " to " + control.getCtrlType() +
+					" is not allowed");
 			}
-			
-			add(delLog, existingControl);			
-			add(addLog, control);
 		} else {
 			//
 			// saved control is edited
