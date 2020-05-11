@@ -183,6 +183,17 @@ public class PvMapper {
 		if (value != null) {
 			pv.setValue(value.trim());
 		}
+
+		Long numericCode = properties.getLong("numericCode");
+		if (numericCode != null) {
+			pv.setNumericCode(numericCode);
+		}
+
+		String showWhen = properties.getString("showWhen");
+		if (showWhen != null) {
+			pv.setShowWhen(showWhen);
+		}
+
 		return pv;
 	}
 
@@ -225,6 +236,10 @@ public class PvMapper {
 		pvProperties.put("conceptCode", pv.getConceptCode() == null ? "" : pv.getConceptCode());
 		pvProperties.put("definitionSource", pv.getDefinitionSource() == null ? "" : pv.getDefinitionSource());
 		pvProperties.put("definition", pv.getOptionName() == null ? "" : pv.getOptionName());
+		if (pv.getShowWhen() != null) {
+			pvProperties.put("showWhen", pv.getShowWhen());
+		}
+
 		return pvProperties;
 	}
 
