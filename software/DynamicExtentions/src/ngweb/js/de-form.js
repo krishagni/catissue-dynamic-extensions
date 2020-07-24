@@ -50,10 +50,16 @@ edu.common.de.RangeValidator = function(field, dataEl, params) {
 
     var number = Number(val);
     if ($.isNumeric(params.min) && number < Number(params.min)) {
-      edu.common.de.Utility.highlightError(field.inputEl, "This field value is too less");
+      edu.common.de.Utility.highlightError(
+        field.inputEl,
+        "This field value is smaller than the permitted min. value: " + params.min
+      );
       return false;
     } else if ($.isNumeric(params.max) && number > Number(params.max)) {
-      edu.common.de.Utility.highlightError(field.inputEl, "This field value is too more");
+      edu.common.de.Utility.highlightError(
+        field.inputEl,
+        "This field value is larger than the permitted max. value: " + params.max
+      );
       return false;
     } else {
       edu.common.de.Utility.unHighlightError(field.inputEl);
@@ -2766,15 +2772,15 @@ edu.common.de.Signature = function(id, field, args) {
     this.imageEl = $('<img/>');
 
     this.removeBtn = $('<button/>')
-      .append($('<span/>').append('remove'))
+      .append($('<span/>').append('Remove Signature'))
       .addClass('reset');
 
     this.saveBtn = $('<button/>')
-      .append($('<span/>').append('save'))
+      .append($('<span/>').append('Save Signature'))
       .addClass('edit');
 
     this.clearBtn = $('<button/>')
-      .append($('<span/>').append('clear'))
+      .append($('<span/>').append('Clear Signature'))
       .addClass('edit');
 
     var buttons = $('<div/>').addClass('actions')
