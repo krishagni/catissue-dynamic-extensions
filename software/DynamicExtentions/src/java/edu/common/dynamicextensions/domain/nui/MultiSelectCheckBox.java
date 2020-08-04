@@ -150,7 +150,7 @@ public class MultiSelectCheckBox extends SelectControl implements MultiSelectCon
 		}
 
 		if (value.getClass().isArray()) {
-			return String.join(",", (String[])value);
+			return String.join(", ", (String []) value);
 		}
 
 		//

@@ -122,7 +122,7 @@ public class MultiSelectListBox extends ListBox implements MultiSelectControl, S
 		}
 
 		if (value.getClass().isArray()) {
-			return String.join(",", (String[])value);
+			return String.join(", ", (String []) value);
 		}
 
 		//
