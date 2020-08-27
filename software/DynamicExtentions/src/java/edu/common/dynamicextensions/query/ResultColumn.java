@@ -74,6 +74,10 @@ public class ResultColumn implements Serializable {
 	public String getColumnExpr() { return getColumnExpr(null); }
 
 	public String getColumnExpr(ResultColumnLabelFormatter formatter) {
+		if (columnExpr.getLabel() != null && columnExpr.getLabel().startsWith("$")) {
+			return format(formatter, new String[] { columnExpr.getLabel() }, instance);
+		}
+
 		String[] labels = {columnExpr.getAql()};
 		return format(formatter, labels, instance);
 	}
