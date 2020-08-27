@@ -242,10 +242,14 @@ public class WideRowNode implements Serializable {
 	private int getFirstElementPos(List<ResultColumn> columns) {
 		return columns.get(0).getExpression().getPos();
 	}
-	
+
 	private int getIndexToInsert(List<ResultColumn> columns, int pos) {
 		int idx = 0;
 		for (ResultColumn rc : columns) {
+			if (rc.getExpression().getLabel() != null && rc.getExpression().getLabel().startsWith("$")) {
+				continue;
+			}
+
 			if (rc.getExpression().getPos() >= pos) {
 				break;
 			}
