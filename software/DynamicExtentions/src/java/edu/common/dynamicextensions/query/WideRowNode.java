@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 
 public class WideRowNode implements Serializable {	
@@ -246,11 +248,8 @@ public class WideRowNode implements Serializable {
 	private int getIndexToInsert(List<ResultColumn> columns, int pos) {
 		int idx = 0;
 		for (ResultColumn rc : columns) {
-			if (rc.getExpression().getLabel() != null && rc.getExpression().getLabel().startsWith("$")) {
-				continue;
-			}
-
-			if (rc.getExpression().getPos() >= pos) {
+			ExpressionNode expr = rc.getExpression();
+			if ((expr.getLabel() == null || !expr.getLabel().startsWith("$")) && expr.getPos() >= pos) {
 				break;
 			}
 			
