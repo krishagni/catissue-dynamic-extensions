@@ -8,7 +8,7 @@ import java.util.Map;
 import edu.common.dynamicextensions.domain.nui.Container;
 
 public class ContainerCache {
-	private static final int MAX_ELEMENTS = 50;
+	private static final int MAX_ELEMENTS = 100;
 	
 	private static final ContainerCache instance = new ContainerCache();
 	
@@ -18,14 +18,18 @@ public class ContainerCache {
 				
 				@Override
 				public boolean removeEldestEntry(Map.Entry<Long, Container> eldest) {
-					return size() > MAX_ELEMENTS;
+					if (size() > MAX_ELEMENTS) {
+						nameToIdsMap.remove(eldest.getValue().getName());
+						return true;
+					} else {
+						return false;
+					}
 				}
-				
 			});
+
+	private Map<String, Long> nameToIdsMap = Collections.synchronizedMap(new LinkedHashMap<>());
 	
-	private ContainerCache() {
-		
-	}
+	private ContainerCache() { }
 	
 	public static ContainerCache getInstance() {
 		return instance;
@@ -34,18 +38,25 @@ public class ContainerCache {
 	public Container get(Long id) {
 		return cacheMap.get(id);
 	}
+
+	public Container get(String name) {
+		Long id = nameToIdsMap.get(name);
+		return id != null ? get(id) : null;
+	}
 	
-	public Container put(Long id, Container container) {
-		if (id == null || container == null) {
-			return null;
+	public Container put(Container container) {
+		if (container == null || container.getId() == null) {
+			return container;
 		}
-		
-		return cacheMap.put(id, container);
+
+		cacheMap.put(container.getId(), container);
+		nameToIdsMap.put(container.getName(), container.getId());
+		return container;
 	}
 
 	public void clear() {
+		nameToIdsMap.clear();
 		cacheMap.clear();
-		
 	}
 
 	public boolean isEmpty() {
@@ -53,7 +64,17 @@ public class ContainerCache {
 	}
 
 	public Container remove(Long id) {
-		return cacheMap.remove(id);
+		Container form = cacheMap.remove(id);
+		if (form != null) {
+			nameToIdsMap.remove(form.getName());
+		}
+
+		return form;
+	}
+
+	public Container remove(String name) {
+		Long id = nameToIdsMap.remove(name);
+		return id != null ? cacheMap.remove(id) : null;
 	}
 
 	public int size() {

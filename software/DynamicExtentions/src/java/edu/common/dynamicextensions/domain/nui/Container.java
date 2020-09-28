@@ -442,16 +442,10 @@ public class Container implements Serializable {
 	}
 
 	public List<Container> getSubContainers() {
-		List<Container> containers = new ArrayList<Container>();
-		
-		for (Control ctrl : controlsMap.values()) {
-			if (ctrl instanceof SubFormControl) {
-				SubFormControl sfCtrl = (SubFormControl)ctrl;
-				containers.add(sfCtrl.getSubContainer());
-			}
-		}
-		
-		return containers;
+		return controlsMap.values().stream()
+			.filter(ctrl -> ctrl instanceof SubFormControl)
+			.map(ctrl -> ((SubFormControl) ctrl).getSubContainer())
+			.collect(Collectors.toList());
 	}
 	
 	public Collection<List<Control>> getControlsGroupedByRow() {
@@ -890,6 +884,7 @@ public class Container implements Serializable {
 
 		boolean deleted = new ContainerDao(JdbcDaoFactory.getJdbcDao()).delete(id, softDelete);
 		if (deleted) {
+			ContainerCache.getInstance().remove(container.getId());
 			FormEventsNotifier.getInstance().notifyDelete(container);
 		}
 
@@ -903,11 +898,19 @@ public class Container implements Serializable {
 	public static Container getContainer(JdbcDao jdbcDao, Long id) {
 		long t1 = Calendar.getInstance().getTimeInMillis();
 		Container container = null;
-		try {						
-			ContainerDao containerDao = new ContainerDao(jdbcDao);
-			container = containerDao.getById(id);
-			return container;
+		try {
+			container = ContainerCache.getInstance().get(id);
+			if (container == null) {
+				// not present in cache, hit the database
+				ContainerDao containerDao = new ContainerDao(jdbcDao);
+				container = containerDao.getById(id);
+				if (container != null) {
+					// cache the form for future use
+					ContainerCache.getInstance().put(container);
+				}
+			}
 
+			return container;
 		} catch (IllegalArgumentException iae) {
 			throw new IllegalArgumentException("Error obtaining container: " + id + ". " + iae.getMessage(), iae);
 		} catch (Exception e) {
@@ -925,9 +928,19 @@ public class Container implements Serializable {
 	
 	public static Container getContainer(JdbcDao jdbcDao, String name) {
 		long t1 = Calendar.getInstance().getTimeInMillis();
+
+		Container container = null;
 		try {
-			ContainerDao containerDao = new ContainerDao(jdbcDao);
-			return containerDao.getByName(name);
+			container = ContainerCache.getInstance().get(name);
+			if (container == null) {
+				ContainerDao containerDao = new ContainerDao(jdbcDao);
+				container = containerDao.getByName(name);
+				if (container != null) {
+					ContainerCache.getInstance().put(container);
+				}
+			}
+
+			return container;
 		} catch (IllegalArgumentException iae) {
 			throw new IllegalArgumentException("Error obtaining container: " + name + ". " + iae.getMessage(), iae);
 		} catch (Exception e) {
@@ -978,7 +991,7 @@ public class Container implements Serializable {
 		Container parsedContainer = parser.parse();
 		return createContainer(ctxt, parsedContainer, createTables);
 	}
-				
+
 	public static Long createContainer(UserContext ctxt, Container parsedContainer, boolean createTables) {
 		Container existingContainer = null;		
 		if (parsedContainer.getId() != null) {
