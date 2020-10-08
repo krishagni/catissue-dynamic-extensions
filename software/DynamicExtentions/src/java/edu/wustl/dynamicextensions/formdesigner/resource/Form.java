@@ -57,8 +57,6 @@ public class Form {
 
 	@Autowired
 	private HttpServletRequest request;
-	
-	private static final String CONTAINER_SESSION_ATTR = "sessionContainer";
 
 	private static AtomicInteger formCnt = new AtomicInteger();
 
@@ -72,8 +70,6 @@ public class Form {
 			UserContext userData = CSDProperties.getInstance().getUserContextProvider().getUserContext(request);
 			
 			ContainerFacade containerFacade = ContainerFacade.createContainer(formProps, userData);
-			request.getSession().removeAttribute(CONTAINER_SESSION_ATTR);
-			request.getSession().setAttribute(CONTAINER_SESSION_ATTR, containerFacade);
 			String save = formProps.getString("save");
 
 			if (save.equalsIgnoreCase("yes")) {
@@ -112,8 +108,6 @@ public class Form {
 			txn = TransactionManager.getInstance().startTxn();
 			UserContext userData = CSDProperties.getInstance().getUserContextProvider().getUserContext(request);
 			ContainerFacade container = ContainerFacade.loadContainer(Long.valueOf(id), userData, edit);
-
-			request.getSession().setAttribute(CONTAINER_SESSION_ATTR, container);
 			containerProps = container.getProperties();
 			if (container.getCreatedBy() != null) {
 				if (container.getCreatedBy().equals(userData.getUserId())) {
@@ -142,33 +136,6 @@ public class Form {
 
 	}
 
-	
-	@RequestMapping(method = RequestMethod.GET, value="preview")
-	@ResponseStatus(HttpStatus.OK)
-	@CacheControl(policy = {CachePolicy.NO_STORE, CachePolicy.NO_CACHE})
-	@ResponseBody
-	public String getPreview() {
-		try {
-			ContainerFacade containerFacade = (ContainerFacade) request.getSession().getAttribute(
-					CONTAINER_SESSION_ATTR);
-
-			File previewFile = new File(request.getSession().getServletContext().getRealPath(File.separator)
-					+ "csd_web" + File.separator + "pages" + File.separator + "preview.html");
-
-			FileInputStream previewFileInputStream = new FileInputStream(previewFile);
-
-			String previewString = IOUtils.toString(previewFileInputStream, "UTF-8");
-
-			return previewString.replace("{{content}}",
-					containerFacade.getHTML(request).replaceAll("images/", "../../images/"));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return "Error: " + ex.getMessage();
-		} finally {
-			//request.getSession().removeAttribute(CONTAINER_SESSION_ATTR);
-		}
-	}
-
 	@RequestMapping(method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
@@ -178,7 +145,9 @@ public class Form {
 		try {
 			Properties formProps = new Properties(propertiesMap);
 			String save = formProps.getString("save");
-			ContainerFacade container = (ContainerFacade) request.getSession().getAttribute(CONTAINER_SESSION_ATTR);
+			Long containerId = formProps.getLong("id");
+			UserContext userData = CSDProperties.getInstance().getUserContextProvider().getUserContext(request);
+			ContainerFacade container = ContainerFacade.loadContainer(containerId, userData, true);
 			container.updateContainer(formProps);
 			if (save.equalsIgnoreCase("yes")) {
 				txn = TransactionManager.getInstance().startTxn();
@@ -245,29 +214,6 @@ public class Form {
 
 		return responseJSON.toString();
 
-	}
-
-	@RequestMapping(method = RequestMethod.GET, value="permissibleValues/{controlName}")
-	@ResponseStatus(HttpStatus.OK)
-	@CacheControl(policy = {CachePolicy.NO_STORE, CachePolicy.NO_CACHE})
-	@ResponseBody
-	public void getPermissibleValues(@PathVariable(value="controlName") String controlName,
-			HttpServletResponse response) throws IOException {
-
-		ContainerFacade container = (ContainerFacade) request.getSession().getAttribute(CONTAINER_SESSION_ATTR);
-		File pvFile = container.getPvFile(controlName);
-		
-		response.setHeader("Content-Disposition", "attachment;filename=" + pvFile.getName());
-			
-		InputStream in = null;
-		try {
-			in = new FileInputStream(pvFile.getPath());
-			IoUtil.copy(in, response.getOutputStream());
-		} catch (IOException e) {
-			throw new RuntimeException("Error sending file", e);
-		} finally {
-			IoUtil.close(in);
-		}
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value="formxml")

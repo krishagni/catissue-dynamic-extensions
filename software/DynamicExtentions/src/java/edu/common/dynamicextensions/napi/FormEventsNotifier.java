@@ -11,7 +11,6 @@ public class FormEventsNotifier {
 	private List<FormEventsListener> listeners = new ArrayList<>();
 
 	private FormEventsNotifier() {
-
 	}
 
 	public static FormEventsNotifier getInstance() {
@@ -19,7 +18,7 @@ public class FormEventsNotifier {
 	}
 
 	public void addListener(FormEventsListener listener) {
-		if (listeners.indexOf(listener) == -1) {
+		if (!listeners.contains(listener)) {
 			listeners.add(listener);
 		}
 	}
