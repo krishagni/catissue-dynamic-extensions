@@ -149,7 +149,7 @@ public class Crosstab implements ResultPostProc {
 					values.add(measure);
 					
 					if (numericMeasure && measure != null) {
-						sum = sum.add(new BigDecimal(measure.toString()));
+						sum = sum.add(getBigDecimal(measure));
 					}
 				}
 				

@@ -319,6 +319,8 @@ public class QueryResultData {
             	int scale = getResultColumns().get(j).getScale();
             	if (scale > 0) {
             		bd = bd.setScale(scale, BigDecimal.ROUND_HALF_UP);
+				} else {
+            		bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
 				}
 
 				result[j] = bd.toString();
