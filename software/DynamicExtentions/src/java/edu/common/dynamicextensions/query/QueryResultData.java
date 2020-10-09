@@ -315,12 +315,16 @@ public class QueryResultData {
 				Date dateObj = Util.getDateFromOraTimestamp(row[j]);
 				result[j] = toDateTime(j, dateObj, true);
 			} else if (row[j] instanceof Number) {
-            	BigDecimal bd = new BigDecimal(((Number)row[j]).doubleValue());
+            	BigDecimal bd = BigDecimal.valueOf(((Number) row[j]).doubleValue());
             	int scale = getResultColumns().get(j).getScale();
             	if (scale > 0) {
             		bd = bd.setScale(scale, BigDecimal.ROUND_HALF_UP);
-				} else {
+				} else if (bd.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) != 0){
+            		// Not an integer. set the scale
             		bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+				} else {
+            		// cent-percent sure - this is an integer field
+            		bd = bd.setScale(0, BigDecimal.ROUND_UNNECESSARY);
 				}
 
 				result[j] = bd.toString();
