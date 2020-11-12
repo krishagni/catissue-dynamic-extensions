@@ -452,6 +452,11 @@ public class FormDataManagerImpl implements FormDataManager {
 					String tabAlias = "lut" + ++tabCnt;
 					String columnAlias = tabAlias + "v";
 					query.append(tabAlias).append(".").append(luCtrl.getValueColumn()).append(" ").append(columnAlias).append(", ");
+					if (luCtrl.getCodeColumn() != null) {
+						columnAlias = tabAlias + "cc";
+						query.append(tabAlias).append(".").append(luCtrl.getCodeColumn()).append(" ").append(columnAlias).append(", ");
+					}
+
 					joins.add(getJoinClause(tabAlias, luCtrl.getTableName(), luCtrl.getLookupKey(), column));
 				}
 			}
@@ -879,10 +884,12 @@ public class FormDataManagerImpl implements FormDataManager {
 				ctrlValue = new ControlValue(ctrl, ctrl.toString(rsObj));
 				if (ctrl instanceof LookupControl) {
 					String tabAlias = "lut" + ++tabCnt;
-					String columnAlias = tabAlias + "v";
-
-					Object uiValue = rs.getString(columnAlias);
+					Object uiValue = rs.getString(tabAlias + "v");
 					ctrlValue.setUiValue(uiValue);
+
+					if (((LookupControl) ctrl).getCodeColumn() != null) {
+						ctrlValue.setCodedValue(rs.getString(tabAlias + "cc"));
+					}
 				}
 			}
 				

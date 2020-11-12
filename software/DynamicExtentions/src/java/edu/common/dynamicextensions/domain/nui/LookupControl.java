@@ -20,4 +20,6 @@ public interface LookupControl {
 	String getCollectionTable();
 
 	String getCollectionKey();
+
+	String getCodeColumn();
 }

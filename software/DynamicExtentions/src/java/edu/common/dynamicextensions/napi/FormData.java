@@ -315,6 +315,10 @@ public class FormData {
 				if (fieldValue.getUiValue() != null) {
 					fieldData.put("displayValue", fieldValue.getUiValue());
 				}
+
+				if (fieldValue.getCodedValue() != null) {
+					fieldData.put("codedValue", fieldValue.getCodedValue());
+				}
 			}
 		}
 

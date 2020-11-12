@@ -156,6 +156,11 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 	}
 
 	@Override
+	public String getCodeColumn() {
+		return null;
+	}
+
+	@Override
 	public String toDisplayValue(Object value) {
 		if (value == null) {
 			return null;

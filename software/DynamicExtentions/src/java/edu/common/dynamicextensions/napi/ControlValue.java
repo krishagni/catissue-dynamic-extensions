@@ -23,6 +23,8 @@ public class ControlValue {
 	 */
 	private Object uiValue;
 
+	private String codedValue;
+
 	/**
 	 * Updated by EnableAction and DisbleAction
 	 */
@@ -88,6 +90,14 @@ public class ControlValue {
 
 	public void setUiValue(Object uiValue) {
 		this.uiValue = uiValue;
+	}
+
+	public String getCodedValue() {
+		return codedValue;
+	}
+
+	public void setCodedValue(String codedValue) {
+		this.codedValue = codedValue;
 	}
 
 	public boolean isReadOnly() {
