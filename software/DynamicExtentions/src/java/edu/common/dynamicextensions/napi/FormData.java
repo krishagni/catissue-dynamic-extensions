@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import edu.common.dynamicextensions.domain.nui.AbstractLookupControl;
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
@@ -214,12 +215,14 @@ public class FormData {
 				List<String> values = (List<String>)fieldValue.getValue();
 				formData.addFieldValue(new ControlValue(ctrl, values == null ? null : values.toArray(new String[0])));
 			} else if (ctrl instanceof FileUploadControl) {
-				FileControlValue fcv = null; 				
+				FileControlValue fcv = null;
 				if (fieldValue.getValue() instanceof Map) {
-					fcv = FileControlValue.fromValueMap((Map<String, String>)fieldValue.getValue());
+					fcv = FileControlValue.fromValueMap((Map<String, String>) fieldValue.getValue());
 				}
-				
-				formData.addFieldValue(new ControlValue(ctrl,fcv));
+
+				formData.addFieldValue(new ControlValue(ctrl, fcv));
+			} else if (ctrl instanceof AbstractLookupControl) {
+				formData.addFieldValue(new ControlValue(ctrl, ((AbstractLookupControl) ctrl).getValue(fieldValue.getValue())));
 			} else if (ctrl != null){
 				formData.addFieldValue(new ControlValue(ctrl, fieldValue.getValue()));
 			}			

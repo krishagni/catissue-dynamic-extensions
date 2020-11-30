@@ -130,7 +130,7 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 
 	@Override
 	public ValidationStatus validate(Object value) {
-		boolean empty = value == null || value.toString().trim().isEmpty();		
+		boolean empty = value == null || value.toString().trim().isEmpty();
 		if (!empty) {
 			Long id = fromString(value.toString());
 			if (id == null) {
@@ -172,6 +172,19 @@ public abstract class AbstractLookupControl extends Control implements LookupCon
 		}
 
 		return getColumnValue(id);
+	}
+
+	public Object getValue(Object input) {
+		if (input instanceof Map) {
+			Map<String, Object> fields = (Map<String, Object>) input;
+			if (fields.get("id") != null) {
+				return fields.get("id").toString();
+			} else if (fields.get("name") != null) {
+				return fields.get("name").toString();
+			}
+		}
+
+		return input;
 	}
 
 	private boolean isValid(Object value) {
