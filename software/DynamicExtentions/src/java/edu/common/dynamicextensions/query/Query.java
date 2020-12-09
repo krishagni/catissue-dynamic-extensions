@@ -44,6 +44,8 @@ public class Query {
 	private PathConfig pathConfig;
 
 	private Map<String, String> autoJoinParams;
+
+	private QuerySpace qs;
         
     public static Query createQuery() {
         return new Query();
@@ -101,14 +103,22 @@ public class Query {
 		this.autoJoinParams = autoJoinParams;
 		return this;
 	}
-  
+
+	public Query querySpace(QuerySpace qs) {
+    	this.qs = qs;
+    	if (qs != null) {
+    		this.pathConfig = qs.getPathConfig();
+		}
+    	return this;
+	}
+
     public void compile(String rootFormName, String query) {
         compile(rootFormName, query, null);
     }
     
     public void compile(String rootFormName, String query, String restriction) {
-        QueryCompiler compiler = new QueryCompiler(rootFormName, query, restriction);
-        compiler.enabledVersionedForms(vcEnabled).pathConfig(pathConfig).compile();
+        QueryCompiler compiler = new QueryCompiler(qs != null ? qs.getRootForm() : rootFormName, query, restriction);
+        compiler.enabledVersionedForms(vcEnabled).pathConfig(pathConfig).querySpace(qs).compile();
         queryExpr     = compiler.getQueryExpr();
         queryJoinTree = compiler.getQueryJoinTree();
         

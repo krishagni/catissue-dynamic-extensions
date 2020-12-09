@@ -61,6 +61,8 @@ public class QueryCompiler
     private boolean vcEnabled;
 
 	private PathConfig pathConfig;
+
+	private QuerySpace qs;
     
     public QueryCompiler(String rootFormName, String query) {
         this(rootFormName, query, null);
@@ -72,6 +74,13 @@ public class QueryCompiler
         this.restriction = restriction;
     }
 
+    public QueryCompiler(QuerySpace qs, String query) {
+    	this.rootFormName = qs.getRootForm();
+    	this.qs = qs;
+    	this.pathConfig = qs.getPathConfig();
+    	this.query = query;
+	}
+
     public QueryCompiler enabledVersionedForms(boolean vcEnabled) {
     	this.vcEnabled = vcEnabled;
     	return this;
@@ -80,6 +89,11 @@ public class QueryCompiler
     public QueryCompiler pathConfig(PathConfig pathConfig) {
 		this.pathConfig = pathConfig;
 		return this;
+	}
+
+	public QueryCompiler querySpace(QuerySpace qs) {
+    	this.qs = qs;
+    	return this;
 	}
 
     public void compile() {
@@ -99,6 +113,10 @@ public class QueryCompiler
     }
 
     private PathConfig pathConfig() {
+    	if (qs != null) {
+    		return qs.getPathConfig();
+		}
+
 		return (pathConfig == null) ? PathConfig.getInstance() : pathConfig;
 	}
 
@@ -804,6 +822,10 @@ public class QueryCompiler
     }
 
 	private Container getContainer(String name) {
+    	if (qs != null) {
+    		return qs.getForm(name);
+		}
+
     	Container container = null;
     	
     	if (vcEnabled) {
