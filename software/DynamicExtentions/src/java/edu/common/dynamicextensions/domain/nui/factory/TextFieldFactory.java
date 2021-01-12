@@ -1,12 +1,15 @@
 package edu.common.dynamicextensions.domain.nui.factory;
 
+import static edu.common.dynamicextensions.nutility.ParserUtil.*;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.w3c.dom.Element;
 
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.StringTextField;
-import static edu.common.dynamicextensions.nutility.ParserUtil.*;
 
 public class TextFieldFactory extends AbstractControlFactory {
 
@@ -23,27 +26,44 @@ public class TextFieldFactory extends AbstractControlFactory {
 	public Control parseControl(Element ele, int row, int xPos, Properties props) {
 		StringTextField textField = new StringTextField();
 		setControlProps(textField, ele, row, xPos);
-		
-		Integer width = getIntValue(ele, "width", null);
+
+		Map<String, Object> textProps = new HashMap<>();
+		textProps.put("width", getIntValue(ele, "width", null));
+		textProps.put("defaultValue", getTextValue(ele, "defaultValue", ""));
+		textProps.put("url", getBooleanValue(ele, "url"));
+		textProps.put("password", getBooleanValue(ele, "password"));
+		textProps.put("minLength", getIntValue(ele, "minLength", null));
+		textProps.put("maxLength", getIntValue(ele, "maxLength", null));
+		setTextFieldProps(textField, textProps);
+		return textField;
+	}
+
+	@Override
+	public Control parseControl(Map<String, Object> props, int row, int xPos) {
+		StringTextField textField = new StringTextField();
+		setControlProps(textField, props, row, xPos);
+		setTextFieldProps(textField, props);
+		return textField;
+	}
+
+	private void setTextFieldProps(StringTextField textField, Map<String, Object> props) {
+		Integer width = getInt(props,"width", null);
 		if (width != null) {
 			textField.setNoOfColumns(width);
 		}
-		String defVal = getTextValue(ele, "defaultValue", "");
-		textField.setDefaultValue(defVal);
-				
-		textField.setUrl(getBooleanValue(ele, "url"));
-		textField.setPassword(getBooleanValue(ele, "password"));
-		
-		Integer minLen = getIntValue(ele, "minLength", null);
+
+		textField.setDefaultValue((String) props.getOrDefault("defaultValue", ""));
+		textField.setUrl(getBool(props, "url"));
+		textField.setPassword(getBool(props, "password"));
+
+		Integer minLen = getInt(props, "minLength", null);
 		if (minLen != null) {
 			textField.setMinLength(minLen);
 		}
-		
-		Integer maxLen = getIntValue(ele, "maxLength", null);
+
+		Integer maxLen = getInt(props, "maxLength", null);
 		if (maxLen != null) {
 			textField.setMaxLength(maxLen);
 		}
-
-		return textField;
 	}
 }

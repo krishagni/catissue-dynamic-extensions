@@ -1,13 +1,14 @@
 package edu.common.dynamicextensions.domain.nui.factory;
 
+import static edu.common.dynamicextensions.nutility.ParserUtil.getIntValue;
+
+import java.util.Map;
 import java.util.Properties;
 
 import org.w3c.dom.Element;
 
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.RadioButton;
-
-import static edu.common.dynamicextensions.nutility.ParserUtil.*;
 
 public class RadioButtonFactory extends AbstractControlFactory {
 
@@ -26,6 +27,18 @@ public class RadioButtonFactory extends AbstractControlFactory {
 		setSelectProps(radioButton, ele, row, xPos, props.getProperty("pvDir"));
 		
 		Integer optionsPerRow = getIntValue(ele, "optionsPerRow", null);
+		if (optionsPerRow != null) {
+			radioButton.setOptionsPerRow(optionsPerRow);
+		}
+		return radioButton;
+	}
+
+	@Override
+	public Control parseControl(Map<String, Object> props, int row, int xPos) {
+		RadioButton radioButton = new RadioButton();
+		setSelectProps(radioButton, props, row, xPos);
+
+		Integer optionsPerRow = getInt(props, "optionsPerRow", null);
 		if (optionsPerRow != null) {
 			radioButton.setOptionsPerRow(optionsPerRow);
 		}

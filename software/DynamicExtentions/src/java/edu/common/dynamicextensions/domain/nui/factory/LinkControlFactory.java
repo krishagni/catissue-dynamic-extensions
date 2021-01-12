@@ -2,6 +2,8 @@ package edu.common.dynamicextensions.domain.nui.factory;
 
 import static edu.common.dynamicextensions.nutility.ParserUtil.getTextValue;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,7 +28,22 @@ public class LinkControlFactory extends AbstractControlFactory {
 		LinkControl linkField = new LinkControl();
 		setControlProps(linkField, ele, row, xPos);
 
-		String formName = getTextValue(ele, "formName", null);
+		Map<String, Object> lfProps = new HashMap<>();
+		lfProps.put("formName", getTextValue(ele, "formName", null));
+		setLinkProps(linkField, lfProps);
+		return linkField;
+	}
+
+	@Override
+	public Control parseControl(Map<String, Object> props, int row, int xPos) {
+		LinkControl linkField = new LinkControl();
+		setControlProps(linkField, props, row, xPos);
+		setLinkProps(linkField, props);
+		return linkField;
+	}
+
+	private void setLinkProps(LinkControl linkField, Map<String, Object> props) {
+		String formName = (String) props.getOrDefault("formName", null);
 		if (StringUtils.isBlank(formName)) {
 			throw new IllegalArgumentException("Form name is mandatory for link field");
 		}
@@ -37,6 +54,5 @@ public class LinkControlFactory extends AbstractControlFactory {
 		}
 
 		linkField.setFormName(formName);
-		return linkField;
 	}
 }

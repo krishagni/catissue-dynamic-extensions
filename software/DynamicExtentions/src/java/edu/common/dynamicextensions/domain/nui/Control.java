@@ -486,6 +486,8 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		ctrlProps.put("validationRules", getValidationRules());
 		ctrlProps.put("showWhen", getShowWhenExpr());
 		ctrlProps.put("hidden", isHidden());
+		ctrlProps.put("phi", isPhi());
+		ctrlProps.put("mandatory", isMandatory());
 		
 		getProps(ctrlProps);
 		return ctrlProps;

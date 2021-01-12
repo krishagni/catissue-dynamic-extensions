@@ -1,12 +1,16 @@
 package edu.common.dynamicextensions.domain.nui.factory;
 
+import static edu.common.dynamicextensions.nutility.ParserUtil.getIntValue;
+import static edu.common.dynamicextensions.nutility.ParserUtil.getTextValue;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.w3c.dom.Element;
 
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.NumberField;
-import static edu.common.dynamicextensions.nutility.ParserUtil.*;
 
 public class NumberFieldFactory extends AbstractControlFactory {
 	public static NumberFieldFactory getInstance() {
@@ -22,29 +26,54 @@ public class NumberFieldFactory extends AbstractControlFactory {
 	public Control parseControl(Element ele, int row, int xPos, Properties props) {
 		NumberField numberField = new NumberField();
 		setControlProps(numberField, ele, row, xPos);
-		
-		Integer width = getIntValue(ele, "width", null);
+
+		Map<String, Object> numFieldProps = new HashMap<>();
+		numFieldProps.put("width", getIntValue(ele, "width", null));
+		numFieldProps.put("defaultValue", getTextValue(ele, "defaultValue", ""));
+		numFieldProps.put("noOfDigitsAfterDecimal", getIntValue(ele, "noOfDigitsAfterDecimal", null));
+		numFieldProps.put("noOfDigits", getIntValue(ele, "noOfDigits", 19));
+		numFieldProps.put("measurementUnits", getTextValue(ele, "measurementUnits"));
+		numFieldProps.put("formula", getTextValue(ele, "formula"));
+		numFieldProps.put("minValue", getTextValue(ele, "minValue"));
+		numFieldProps.put("maxValue", getTextValue(ele, "maxValue"));
+		setNumberFieldProps(numberField, numFieldProps);
+		return numberField;
+	}
+
+	@Override
+	public Control parseControl(Map<String, Object> props, int row, int xPos) {
+		NumberField numberField = new NumberField();
+		setControlProps(numberField, props, row, xPos);
+		setNumberFieldProps(numberField, props);
+		return numberField;
+	}
+
+	private void setNumberFieldProps(NumberField numberField, Map<String, Object> props) {
+		Integer width = getInt(props, "width", null);
 		if (width != null) {
 			numberField.setNoOfColumns(width);
 		}
-		String defVal = getTextValue(ele, "defaultValue", "");
-		numberField.setDefaultValue(defVal);
-		
-		Integer digitsAfterDecimal = getIntValue(ele, "noOfDigitsAfterDecimal", null);
+
+		numberField.setDefaultValue((String) props.getOrDefault("defaultValue", ""));
+
+		Integer digitsAfterDecimal = getInt(props, "noOfDigitsAfterDecimal", null);
 		if (digitsAfterDecimal != null) {
 			numberField.setNoOfDigitsAfterDecimal(digitsAfterDecimal);
 		}
-		numberField.setNoOfDigits(getIntValue(ele, "noOfDigits", 19));
-		numberField.setMeasurementUnits(getTextValue(ele, "measurementUnits"));
-		
-		numberField.setFormula(getTextValue(ele, "formula"));
+
+		numberField.setNoOfDigits(getInt(props, "noOfDigits", 19));
+		numberField.setMeasurementUnits((String) props.get("measurementUnits"));
+
+		numberField.setFormula((String) props.get("formula"));
 		if (numberField.getFormula() != null && !numberField.getFormula().trim().isEmpty()) {
 			numberField.setCalculated(true);
 		}
-		
-		numberField.setMinValue(getTextValue(ele, "minValue"));
-		numberField.setMaxValue(getTextValue(ele, "maxValue"));
-		return numberField;
+
+		Object min = props.get("minValue");
+		numberField.setMinValue(min != null ? min.toString() : null);
+
+		Object max = props.get("maxValue");
+		numberField.setMaxValue(max != null ? max.toString() : null);
 	}
 }
 

@@ -4,7 +4,10 @@ import static edu.common.dynamicextensions.nutility.ParserUtil.getBooleanValue;
 import static edu.common.dynamicextensions.nutility.ParserUtil.getTextValue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
@@ -87,11 +90,132 @@ public abstract class AbstractControlFactory implements ControlFactory {
 			pvDataSource.setSql(sql);
 		}		
 	}
-	
+
+	public void setControlProps(Control ctrl, Map<String, Object> props, int currentRow, int xPos) {
+		String name = (String) props.get("name");
+		String udn  = (String) props.get("udn");
+
+		if (name == null || name.trim().isEmpty()) {
+			throw new RuntimeException("Control name can't be null or empty. Type = " + ctrl.getCtrlType());
+		}
+
+		if (udn == null || udn.trim().isEmpty()) {
+			throw new RuntimeException("User defined name of control can't be null or empty. Type = " + ctrl.getCtrlType());
+		}
+
+		ctrl.setName(name);
+		ctrl.setUserDefinedName(udn);
+		ctrl.setCaption((String) props.get("caption"));
+		ctrl.setCustomLabel((String) props.get("customLabel"));
+		ctrl.setToolTip((String) props.get("toolTip"));
+		ctrl.setPhi(getBool(props, "phi"));
+		ctrl.setMandatory(getBool(props, "mandatory"));
+		ctrl.setUnique(getBool(props, "unique"));
+		ctrl.setShowInGrid(getBool(props, "showInGrid"));
+		ctrl.setShowLabel(getBool(props, "showLabel", true));
+		ctrl.setSequenceNumber(currentRow);
+		ctrl.setConceptCode((String) props.get("conceptCode"));
+		ctrl.setxPos(xPos);
+		ctrl.setRecordUrl((String) props.get("recordUrl"));
+		ctrl.setShowWhenExpr((String) props.get("showWhen"));
+		ctrl.setHidden(getBool(props, "hidden", false));
+
+		String dbColumn = (String) props.get("column");
+		if (dbColumn != null && !dbColumn.trim().isEmpty()) {
+			ctrl.setDbColumnName(dbColumn.trim());
+		}
+
+		if (StringUtils.isNotBlank(ctrl.getShowWhenExpr())) {
+			ctrl.setMandatory(false);
+		}
+	}
+
+	public void setSelectProps(SelectControl selectControl, Map<String, Object> props, int currentRow, int xPos) {
+		setControlProps(selectControl, props, currentRow, xPos);
+
+		PvDataSource pvDataSource = new PvDataSource();
+		pvDataSource.setDataType(DataType.STRING); // TODO: Need to read data type of options as well
+		selectControl.setPvDataSource(pvDataSource);
+
+		List<Map<String, Object>> values = (List<Map<String, Object>>) props.get("pvs");
+		if (values == null) {
+			values = Collections.emptyList();
+		}
+
+		List<PermissibleValue> permissibleValues = values.stream()
+			.filter((value) -> StringUtils.isNotBlank((String) value.get("value")))
+			.map((value) -> {
+				PermissibleValue pv = new PermissibleValue();
+				pv.setOptionName((String) value.get("value"));
+				pv.setValue((String) value.get("value"));
+				return pv;
+			})
+			.collect(Collectors.toList());
+
+		PvVersion pvVersion = new PvVersion();
+		pvVersion.setPermissibleValues(permissibleValues);
+
+		Object defVal = props.get("defaultValue");
+		if (defVal instanceof Map) {
+			Map<String, String> defValMap = (Map<String, String>) defVal;
+			if (StringUtils.isNotBlank(defValMap.get("value"))) {
+				PermissibleValue pv = new PermissibleValue();
+				pv.setOptionName(defValMap.get("value"));
+				pv.setValue(defValMap.get("value"));
+				pvVersion.setDefaultValue(pv);
+			} else {
+				pvVersion.setDefaultValue(null);
+			}
+		} else if (defVal instanceof String) {
+			PermissibleValue pv = new PermissibleValue();
+			pv.setOptionName((String) defVal);
+			pv.setValue((String) defVal);
+			pvVersion.setDefaultValue(pv);
+		} else {
+			pvVersion.setDefaultValue(null);
+		}
+
+		List<PvVersion> pvVersions = new ArrayList<>();
+		pvVersions.add(pvVersion);
+		pvDataSource.setPvVersions(pvVersions);
+	}
+
 	private String getSql(Element optionsParentEl) {
 		Element options = (Element)optionsParentEl.getElementsByTagName("options").item(0);
 		NodeList sqlNode = options.getElementsByTagName("sql");
 		return (sqlNode != null && sqlNode.getLength() == 1) ? 
 				sqlNode.item(0).getFirstChild().getNodeValue() : null;  
-	}	
+	}
+
+	protected boolean getBool(Map<String, Object> props, String propName) {
+		return getBool(props, propName, null);
+	}
+
+	protected boolean getBool(Map<String, Object> props, String propName, Boolean defValue) {
+		Object value = props.getOrDefault(propName, defValue);
+		if (value == null) {
+			return false;
+		} else if (value instanceof String) {
+			return ((String) value).equalsIgnoreCase("true");
+		} else {
+			return (Boolean) value;
+		}
+	}
+
+	protected Integer getInt(Map<String, Object> props, String propName) {
+		return getInt(props, propName, null);
+	}
+
+	protected Integer getInt(Map<String, Object> props, String propName, Integer defValue) {
+		Object value = props.getOrDefault(propName, defValue);
+		if (value == null) {
+			return null;
+		} else if (value instanceof String) {
+			return Integer.parseInt((String) value);
+		} else if (value instanceof Number) {
+			return ((Number) value).intValue();
+		}
+
+		throw new RuntimeException("Unknown integer type/value: " + value.getClass() + " (" + value.toString() + ")");
+	}
 }

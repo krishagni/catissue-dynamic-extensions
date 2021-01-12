@@ -1,5 +1,6 @@
 package edu.common.dynamicextensions.domain.nui.factory;
 
+import java.util.Map;
 import java.util.Properties;
 
 import org.w3c.dom.Element;
@@ -8,6 +9,8 @@ import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.nutility.ContainerParser;
+import edu.common.dynamicextensions.nutility.ContainerPropsParser;
+
 import static edu.common.dynamicextensions.nutility.ParserUtil.*;
 
 public class SubFormControlFactory extends AbstractControlFactory {
@@ -43,6 +46,23 @@ public class SubFormControlFactory extends AbstractControlFactory {
 		ContainerParser parser = new ContainerParser(props.getProperty("pvDir"));
 		Container subContainer = parser.parse(ele, false);
 		subForm.setSubContainer(subContainer);
+		return subForm;
+	}
+
+	@Override
+	public Control parseControl(Map<String, Object> props, int row, int xPos) {
+		SubFormControl subForm = new SubFormControl();
+		setControlProps(subForm, props, row, xPos);
+
+		Object singleEntry = props.get("singleEntry");
+		if (Boolean.TRUE.equals(singleEntry)) {
+			subForm.setNoOfEntries(1);
+		} else {
+			subForm.setNoOfEntries(-1);
+		}
+
+		ContainerPropsParser parser = new ContainerPropsParser(props);
+		subForm.setSubContainer(parser.parse());
 		return subForm;
 	}
 }
