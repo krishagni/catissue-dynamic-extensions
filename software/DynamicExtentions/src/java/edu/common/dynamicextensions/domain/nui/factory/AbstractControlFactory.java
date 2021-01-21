@@ -211,6 +211,10 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		if (value == null) {
 			return null;
 		} else if (value instanceof String) {
+			if (StringUtils.isBlank((String) value)) {
+				return null;
+			}
+
 			return Integer.parseInt((String) value);
 		} else if (value instanceof Number) {
 			return ((Number) value).intValue();
