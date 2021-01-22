@@ -137,7 +137,7 @@ public class Container implements Serializable {
 
 	public void setName(String name) {
 		if (StringUtils.isNotBlank(name) && notAllowed.matcher(name).find()) {
-			throw new RuntimeException("Following special characters in form names not allowed: " + specialChars);
+			throw new RuntimeException("Following special characters (including whitespaces) are not allowed in form names: " + specialChars);
 		}
 		
 		this.name = name;
@@ -581,7 +581,7 @@ public class Container implements Serializable {
 		} else if (notAllowed.matcher(control.getName()).find()) {
 			throw new RuntimeException(
 				"Control name " + control.getName() + " contains special characters. " +
-				"Following characters are not allowed: " + specialChars);
+				"Following characters including whitespaces are not allowed: " + specialChars);
 		} else if (StringUtils.isBlank(control.getUserDefinedName())) {
 			throw new RuntimeException("Control UDN cannot be empty");
 		} else if (Character.isDigit(control.getUserDefinedName().trim().charAt(0))) {
@@ -591,7 +591,7 @@ public class Container implements Serializable {
 		} else if (notAllowed.matcher(control.getUserDefinedName()).find()) {
 			throw new RuntimeException(
 				"Control UDN " + control.getUserDefinedName() + " contains special characters. " +
-				"Following characters are not allowed: " + specialChars);
+				"Following characters including whitespaces are not allowed: " + specialChars);
 		}
 	}
 
@@ -1318,7 +1318,7 @@ public class Container implements Serializable {
 		if (notAllowed.matcher(name).find()) {
 			throw new RuntimeException(
 				"Form name " + name + " contains special characters. " +
-				"Following characters are not allowed: " + notAllowed);
+				"Following characters including whitespaces are not allowed: " + notAllowed);
 		}
 
 		for (Control ctrl : getControls()) {

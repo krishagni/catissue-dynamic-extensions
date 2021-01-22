@@ -137,6 +137,13 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		pvDataSource.setDataType(DataType.STRING); // TODO: Need to read data type of options as well
 		selectControl.setPvDataSource(pvDataSource);
 
+		String ordering = (String) props.getOrDefault("pvOrdering", "NONE");
+		try {
+			pvDataSource.setOrdering(PvDataSource.Ordering.valueOf(ordering));
+		} catch (IllegalArgumentException iae) {
+			throw new RuntimeException("Invalid sort order: " + ordering);
+		}
+
 		List<Map<String, Object>> values = (List<Map<String, Object>>) props.get("pvs");
 		if (values == null) {
 			values = Collections.emptyList();
@@ -178,6 +185,8 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		List<PvVersion> pvVersions = new ArrayList<>();
 		pvVersions.add(pvVersion);
 		pvDataSource.setPvVersions(pvVersions);
+
+
 	}
 
 	private String getSql(Element optionsParentEl) {
