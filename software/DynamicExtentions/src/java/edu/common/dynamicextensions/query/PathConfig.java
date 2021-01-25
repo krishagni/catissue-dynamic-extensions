@@ -11,6 +11,7 @@ import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.AbstractRulesModule;
 import org.apache.commons.digester3.binder.DigesterLoader;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.IoUtil;
 
 public class PathConfig {   
@@ -54,7 +55,7 @@ public class PathConfig {
             fin = new FileInputStream(pathConfig);
             init(fin);
         } catch(Exception e) {
-            throw new RuntimeException("Failed to initialize path configuration", e);
+            throw new FormException("Failed to initialize path configuration", e);
         } finally {
             IoUtil.close(fin);
         }
@@ -77,7 +78,7 @@ public class PathConfig {
             	this.paths.put(getPathStr(path.getStartForm(), path.getEndForm()), path);
             }
         } catch(Exception e) {
-            throw new RuntimeException("Failed to initialize path configuration", e);
+            throw new FormException("Failed to initialize path configuration", e);
         }
     }
 

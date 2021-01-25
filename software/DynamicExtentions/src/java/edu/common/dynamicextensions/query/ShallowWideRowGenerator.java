@@ -11,6 +11,7 @@ import java.util.Map;
 
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
@@ -114,7 +115,7 @@ public class ShallowWideRowGenerator {
                 lastRootId = rootId;
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error processing result for generating wide rows", e);
+            throw new FormException("Error processing result for generating wide rows", e);
         }
         
         return rowCount;

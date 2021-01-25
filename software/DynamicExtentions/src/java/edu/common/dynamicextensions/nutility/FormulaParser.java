@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.nfunk.jep.JEP;
 
+import edu.common.dynamicextensions.napi.FormException;
+
 public class FormulaParser {
 	private JEP parser = null;
 
@@ -29,7 +31,7 @@ public class FormulaParser {
 	public boolean parseExpression(String expr) {
 		parser.parseExpression(expr); // Parse the expression
 		if (parser.hasError()) {
-			throw new RuntimeException(parser.getErrorInfo());
+			throw new FormException(parser.getErrorInfo());
 		}
 
 		return true;

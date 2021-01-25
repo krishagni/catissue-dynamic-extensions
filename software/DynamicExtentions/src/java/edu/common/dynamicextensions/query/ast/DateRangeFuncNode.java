@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class DateRangeFuncNode extends ExpressionNode implements Serializable {
 	public enum RangeType {
@@ -60,7 +61,7 @@ public class DateRangeFuncNode extends ExpressionNode implements Serializable {
 				}
 			}
 
-			throw new IllegalArgumentException("Invalid range type: " + type);
+			throw new FormException("Invalid range type: " + type);
 		}
 	}
 

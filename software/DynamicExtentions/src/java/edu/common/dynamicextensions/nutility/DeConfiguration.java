@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 
 import org.springframework.transaction.PlatformTransactionManager;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
 import edu.common.dynamicextensions.ndao.TransactionManager;
@@ -63,7 +64,7 @@ public class DeConfiguration {
 			String product = ds.getConnection().getMetaData().getDatabaseProductName();
 			DbSettingsFactory.init(product);
 		} catch (SQLException e) {
-			throw new RuntimeException("Error while retrieving the Db type from Datasource " + e);
+			throw new FormException("Error while retrieving the Db type from Datasource " + e);
 		}
 
 		return this;

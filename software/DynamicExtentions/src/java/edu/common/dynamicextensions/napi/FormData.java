@@ -429,7 +429,7 @@ public class FormData {
 
 	private static Container getContainer(Long containerId, Map<String, Object> valueMap) {
 		if (valueMap.get("containerId") == null && containerId == null) {
-			throw new IllegalArgumentException("Input doesn't have mandatory property: containerId");
+			throw new FormException("Input doesn't have mandatory property: containerId");
 		}
 
 		if (containerId == null) {
@@ -438,7 +438,7 @@ public class FormData {
 
 		Container container = Container.getContainer(containerId);
 		if (container == null) {
-			throw new IllegalArgumentException("Input specifies invalid container id: " + containerId);
+			throw new FormException("Input specifies invalid container id: " + containerId);
 		}
 
 		return container;

@@ -16,6 +16,7 @@ import java.util.TreeSet;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.Util;
 import edu.common.dynamicextensions.query.ast.CrosstabNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
@@ -66,7 +67,7 @@ public class Crosstab implements ResultPostProc {
 		}
 		
 		if (ctSpec.isIncludeSubTotals() && !numericMeasure) {
-			throw new IllegalArgumentException("Sub totals can be done only on numeric measure columns");			
+			throw new FormException("Sub totals can be done only on numeric measure columns");			
 		}				
 	}
 	
@@ -82,7 +83,7 @@ public class Crosstab implements ResultPostProc {
 			
 			return rowCount;			
 		} catch (SQLException e) {
-			throw new RuntimeException("Error processing result set", e);
+			throw new FormException("Error processing result set", e);
 		}
 	}
 	

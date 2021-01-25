@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.IoUtil;
 
 /**
@@ -37,7 +38,6 @@ public final class DownloadUtility
 	 * @param request from which to download the Zip file.
 	 * @param tempDirName directory name in which to download it.
 	 * @throws IOException Exception.
-	 * @throws DynamicExtensionsSystemException Exception
 	 */
 	public static void downloadZipFile(HttpServletRequest request, String tempDirName,
 			String fileName)
@@ -68,7 +68,7 @@ public final class DownloadUtility
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException(
+			throw new FormException(
 					"Exception occured while downloading the zip on server", e);
 
 		}

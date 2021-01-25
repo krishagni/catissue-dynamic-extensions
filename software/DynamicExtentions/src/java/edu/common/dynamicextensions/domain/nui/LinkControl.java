@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
 
 public class LinkControl extends Control {
@@ -44,7 +45,7 @@ public class LinkControl extends Control {
 		try {
 			return new BigDecimal(value);
 		} catch (NumberFormatException nfe) {
-			throw new IllegalArgumentException("Invalid number: " + value);
+			throw new FormException("Invalid number: " + value);
 		}
 	}
 

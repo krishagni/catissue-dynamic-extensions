@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.IoUtil;
 
 public class QueryResultSasExporter implements QueryResultExporter {
@@ -32,7 +33,7 @@ public class QueryResultSasExporter implements QueryResultExporter {
 			out = new FileOutputStream(exportPath);
 			return export(out, query, screener);
 		} catch (Exception e) {
-			throw new RuntimeException("Error exporting SAS program for query results", e);
+			throw new FormException("Error exporting SAS program for query results", e);
 		} finally {
 			IoUtil.close(out);
 		}
@@ -91,7 +92,7 @@ public class QueryResultSasExporter implements QueryResultExporter {
 			csvOut = new FileOutputStream(csvFile);
 			csvExporter.export(csvOut, result);			
 		} catch (Exception e) {
-			throw new RuntimeException("Error exporting CSV data", e);
+			throw new FormException("Error exporting CSV data", e);
 		} finally {
 			IoUtil.close(csvOut);
 		}		

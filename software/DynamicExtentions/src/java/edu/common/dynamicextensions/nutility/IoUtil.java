@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class IoUtil {
 	private static final Logger logger = Logger.getLogger(IoUtil.class);
@@ -121,7 +122,7 @@ public class IoUtil {
 			fout = new FileOutputStream(outFilePath);
 			zipFiles(inputDir, fout, excludeFiles);
 		} catch (Exception e) {
-			throw new RuntimeException("Error creating zip file", e);
+			throw new FormException("Error creating zip file", e);
 		} finally {
 			IoUtil.close(fout);
 		}
@@ -163,7 +164,7 @@ public class IoUtil {
 			
 			zout.flush();
 		} catch (Exception e) {
-			throw new RuntimeException("Error zipping input directory:" + inputDir, e);
+			throw new FormException("Error zipping input directory:" + inputDir, e);
 		} finally {
 			IoUtil.close(zout);
 			

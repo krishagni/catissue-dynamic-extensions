@@ -13,6 +13,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.log4j.Logger;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.IoUtil;
 
 /**
@@ -35,7 +36,6 @@ public final class ZipUtility
 	 * if destination folder is null or empty string then it will extract the zip to the current base directory
 	 * @param filename zip file to be extracted.
 	 * @param destination folder where the file should be extracted.
-	 * @throws DynamicExtensionsSystemException exception.
 	 * @throws IOException exception.
 	 */
 	public static void extractZipToDestination(String filename, String destination)
@@ -54,7 +54,7 @@ public final class ZipUtility
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException(
+			throw new FormException(
 					"Can not extract the zip, zip may be currupted", e);
 		}
 		finally
@@ -79,7 +79,7 @@ public final class ZipUtility
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException(
+			throw new FormException(
 					"Can not extract the zip, zip may be currupted", e);
 		}
 		finally
@@ -93,7 +93,6 @@ public final class ZipUtility
 	 * @param zipinputstream pointing to zip
 	 * @param destinationPath destination path.
 	 * @throws IOException exception.
-	 * @throws DynamicExtensionsSystemException exception.
 	 */
 	private static void extractZip(ZipInputStream zipinputstream, String destinationPath)
 	throws IOException
@@ -118,7 +117,6 @@ public final class ZipUtility
 	 * @param zipinputstream input stream
 	 * @param entryName name of the file which is to be extracted
 	 * @throws IOException exception
-	 * @throws DynamicExtensionsSystemException exception
 	 */
 	private static void extractZipEntryToFile(String destinationPath,
 			ZipInputStream zipinputstream, String entryName)
@@ -151,7 +149,6 @@ public final class ZipUtility
 	 * This method will verify if the parent directories of the newFile exist or not &
 	 * if not present will try to create it else will return.
 	 * @param newFile file whose parents to create
-	 * @throws DynamicExtensionsSystemException occured if make directories for parent fails.
 	 */
 	private static void createParentDirectories(File newFile)
 	{
@@ -159,7 +156,7 @@ public final class ZipUtility
 		if (parentFile != null && !parentFile.exists() && !parentFile.mkdirs())
 		{
 			// this is condition when mkdirs is failed to create the directories
-			throw new RuntimeException("Can not create directory " + parentFile);
+			throw new FormException("Can not create directory " + parentFile);
 		}
 	}
 
@@ -169,7 +166,6 @@ public final class ZipUtility
 	 * @param srcFolder folder to be zipped.
 	 * @param destZipFile name of the zip file.
 	 * @return the file object pointing to the Zip file.
-	 * @throws DynamicExtensionsSystemException Exception.
 	 * @throws IOException Exception.
 	 */
 	public static File zipFolder(String srcFolder, String destZipFile)
@@ -191,7 +187,7 @@ public final class ZipUtility
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException("Error occured while reading the folder", e);
+			throw new FormException("Error occured while reading the folder", e);
 		}
 		finally
 		{
@@ -244,7 +240,7 @@ public final class ZipUtility
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException("Error occured while reading the folder", e);
+			throw new FormException("Error occured while reading the folder", e);
 		}
 		finally
 		{
@@ -276,7 +272,6 @@ public final class ZipUtility
 	/**
 	 * This method will check if folder exist or not.
 	 * @param srcFolder Path of the folder.
-	 * @throws DynamicExtensionsSystemException Exception thrown if folder does not
 	 * exist.
 	 */
 	private static void checkIfFolderExist(String srcFolder)
@@ -284,7 +279,7 @@ public final class ZipUtility
 		File folder = new File(srcFolder);
 		if (!folder.exists() || !folder.isDirectory())
 		{
-			throw new RuntimeException(srcFolder
+			throw new FormException(srcFolder
 					+ "does not exist. Please specify correct path");
 		}
 	}
@@ -295,7 +290,6 @@ public final class ZipUtility
 	 * @param srcFile file to add in zip.
 	 * @param zip zip output stream pointing to the zipped file.
 	 * @throws IOException exception.
-	 * @throws DynamicExtensionsSystemException exception.
 	 */
 	private static void addFileToZip(String path, String srcFile, ZipOutputStream zip)
 			throws IOException
@@ -338,7 +332,6 @@ public final class ZipUtility
 	 * @param path path where the folder should be added in the zip file.
 	 * @param srcFolder folder to add in the zip.
 	 * @param zip zip out put stream pointing to zip file.
-	 * @throws DynamicExtensionsSystemException Exception.
 	 * @throws IOException Exception.
 	 */
 	private static void addFolderToZip(String path, String srcFolder, ZipOutputStream zip)

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.common.dynamicextensions.domain.nui.Container;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.ContainerParser;
 import edu.common.dynamicextensions.nutility.XmlUtil;
 
@@ -75,9 +76,9 @@ public class QuerySpace {
 			qs.setPathConfig(getPathConfig((List<Map<String, Object>>) qsMap.get("paths")));
 			return qs;
 		} catch (JsonProcessingException jpe) {
-			throw new IllegalArgumentException("Invalid query space JSON: " + jpe.getMessage(), jpe);
+			throw new FormException("Invalid query space JSON: " + jpe.getMessage(), jpe);
 		} catch (Exception e) {
-			throw new RuntimeException("Unknown server error: " + e.getMessage(), e);
+			throw new FormException("Unknown server error: " + e.getMessage(), e);
 		}
 	}
 
@@ -101,14 +102,14 @@ public class QuerySpace {
 
 			return new ContainerParser(new ByteArrayInputStream(writer.toString().getBytes())).parse();
 		} catch (Exception e) {
-			throw new RuntimeException("Error creating form: " + e.getMessage(), e);
+			throw new FormException("Error creating form: " + e.getMessage(), e);
 		}
 	}
 
 	private static void writeFormMetadata(Map<String, Object> formMd, StringWriter writer) {
 		String name = (String) formMd.get("name");
 		if (StringUtils.isBlank(name)) {
-			throw new IllegalArgumentException("Form or sub-form name cannot be blank");
+			throw new FormException("Form or sub-form name cannot be blank");
 		}
 
 		String caption = (String) formMd.get("caption");
@@ -118,7 +119,7 @@ public class QuerySpace {
 
 		String dbTable = (String) formMd.get("table");
 		if (StringUtils.isBlank(dbTable)) {
-			throw new IllegalArgumentException("Form or sub-form data table name cannot be blank. Form: " + name);
+			throw new FormException("Form or sub-form data table name cannot be blank. Form: " + name);
 		}
 
 		XmlUtil.writeElement(writer, "name", name);
@@ -138,7 +139,7 @@ public class QuerySpace {
 		for (Map<String, Object> fieldMd : fields) {
 			String type = (String) fieldMd.get("type");
 			if (StringUtils.isBlank(type)) {
-				throw new IllegalArgumentException("One or more fields do not have type specified. Form: " + name);
+				throw new FormException("One or more fields do not have type specified. Form: " + name);
 			}
 
 			XmlUtil.writeElementStart(writer, type);

@@ -8,6 +8,7 @@ import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.factory.ControlFactory;
 import edu.common.dynamicextensions.domain.nui.factory.ControlManager;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class ContainerPropsParser {
 	private Map<String, Object> props;
@@ -28,13 +29,13 @@ public class ContainerPropsParser {
 		String name = (String) props.get("name");
 		container.setName(name);
 		if (name == null || name.trim().isEmpty()) {
-			throw new RuntimeException("Form name can't be null");
+			throw new FormException("Form name can't be null");
 		}
 
 		String caption = (String) props.get("caption");
 		container.setCaption(caption);
 		if (caption == null) {
-			throw new RuntimeException("Form caption can't be null");
+			throw new FormException("Form caption can't be null");
 		}
 
 		int currentRow = 0;
@@ -53,7 +54,7 @@ public class ContainerPropsParser {
 
 				ControlFactory factory = ControlManager.getInstance().getFactory(type);
 				if (factory == null) {
-					throw new IllegalArgumentException("Invalid control type: " + type);
+					throw new FormException("Invalid control type: " + type);
 				}
 
 				Control ctrl = factory.parseControl(fieldProps, currentRow, xPos);

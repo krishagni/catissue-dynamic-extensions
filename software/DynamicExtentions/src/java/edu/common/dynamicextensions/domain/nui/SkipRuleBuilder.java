@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.common.dynamicextensions.domain.nui.SkipCondition.RelationalOp;
 import edu.common.dynamicextensions.domain.nui.SkipRule.LogicalOp;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class SkipRuleBuilder implements Serializable {
 	private static final long serialVersionUID = 7311929396358174753L;
@@ -30,11 +31,11 @@ public class SkipRuleBuilder implements Serializable {
 	
 	public SkipRule get() {
 		if (skipRule.getConditions().isEmpty()) {
-			throw new RuntimeException("No conditions specified for skip rule");
+			throw new FormException("No conditions specified for skip rule");
 		}
 		
 		if (skipRule.getActions().isEmpty()) {
-			throw new RuntimeException("No actions specified for skip rule");
+			throw new FormException("No actions specified for skip rule");
 		}
 		
 		return skipRule;
@@ -86,11 +87,11 @@ public class SkipRuleBuilder implements Serializable {
 			Control ctrl = container.getControl(fieldName, "\\.");
 			
 			if (ctrl == null) {
-				throw new RuntimeException("Invalid field name: " + fieldName);
+				throw new FormException("Invalid field name: " + fieldName);
 			}
 						
 			if (condContainer != null && condContainer != ctrl.getContainer()) {
-				throw new RuntimeException("All conditions should be made up of fields from same form");
+				throw new FormException("All conditions should be made up of fields from same form");
 			}
 			
 			condContainer = ctrl.getContainer();
@@ -177,7 +178,7 @@ public class SkipRuleBuilder implements Serializable {
 		private void addAction(String actionName, String fieldName) {
 			Control tgtCtrl = container.getControl(fieldName, "\\.");
 			if (tgtCtrl == null) {
-				throw new RuntimeException("Invalid field name: " + fieldName);								
+				throw new FormException("Invalid field name: " + fieldName);
 			}
 			
 			SkipAction action = null;
@@ -198,7 +199,7 @@ public class SkipRuleBuilder implements Serializable {
 		private void addSubsetPvAction(String fieldName, List<PermissibleValue> pvs, PermissibleValue defVal) {
 			Control tgtCtrl = container.getControl(fieldName, "\\.");
 			if (tgtCtrl == null) {
-				throw new RuntimeException("Invalid field name: " + fieldName);								
+				throw new FormException("Invalid field name: " + fieldName);
 			}
 			
 			ShowPvAction pvAction = new ShowPvAction();

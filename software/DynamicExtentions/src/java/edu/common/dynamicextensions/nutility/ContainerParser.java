@@ -34,6 +34,7 @@ import edu.common.dynamicextensions.domain.nui.SkipRuleBuilder.ConditionBuilder;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.factory.ControlFactory;
 import edu.common.dynamicextensions.domain.nui.factory.ControlManager;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class ContainerParser {
 
@@ -60,7 +61,7 @@ public class ContainerParser {
 		
 	public Container parse() throws Exception {
 		if ((formXml == null || formXml.trim().isEmpty()) && formXmlIn == null) {
-			throw new IllegalAccessError("Cannot call this method without form definition file");
+			throw new FormException("Cannot call this method without form definition file");
 		}
 				
 		InputStream formIn = null;
@@ -173,7 +174,7 @@ public class ContainerParser {
 		
 		String caption = getTextValue(viewElement, "caption");
 		if (caption == null) {
-			throw new RuntimeException("Form caption can't be null");
+			throw new FormException("Form caption can't be null");
 		}
 		container.setCaption(caption);		
 		
@@ -203,7 +204,7 @@ public class ContainerParser {
 			String ctrlName = ctrlEle.getNodeName();
 			ControlFactory factory = ControlManager.getInstance().getFactory(ctrlName);
 			if (factory == null) {
-				throw new IllegalArgumentException("Invalid control type: " + ctrlName);
+				throw new FormException("Invalid control type: " + ctrlName);
 			}
 			
 			controls.add(factory.parseControl(ctrlEle, currentRow, xpos, props));
@@ -242,7 +243,7 @@ public class ContainerParser {
 		}
 		
 		if (exprs == null || exprs.getLength() != 1) {
-			throw new RuntimeException("More than one expression in skip rule");
+			throw new FormException("More than one expression in skip rule");
 		}			
 
 		createSkipConditions(condBuilder, (Element)exprs.item(0));

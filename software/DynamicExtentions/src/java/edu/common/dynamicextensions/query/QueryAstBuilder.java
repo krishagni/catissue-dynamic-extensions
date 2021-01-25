@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.query.antlr.AQLBaseVisitor;
 import edu.common.dynamicextensions.query.antlr.AQLParser;
@@ -205,7 +206,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 
 		LiteralValueListNode list = (LiteralValueListNode)visit(ctx.literal_values());
 		if (list.size() > 1000 && DbSettingsFactory.isOracle()) {
-			throw new IllegalArgumentException(
+			throw new FormException(
 				"You've used " + list.size() + " condition values. " +
 				"However, more than 1000 condition values are not allowed. Please consider breaking the long filter into multiple smaller filters.");
 		}
@@ -472,7 +473,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	} else if (ctx.AVG() != null) {
     		countNode.setAggFn(AGG_FN.AVG);
     	} else {
-    		throw new IllegalArgumentException("Unknown aggregate function");
+    		throw new FormException("Unknown aggregate function");
     	}
     	    	
     	if (ctx.DISTINCT() != null) {

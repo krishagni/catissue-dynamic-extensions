@@ -19,6 +19,7 @@ import edu.common.dynamicextensions.domain.nui.LinkControl;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.napi.VersionedContainer;
 import edu.common.dynamicextensions.napi.impl.VersionedContainerImpl;
 import edu.common.dynamicextensions.query.ast.AggregateNode;
@@ -161,7 +162,7 @@ public class QueryCompiler
             String dest = formLookupName.substring(formLookupName.indexOf(".") + 1); 
             Path path = pathConfig().getPath(rootFormName, dest);
             if (path == null) {
-                throw new RuntimeException("No path between root form " + rootFormName + " and " + dest);
+                throw new FormException("No path between root form " + rootFormName + " and " + dest);
             }
             
             int queryId = Integer.parseInt(formLookupName.split("\\.")[0]);
@@ -337,7 +338,7 @@ public class QueryCompiler
 				fieldTree.setForeignKey(luCtrl.getLookupKey());
 			}
 		} else {
-			throw new RuntimeException("Cannot create field tree for unknown type: " + field.getClass());
+			throw new FormException("Cannot create field tree for unknown type: " + field.getClass());
 		}
 
 		return fieldTree;
@@ -417,7 +418,7 @@ public class QueryCompiler
     	
     	String[] formNames = getFormNames(expr);
     	if (formNames.length != 1) {
-    		throw new IllegalArgumentException("nth-child refers to more than one-form");
+    		throw new FormException("nth-child refers to more than one-form");
     	}
        	
         JoinTree childTree = joinMap.remove((queryId + 1) + "." + formNames[0]);
@@ -426,7 +427,7 @@ public class QueryCompiler
         String descendentCol = childTree.getForm().getHierarchyDescendentCol();
         
         if (treeTable == null || ancestorCol == null || descendentCol == null) {
-        	throw new IllegalArgumentException("nth-child form do not have relation hierarchy table defined");
+        	throw new FormException("nth-child form do not have relation hierarchy table defined");
         }
         		
         JoinTree parentTree = joinMap.get(queryId + "." + formNames[0]);
@@ -667,7 +668,7 @@ public class QueryCompiler
     	if (formTree == null) {
     		form = getContainer(formName);
     		if (form == null) {
-    			throw new IllegalArgumentException("Invalid form '" + formName + "' in the field: " + field.getName());
+    			throw new FormException("Invalid form '" + formName + "' in the field: " + field.getName());
     		}
     		
     		formTree = new JoinTree(form, "t" + tabCnt++);
@@ -679,7 +680,7 @@ public class QueryCompiler
 
 		Control ctrl = getControl(form, fieldNameParts[1]);
 		if (ctrl == null) {
-			throw new IllegalArgumentException("Form '" + form.getName() + "' does not have the field '" + fieldNameParts[1] + "'. Expr: " + field.getName());
+			throw new FormException("Form '" + form.getName() + "' does not have the field '" + fieldNameParts[1] + "'. Expr: " + field.getName());
 		}
 
 		if (!isCustomOrExtensionField(fieldNameParts[1]) && (ctrl instanceof SubFormControl) && fieldNameParts.length > 2) {
@@ -693,13 +694,13 @@ public class QueryCompiler
         }
         
         if (formTree == null) {
-        	throw new IllegalArgumentException("Invalid field: " + field.getName());
+        	throw new FormException("Invalid field: " + field.getName());
         }
         
         form = formTree.getForm();
         ctrl = form.getControlByUdn(fieldNameParts[fieldNameParts.length - 1]);
         if (ctrl == null) {
-        	throw new IllegalArgumentException("Invalid field: " + field.getName());
+        	throw new FormException("Invalid field: " + field.getName());
         }
         
         String tabAlias = formTree.getAlias();
@@ -737,7 +738,7 @@ public class QueryCompiler
     private JoinTree getSubFormTree(int queryId, JoinTree formTree, String fieldName, boolean failIfAbsent, String extnForm) {
 		Control ctrl = getControl(formTree.getForm(), fieldName);
     	if (!(ctrl instanceof SubFormControl)) {
-    		throw new IllegalArgumentException("Field is not sub-form:" + fieldName);
+    		throw new FormException("Field is not sub-form:" + fieldName);
     	}
     	
     	String key = fieldName;
@@ -806,7 +807,7 @@ public class QueryCompiler
     	if (extensionFormTree == null) {
     		Container extensionForm = getContainer(fieldNameParts[startIdx + 1]);
     		if (extensionForm == null) {
-    			throw new IllegalArgumentException("Invalid extension form name: " + fieldNameParts[2]);
+    			throw new FormException("Invalid extension form name: " + fieldNameParts[2]);
     		}
     		
     		extensionFormTree = new JoinTree(extensionForm, "t" + tabCnt++);    		

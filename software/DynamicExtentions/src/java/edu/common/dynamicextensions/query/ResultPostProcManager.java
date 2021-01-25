@@ -3,6 +3,8 @@ package edu.common.dynamicextensions.query;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.common.dynamicextensions.napi.FormException;
+
 public class ResultPostProcManager {
 	private static ResultPostProcManager instance = new ResultPostProcManager();
 			
@@ -27,11 +29,11 @@ public class ResultPostProcManager {
 	
 	public void addFactory(String name, ResultPostProcFactory factory) {
 		if (name == null || name.isEmpty()) {
-			throw new IllegalArgumentException("Invalid result post processor name");
+			throw new FormException("Invalid result post processor name");
 		}
 		
 		if (factory == null) {
-			throw new IllegalArgumentException("Result post processor factory can't be null");
+			throw new FormException("Result post processor factory can't be null");
 		}
 		
 		factoryMap.put(name, factory);

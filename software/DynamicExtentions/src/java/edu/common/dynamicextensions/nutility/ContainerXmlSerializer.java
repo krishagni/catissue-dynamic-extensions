@@ -35,6 +35,7 @@ import edu.common.dynamicextensions.domain.nui.SkipCondition;
 import edu.common.dynamicextensions.domain.nui.SkipRule;
 import edu.common.dynamicextensions.domain.nui.SkipRule.LogicalOp;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class ContainerXmlSerializer implements ContainerSerializer  {
 	private static Map<Class<?>, String> actionNameMap = initializeSkipActionNameMap();;
@@ -67,7 +68,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 
 			writer = new BufferedWriter(new FileWriter(xmlFile));
 		} catch (IOException e) {
-			throw new RuntimeException("Error creating output file writer", e);
+			throw new FormException("Error creating output file writer", e);
 		}
 	}
 
@@ -99,7 +100,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 			
 			writer.flush();
 		} catch(IOException e) {
-			throw new RuntimeException("Error serializing container", e);
+			throw new FormException("Error serializing container", e);
 		} finally {
 			IoUtil.close(writer);
 		}
@@ -151,7 +152,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 		
 		if(!dirFile.isDirectory()) {
 			if (!dirFile.mkdirs()) {
-				throw new RuntimeException("Failed to create output directory: " + outDir);
+				throw new FormException("Failed to create output directory: " + outDir);
 			}
 		}
 	}
@@ -283,7 +284,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 	private void writeCondition(SkipCondition condition) {
 		String fieldName = container.getControlCanonicalName(condition.getSourceControl());
 		if (fieldName == null) {
-			throw new RuntimeException("Invalid field in skip condition. Invalid container state");
+			throw new FormException("Invalid field in skip condition. Invalid container state");
 		}
 		
 		Map<String,String> attrs = new HashMap<String, String>();
@@ -357,7 +358,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 			File pvDirFile = new File(pvDir.toString());
 			
 			if (!pvDirFile.exists() && !pvDirFile.mkdirs()) {
-				throw new RuntimeException("Unable to create pv directory");
+				throw new FormException("Unable to create pv directory");
 			}
 			
 			csvFile =  new StringBuilder(pvDir).append(File.separator).append(fileName).append(".csv");
@@ -378,7 +379,7 @@ public class ContainerXmlSerializer implements ContainerSerializer  {
 			
 			csvWriter.flush();
 		} catch(IOException e){
-			throw new RuntimeException("Error occured while creating .csv file" + csvFile.toString());
+			throw new FormException("Error occured while creating .csv file" + csvFile.toString());
 		} finally {
 			IoUtil.close(csvWriter);
 		}

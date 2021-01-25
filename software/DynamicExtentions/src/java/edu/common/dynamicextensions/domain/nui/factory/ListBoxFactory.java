@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.ListBox;
 import edu.common.dynamicextensions.domain.nui.MultiSelectListBox;
+import edu.common.dynamicextensions.napi.FormException;
 
 import static edu.common.dynamicextensions.nutility.ParserUtil.*;
 
@@ -51,7 +52,7 @@ public class ListBoxFactory extends AbstractControlFactory {
 		boolean autoComplete  = getBool(props, "autoCompleteDropdown", false);
 
 		if (!isMultiSelect && autoComplete) {
-			throw new RuntimeException("Autocomplete dropdown cannot be used for non-multiselect listBox");
+			throw new FormException("Autocomplete dropdown cannot be used for non-multiselect listBox");
 		}
 
 		ListBox listBox;

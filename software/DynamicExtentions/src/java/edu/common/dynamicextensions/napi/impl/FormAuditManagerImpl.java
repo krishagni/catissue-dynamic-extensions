@@ -36,6 +36,7 @@ import edu.common.dynamicextensions.napi.ControlValue;
 import edu.common.dynamicextensions.napi.FileControlValue;
 import edu.common.dynamicextensions.napi.FormAuditManager;
 import edu.common.dynamicextensions.napi.FormData;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.ndao.JdbcDao;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
@@ -83,7 +84,7 @@ public class FormAuditManagerImpl implements FormAuditManager {
 		try {
 			audit(userCtxt, form, dirtyFields, operation, recordId, JdbcDaoFactory.getJdbcDao());
 		} catch (Exception e) {
-			throw new RuntimeException("Error saving form audit data", e);
+			throw new FormException("Error saving form audit data", e);
 		} 
 	}
 
@@ -297,7 +298,7 @@ public class FormAuditManagerImpl implements FormAuditManager {
 
 			return mapper.writeValueAsString(data);
 		} catch (Exception e) {
-			throw new RuntimeException("Error generating audit event data JSON: " + e.getMessage(), e);
+			throw new FormException("Error generating audit event data JSON: " + e.getMessage(), e);
 		}
 	}
 
@@ -363,7 +364,7 @@ public class FormAuditManagerImpl implements FormAuditManager {
 				insertFormAuditEventData(formAuditEvent, jdbcDao);
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to persist audit data", e);
+			throw new FormException("Failed to persist audit data", e);
 		}
 	}
 
@@ -408,7 +409,7 @@ public class FormAuditManagerImpl implements FormAuditManager {
 			clobOut = clob.setCharacterStream(0);	
 			clobOut.write(auditData);
 		} catch (Exception e) {
-			throw new RuntimeException("Error writing clob", e);
+			throw new FormException("Error writing clob", e);
 		} finally {
 			IOUtils.closeQuietly(clobOut);
 		}

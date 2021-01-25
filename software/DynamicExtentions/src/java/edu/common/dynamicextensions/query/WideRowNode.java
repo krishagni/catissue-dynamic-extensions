@@ -12,9 +12,10 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 
-public class WideRowNode implements Serializable {	
+public class WideRowNode implements Serializable {
 
     private static final long serialVersionUID = 9096578807871606291L;
 
@@ -138,7 +139,7 @@ public class WideRowNode implements Serializable {
         			}
         			 
         			if (childNode == null) {
-        				throw new RuntimeException("Unexpected scenario: child node is null");
+        				throw new FormException("Unexpected scenario: child node is null");
         			}
         			
         			// addEmptyChildRows(tabFieldsMap, maxRowCntMap, childNode.alias, childNode.getAliases(false), row, rowCount, maxCount);

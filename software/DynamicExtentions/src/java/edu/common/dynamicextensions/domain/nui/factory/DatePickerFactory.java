@@ -11,6 +11,7 @@ import org.w3c.dom.Element;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
 import edu.common.dynamicextensions.domain.nui.DatePicker.DefaultDateType;
+import edu.common.dynamicextensions.napi.FormException;
 
 import static edu.common.dynamicextensions.nutility.ParserUtil.*;
 
@@ -62,7 +63,7 @@ public class DatePickerFactory extends AbstractControlFactory {
 				Date date = sdf.parse(defaultDate);
 				datePicker.setDefaultDate(date);
 			} catch (Exception e) {
-				throw new RuntimeException("Invalid default date: " + defaultDate);
+				throw new FormException("Invalid default date: " + defaultDate);
 			}
 		}
 	}

@@ -4,6 +4,8 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import edu.common.dynamicextensions.napi.FormException;
+
 public class XmlUtil {
 	
 	/**
@@ -100,7 +102,7 @@ public class XmlUtil {
 			writer.write(value);
 			writer.write("\n");
 		} catch (Exception e) {
-			throw new RuntimeException("Error writing value " + value, e);
+			throw new FormException("Error writing value " + value, e);
 		}
 	}
 }

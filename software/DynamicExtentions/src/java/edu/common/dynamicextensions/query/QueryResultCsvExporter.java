@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Iterator;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.IoUtil;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -40,7 +41,7 @@ public class QueryResultCsvExporter implements QueryResultExporter {
 			out = new FileOutputStream(exportPath);
 			return export(out, query, screener);
 		} catch (Exception e) {
-			throw new RuntimeException("Error exporting CSV file", e);
+			throw new FormException("Error exporting CSV file", e);
 		} finally {
 			IoUtil.close(out);
 		}
@@ -91,7 +92,7 @@ public class QueryResultCsvExporter implements QueryResultExporter {
 				csvWriter.writeNext(row);
 			}			
 		} catch (Exception e) {
-			throw new RuntimeException("Error writing query result data to CSV file", e);
+			throw new FormException("Error writing query result data to CSV file", e);
 		} finally {
 			IoUtil.close(csvWriter);
 		}		

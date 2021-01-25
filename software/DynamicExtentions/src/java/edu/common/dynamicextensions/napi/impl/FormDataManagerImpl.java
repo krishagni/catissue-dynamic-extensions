@@ -42,6 +42,7 @@ import edu.common.dynamicextensions.napi.FormAuditManager;
 import edu.common.dynamicextensions.napi.FormData;
 import edu.common.dynamicextensions.napi.FormDataFilterManager;
 import edu.common.dynamicextensions.napi.FormDataManager;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.JdbcDao;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
 import edu.common.dynamicextensions.ndao.ResultExtractor;
@@ -93,7 +94,7 @@ public class FormDataManagerImpl implements FormDataManager {
 			Container container = Container.getContainer(containerId);
 			return container != null ? getFormData(container, recordId) : null;
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining form data: [" + containerId + ", " + recordId  + "]", e);
+			throw new FormException("Error obtaining form data: [" + containerId + ", " + recordId  + "]", e);
 		}
 	}
 	
@@ -102,7 +103,7 @@ public class FormDataManagerImpl implements FormDataManager {
 		try {
 			return getFormData(JdbcDaoFactory.getJdbcDao(), container, "IDENTIFIER", recordId);
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining form data: [" + container.getId() + ", " + recordId  + "]", e);
+			throw new FormException("Error obtaining form data: [" + container.getId() + ", " + recordId  + "]", e);
 		}	
 	}
 
@@ -112,7 +113,7 @@ public class FormDataManagerImpl implements FormDataManager {
 			Container container = Container.getContainer(containerId);
 			return container != null ? getFormData(container, recordIds) : Collections.emptyList();
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining form data: [" + containerId + ", " + StringUtils.join(recordIds, ", ")  + "]", e);
+			throw new FormException("Error obtaining form data: [" + containerId + ", " + StringUtils.join(recordIds, ", ")  + "]", e);
 		}
 	}
 
@@ -121,7 +122,7 @@ public class FormDataManagerImpl implements FormDataManager {
 		try {
 			return getFormData(JdbcDaoFactory.getJdbcDao(), container, "IDENTIFIER", recordIds);
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining form data: [" + container.getId() + ", " + StringUtils.join(recordIds, ", ")  + "]", e);
+			throw new FormException("Error obtaining form data: [" + container.getId() + ", " + StringUtils.join(recordIds, ", ")  + "]", e);
 		}
 	}
 
@@ -137,7 +138,7 @@ public class FormDataManagerImpl implements FormDataManager {
 			
 			return result;
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining summarized form data list", e);
+			throw new FormException("Error obtaining summarized form data list", e);
 		}
 	}
 
@@ -187,7 +188,7 @@ public class FormDataManagerImpl implements FormDataManager {
 				}				
 			});			
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining summarized form data list", e);
+			throw new FormException("Error obtaining summarized form data list", e);
 		}
 	}
 	
@@ -223,7 +224,7 @@ public class FormDataManagerImpl implements FormDataManager {
 
 			formData = getFilterMgr().executePostFilters(userCtxt, formData);
 			return formData.getRecordId();
-		} catch (IllegalArgumentException|DataAccessException ae) {
+		} catch (FormException|DataAccessException ae) {
 			throw ae;
 		} catch (Exception e) {
 			StringBuilder msg = new StringBuilder("Error saving form data: ");
@@ -231,7 +232,7 @@ public class FormDataManagerImpl implements FormDataManager {
 				msg.append(e.getMessage());
 			}
 			
-			throw new RuntimeException(msg.toString(), e);
+			throw new FormException(msg.toString(), e);
 		}
 	}
 	
@@ -256,7 +257,7 @@ public class FormDataManagerImpl implements FormDataManager {
 	public List<Long> getRecordIds(Container container, String ctrlName, Object value, boolean useUdn) {
 		Control ctrl = useUdn ? container.getControlByUdn(ctrlName, "\\.") : container.getControl(ctrlName, "\\.");
 		if (ctrl == null) {
-			throw new IllegalArgumentException("No such control: " + ctrlName);
+			throw new FormException("No such control: " + ctrlName);
 		}
 
 		return getRecordIds(JdbcDaoFactory.getJdbcDao(), ctrl, value, (ctrlName.split("\\.").length > 1));
@@ -395,7 +396,7 @@ public class FormDataManagerImpl implements FormDataManager {
 			}
 
 			if (sfCtrl.isOneToOne() && sfCtrl.isInverse()) {
-				throw new RuntimeException("One-to-one inverse not yet implemented - TODO");
+				throw new FormException("One-to-one inverse not yet implemented - TODO");
 			}
 
 			String fk = StringUtils.isBlank(sfCtrl.getForeignKey()) ? "PARENT_RECORD_ID" : sfCtrl.getForeignKey();
@@ -624,7 +625,7 @@ public class FormDataManagerImpl implements FormDataManager {
 					Object key = crud.saveValue(jdbcDao, formData, formData.getFieldValue(sfCtrl.getName()));
 					params.add(key);
 				} else {
-					throw new RuntimeException("One-to-one inverse not yet implemented - TODO");
+					throw new FormException("One-to-one inverse not yet implemented - TODO");
 				}
 			}
 			

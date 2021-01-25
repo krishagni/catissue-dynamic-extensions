@@ -13,6 +13,8 @@ import java.io.OutputStream;
 
 import org.apache.log4j.Logger;
 
+import edu.common.dynamicextensions.napi.FormException;
+
 /**
  * @author gaurav_mehta
  *
@@ -53,7 +55,7 @@ public final class DirOperationsUtility
 			}
 			if (!tempDir.mkdirs())
 			{
-				throw new RuntimeException("Unable to create tempDirectory" + tempDirName);
+				throw new FormException("Unable to create tempDirectory" + tempDirName);
 			}
 		}
 		else
@@ -69,7 +71,7 @@ public final class DirOperationsUtility
 				return;
 			}
 			if (!tempDir.mkdirs()) {
-				throw new RuntimeException("Unable to create tempDirectory" + tempDirName);
+				throw new FormException("Unable to create tempDirectory" + tempDirName);
 			}
 		} else {
 			LOGGER.info("Given temp directory is empty");
@@ -113,13 +115,13 @@ public final class DirOperationsUtility
 		File folder = new File(srcFolder);
 		if (!folder.exists() || !folder.isDirectory())
 		{
-			throw new RuntimeException(srcFolder
+			throw new FormException(srcFolder
 					+ "does not exist. Please specify correct path");
 		}
 		LOGGER.info("DirOpUtility :: validateFolderSizeForUpload :: Size :: "+getSize(folder));
 		if (maxSize < getSize(folder))
 		{
-			throw new RuntimeException(srcFolder
+			throw new FormException(srcFolder
 					+ "Exceeds the maximum file size. The folder size should be less than 500MB");
 		}
 	}
@@ -130,12 +132,12 @@ public final class DirOperationsUtility
 		File xmiFile = new File(srcFile);
 		if (!xmiFile.exists() || xmiFile.isDirectory())
 		{
-			throw new RuntimeException(xmiFile
+			throw new FormException(xmiFile
 					+ "does not exist. Please specify correct path");
 		}
 		if (maxSize < getSize(xmiFile))
 		{
-			throw new RuntimeException(xmiFile
+			throw new FormException(xmiFile
 					+ "Exceeds the maximum file size. The folder size should be less than 500MB");
 		}
 	}

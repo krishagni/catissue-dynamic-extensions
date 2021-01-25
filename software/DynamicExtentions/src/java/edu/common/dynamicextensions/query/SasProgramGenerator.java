@@ -17,6 +17,7 @@ import edu.common.dynamicextensions.domain.nui.PermissibleValue;
 import edu.common.dynamicextensions.domain.nui.SelectControl;
 import edu.common.dynamicextensions.domain.nui.StringTextField;
 import edu.common.dynamicextensions.domain.nui.TextArea;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.IoUtil;
 import edu.common.dynamicextensions.query.ast.FieldNode;
 import edu.common.dynamicextensions.query.ast.LiteralValueNode;
@@ -63,7 +64,7 @@ public class SasProgramGenerator {
 			writer.write("\r\n ;\r\nif _ERROR_ then call symput('_EFIERR_',1); \r\n  run ;\r\n");		
 			writer.flush();
 		} catch (Exception e) {
-			throw new RuntimeException("Error generating SAS program", e);
+			throw new FormException("Error generating SAS program", e);
 		} finally {
 			IoUtil.close(writer);
 		}
@@ -75,7 +76,7 @@ public class SasProgramGenerator {
 			writer.write("\r\nrun;\r\n");
 			writer.flush();			
 		} catch (Exception e) {
-			throw new RuntimeException("Error writing PV mapping file", e);
+			throw new FormException("Error writing PV mapping file", e);
 		} finally {
 			IoUtil.close(writer);
 		}

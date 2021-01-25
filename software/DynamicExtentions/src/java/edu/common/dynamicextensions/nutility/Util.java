@@ -6,6 +6,8 @@ import java.util.Date;
 
 import org.apache.commons.beanutils.MethodUtils;
 
+import edu.common.dynamicextensions.napi.FormException;
+
 public class Util {
 	public static boolean isOraTimestamp(Object obj) {
 		if (obj == null) {
@@ -26,7 +28,7 @@ public class Util {
 			cal.setTimeInMillis(time.getTime());
 			return cal.getTime();							
 		} catch (Exception e) {
-			throw new RuntimeException("Error converting to timestamp: " + obj.getClass().getName());
+			throw new FormException("Error converting to timestamp: " + obj.getClass().getName());
 		}
 	}
 }

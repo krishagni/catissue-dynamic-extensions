@@ -11,6 +11,7 @@ import org.w3c.dom.NodeList;
 
 import au.com.bytecode.opencsv.CSVReader;
 import edu.common.dynamicextensions.domain.nui.PermissibleValue;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class ParserUtil {
 	public static Long getLongValue(Element element, String name) {
@@ -93,7 +94,7 @@ public class ParserUtil {
 			return text.toString();
 		}
 		
-		throw new RuntimeException("Element " + node.getNodeName() + " is not a text element");
+		throw new FormException("Element " + node.getNodeName() + " is not a text element");
 	}
 	
 	public static List<PermissibleValue> getPermissibleValues(Element optionsParentEl, String pvDir) {
@@ -160,7 +161,7 @@ public class ParserUtil {
 			}
 			return pvs;
 		} catch (Exception e) {
-			throw new RuntimeException ("Error reading options file: " + optionsFile, e);
+			throw new FormException ("Error reading options file: " + optionsFile, e);
 		} finally {
 			IoUtil.close(csvReader);
 			IoUtil.close(reader);

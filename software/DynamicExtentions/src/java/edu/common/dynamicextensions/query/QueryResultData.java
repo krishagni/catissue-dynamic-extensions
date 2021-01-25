@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.DatePicker;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.nutility.Util;
 import edu.common.dynamicextensions.query.ast.AggregateNode;
@@ -214,7 +215,7 @@ public class QueryResultData {
                 rows.add(row);
             }    		
     	} catch (Exception e) {
-    		throw new RuntimeException("Error traversing result set", e);
+    		throw new FormException("Error traversing result set", e);
     	} finally {
     		cumulative.clear();
 			cumulative = null;

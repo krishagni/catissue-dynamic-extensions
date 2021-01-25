@@ -22,6 +22,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import edu.common.dynamicextensions.napi.ControlValue;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
 import edu.common.dynamicextensions.nutility.ContainerXmlSerializer;
 
@@ -87,7 +88,7 @@ public abstract class SelectControl extends Control implements Serializable {
 			try {
 				result = new SimpleDateFormat(pvDataSource.getDateFormat()).parse(value);
 			} catch (Exception e) {
-				throw new IllegalArgumentException("Error parsing date string: " + value, e);
+				throw new FormException("Error parsing date string: " + value, e);
 			}			
 		}
 		
@@ -113,7 +114,7 @@ public abstract class SelectControl extends Control implements Serializable {
 			try {
 				result = new SimpleDateFormat(pvDataSource.getDateFormat()).format((Date)value);
 			} catch (Exception e) {
-				throw new RuntimeException("Error converting date to string: " + value, e);				
+				throw new FormException("Error converting date to string: " + value, e);
 			}
 		}
 		

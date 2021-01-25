@@ -24,6 +24,7 @@ import edu.common.dynamicextensions.domain.nui.FileUploadControl;
 import edu.common.dynamicextensions.domain.nui.LinkControl;
 import edu.common.dynamicextensions.domain.nui.LookupControl;
 import edu.common.dynamicextensions.domain.nui.MultiSelectControl;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.query.ast.AggregateNode;
 import edu.common.dynamicextensions.query.ast.ArithExpressionNode;
@@ -221,7 +222,7 @@ public class QueryGenerator {
 		}
 
 		if (count > 60) {
-			throw new IllegalArgumentException(
+			throw new FormException(
 				"Too many (" + count + ") tables. Query interface permits use of only 60 tables in a join. " +
 				"Please consider removing some fields/filters from your query");
 		}
@@ -581,7 +582,7 @@ public class QueryGenerator {
 
 	private String buildFilter0(FilterNode filter) {
 		if (!isValidFilter(filter)) {
-			throw new RuntimeException("Invalid filter"); // add more info here
+			throw new FormException("Invalid filter"); // add more info here
 		}
 
 		if (isDateCmpFilter(filter)) {
@@ -727,7 +728,7 @@ public class QueryGenerator {
     			return "(" + lt(lhsSql, d0Sql) + " or " + gt(lhsSql, d1Sql) + ")";
     			
     		default:
-    			throw new IllegalArgumentException("Unexpected operator for date: " + filter.getRelOp().symbol());
+    			throw new FormException("Unexpected operator for date: " + filter.getRelOp().symbol());
     	}
     }
         
@@ -1097,7 +1098,7 @@ public class QueryGenerator {
     		return "current_date()";
     	}
     	
-    	throw new RuntimeException("Unknown product type: " + DbSettingsFactory.getProduct());
+    	throw new FormException("Unknown product type: " + DbSettingsFactory.getProduct());
     }
     
     private String getAggregateSql(AggregateNode aggNode) {
@@ -1189,7 +1190,7 @@ public class QueryGenerator {
     		return getMySQLDateDiffSql(diffType, loperand, roperand);
     	}
     	
-    	throw new RuntimeException("Unknown product type: " + DbSettingsFactory.getProduct());
+    	throw new FormException("Unknown product type: " + DbSettingsFactory.getProduct());
     }
     
     private String getOracleDateDiffSql(DiffType diffType, String loperand, String roperand) {
@@ -1270,7 +1271,7 @@ public class QueryGenerator {
 			
 			return appDate;
 		} catch (ParseException pe) {
-			throw new IllegalArgumentException("Invalid date: " + date, pe);
+			throw new FormException("Invalid date: " + date, pe);
 		}		
 	}
 			

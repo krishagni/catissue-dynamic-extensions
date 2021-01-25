@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.LinkControl;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class LinkControlFactory extends AbstractControlFactory {
 	public static LinkControlFactory getInstance() {
@@ -45,12 +46,12 @@ public class LinkControlFactory extends AbstractControlFactory {
 	private void setLinkProps(LinkControl linkField, Map<String, Object> props) {
 		String formName = (String) props.getOrDefault("formName", null);
 		if (StringUtils.isBlank(formName)) {
-			throw new IllegalArgumentException("Form name is mandatory for link field");
+			throw new FormException("Form name is mandatory for link field");
 		}
 
 		Container form = Container.getContainer(formName);
 		if (form == null) {
-			throw new IllegalArgumentException("Invalid form name: " + formName);
+			throw new FormException("Invalid form name: " + formName);
 		}
 
 		linkField.setFormName(formName);

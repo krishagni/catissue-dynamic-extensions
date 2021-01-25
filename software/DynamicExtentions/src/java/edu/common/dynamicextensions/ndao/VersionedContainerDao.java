@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.common.dynamicextensions.domain.nui.VersionedContainerInfo;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class VersionedContainerDao {
 	private JdbcDao jdbcDao;
@@ -103,7 +104,7 @@ public class VersionedContainerDao {
 			jdbcDao.executeUpdate(INSERT_VERSIONED_CONTAINER_INFO_SQL, params);
 		
 		} catch (Exception e) {
-			throw new RuntimeException("Error inserting versioned container info", e);
+			throw new FormException("Error inserting versioned container info", e);
 		}
 	}
 	
@@ -135,7 +136,7 @@ public class VersionedContainerDao {
 			
 			return formId;
 		} catch (Exception e) {
-			throw new RuntimeException("Error inserting versioned container info", e);
+			throw new FormException("Error inserting versioned container info", e);
 		}
 	}
 	

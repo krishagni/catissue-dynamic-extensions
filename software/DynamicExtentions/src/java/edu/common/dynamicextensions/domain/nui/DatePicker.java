@@ -18,6 +18,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
 import edu.common.dynamicextensions.nutility.DeConfiguration;
 import edu.common.dynamicextensions.nutility.Util;
@@ -116,7 +117,7 @@ public class DatePicker extends Control implements Serializable {
 			try {
 				return Date.from(Instant.parse(value));
 			} catch (DateTimeParseException dtpe) {
-				throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + fmt, dtpe);
+				throw new FormException("Error creating date object from [" + value + "]. Format: " + fmt, dtpe);
 			}
 		} else {
 			try {
@@ -130,7 +131,7 @@ public class DatePicker extends Control implements Serializable {
 					try {
 						return YYYY_MM_DD.parse(value);
 					} catch (Exception e2) {
-						throw new IllegalArgumentException("Error creating date object from [" + value + "]. Format: " + fmt, e);
+						throw new FormException("Error creating date object from [" + value + "]. Format: " + fmt, e);
 					}
 				}
 			}
@@ -231,10 +232,10 @@ public class DatePicker extends Control implements Serializable {
 			} else if (value instanceof Date){ 
 				return (Date)value;
 			} else {
-				throw new IllegalArgumentException("Unknown object type");
+				throw new FormException("Unknown object type");
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("Error converting input object: " + value.getClass().getName() + " to java.util.Date", e);
+			throw new FormException("Error converting input object: " + value.getClass().getName() + " to java.util.Date", e);
 		}
 	}
 

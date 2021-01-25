@@ -33,6 +33,7 @@ import com.thoughtworks.xstream.security.NoTypePermission;
 import edu.common.dynamicextensions.domain.nui.SkipCondition.RelationalOp;
 import edu.common.dynamicextensions.domain.nui.SkipRule.LogicalOp;
 import edu.common.dynamicextensions.napi.FormEventsNotifier;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.ColumnTypeHelper;
 import edu.common.dynamicextensions.ndao.ContainerDao;
 import edu.common.dynamicextensions.ndao.JdbcDao;
@@ -53,9 +54,7 @@ public class Container implements Serializable {
 	
 	private static final String columnNameFmt = "DE_A_%d";
 	
-	private static final String specialChars = "[+-/*(){}%. ]";
-	
-	private static Pattern notAllowed = Pattern.compile(specialChars, Pattern.CASE_INSENSITIVE);
+	private static Pattern notAllowed = Pattern.compile("\\W+", Pattern.CASE_INSENSITIVE);
 
 	private static final String primaryKeyCtrlName = "_?primary_key?_";
 
@@ -137,7 +136,7 @@ public class Container implements Serializable {
 
 	public void setName(String name) {
 		if (StringUtils.isNotBlank(name) && notAllowed.matcher(name).find()) {
-			throw new RuntimeException("Following special characters (including whitespaces) are not allowed in form names: " + specialChars);
+			throw new FormException("Special characters (including spaces) are not allowed in the form names!");
 		}
 		
 		this.name = name;
@@ -284,7 +283,7 @@ public class Container implements Serializable {
 	
 	public void removeSkipRule(int i) {
 		if (i < 0 || i > skipRules.size()) {
-			throw new RuntimeException("SkipRule index out of bounds: " + i + " : " + skipRules.size());
+			throw new FormException("SkipRule index out of bounds: " + i + " : " + skipRules.size());
 		}
 		
 		skipRules.remove(i);
@@ -325,7 +324,7 @@ public class Container implements Serializable {
 		try {
 			formulaParser.parseExpression(shortCodeFormula);
 		} catch (Exception e) {
-			throw new RuntimeException("Error while parsing the formula : "+shortCodeFormula,e);
+			throw new FormException("Error while parsing the formula : "+shortCodeFormula, e);
 		}
 	
 		List<String> symbols = formulaParser.getSymbols();
@@ -335,7 +334,7 @@ public class Container implements Serializable {
 			Control ctrl =  getControl(symbol, "\\.");
 			
 			if (ctrl == null) {
-				throw new RuntimeException("Control with name doesn't exist: " + symbol);
+				throw new FormException("Control with name doesn't exist: " + symbol);
 			}
 			
 			String userDefName = getControlCanonicalUdn(ctrl);
@@ -352,7 +351,7 @@ public class Container implements Serializable {
 		try {
 			formulaParser.parseExpression(udnFormula);
 		} catch (Exception e) {
-			throw new RuntimeException("Error while parsing the formula : "+shortCodeFormula,e);
+			throw new FormException("Error while parsing the formula : "+shortCodeFormula,e);
 		}
 	
 		List<String> symbols = formulaParser.getSymbols();
@@ -362,7 +361,7 @@ public class Container implements Serializable {
 			Control ctrl =  getControlByUdn(symbol, "\\.");
 			
 			if (ctrl == null) {
-				throw new RuntimeException("Control with udn doesn't exist: " + symbol);
+				throw new FormException("Control with udn doesn't exist: " + symbol);
 			}
 			String ctrlName = getControlCanonicalName(ctrl);
 			shortCodeFormula = shortCodeFormula.replaceAll(symbol, ctrlName);
@@ -545,53 +544,53 @@ public class Container implements Serializable {
 
 	private void ensureUniqueNameAndUdn(Control control) {
 		if (StringUtils.isBlank(control.getName())) {
-			throw new IllegalArgumentException("Control name cannot be null");
+			throw new FormException("Control name cannot be null");
 		}
 
 		if (controlsMap.containsKey(control.getName())) {
-			throw new IllegalArgumentException("Control with the same name '" + control.getName() + "' already exists");
+			throw new FormException("Control with the same name '" + control.getName() + "' already exists");
 		}
 
 		if (StringUtils.isBlank(control.getUserDefinedName())) {
-			throw new IllegalArgumentException("Control user defined name cannot be null");
+			throw new FormException("Control user defined name cannot be null");
 		}
 
 		if (userDefCtrlNames.contains(control.getUserDefinedName())) {
-			throw new IllegalArgumentException("Control with the same user defined name '" + control.getUserDefinedName() + "' already exists");
+			throw new FormException("Control with the same user defined name '" + control.getUserDefinedName() + "' already exists");
 		}
 
 		for (Control deletedCtrl : getDeletedCtrls()) {
 			if (control.getName().equals(deletedCtrl.getName())) {
-				throw new IllegalArgumentException("Control with the same name '" + control.getName() + "' was already used");
+				throw new FormException("Control with the same name '" + control.getName() + "' was already used");
 			}
 
 			if (control.getUserDefinedName().equals(deletedCtrl.getUserDefinedName())) {
-				throw new IllegalArgumentException("Control with the same user defined name '" + control.getUserDefinedName() + "' was already used");
+				throw new FormException("Control with the same user defined name '" + control.getUserDefinedName() + "' was already used");
 			}
 		}
 	}
 
 	private void validateNameAndUdn(Control control) {
 		if (StringUtils.isBlank(control.getName())) {
-			throw new RuntimeException("Control name cannot be empty");
+			throw new FormException("Control name cannot be empty");
 		} else if (Character.isDigit(control.getName().trim().charAt(0))) {
-			throw new RuntimeException(
+			throw new FormException(
 				"Control names like " + control.getName() +
 				" starting with numeric characters are not allowed!");
 		} else if (notAllowed.matcher(control.getName()).find()) {
-			throw new RuntimeException(
+			throw new FormException(
 				"Control name " + control.getName() + " contains special characters. " +
-				"Following characters including whitespaces are not allowed: " + specialChars);
+				"Special characters including spaces are not allowed.");
 		} else if (StringUtils.isBlank(control.getUserDefinedName())) {
-			throw new RuntimeException("Control UDN cannot be empty");
+			throw new FormException("Control UDN cannot be empty");
 		} else if (Character.isDigit(control.getUserDefinedName().trim().charAt(0))) {
-			throw new RuntimeException(
+			throw new FormException(
 				"Control UDNs like " + control.getUserDefinedName() +
 				" starting with numeric characters are not allowed!");
 		} else if (notAllowed.matcher(control.getUserDefinedName()).find()) {
-			throw new RuntimeException(
+			throw new FormException(
 				"Control UDN " + control.getUserDefinedName() + " contains special characters. " +
-				"Following characters including whitespaces are not allowed: " + specialChars);
+				"Special characters including spaces are not allowed.");
 		}
 	}
 
@@ -606,7 +605,7 @@ public class Container implements Serializable {
 		Control existingControl = controlsMap.remove(name);
 		if (existingControl == null) {
 			// change this exception to status code
-			throw new RuntimeException("Control with name doesn't exist: " + name);
+			throw new FormException("Control with name doesn't exist: " + name);
 		}		
 		userDefCtrlNames.remove(existingControl.getUserDefinedName());
 
@@ -663,7 +662,7 @@ public class Container implements Serializable {
 
 				add(editLog, control);
 			} else {
-				throw new RuntimeException(
+				throw new FormException(
 					"Changing field type from " +
 					existingControl.getCtrlType() + " to " + control.getCtrlType() +
 					" is not allowed");
@@ -733,7 +732,7 @@ public class Container implements Serializable {
 		Control existingControl = controlsMap.remove(name);
 		if (existingControl == null) {
 			// change this exception to status code
-			throw new RuntimeException("Control with name doesn't exist: " + name);			
+			throw new FormException("Control with name doesn't exist: " + name);
 		}
 		userDefCtrlNames.remove(existingControl.getUserDefinedName());
 		
@@ -863,7 +862,7 @@ public class Container implements Serializable {
 			ContainerCache.getInstance().remove(id);
 			return id;			
 		} catch (Exception e) {
-			throw new RuntimeException("Error saving container", e);
+			throw new FormException("Error saving container", e);
 		} 
 	}
 	
@@ -911,10 +910,10 @@ public class Container implements Serializable {
 			}
 
 			return container;
-		} catch (IllegalArgumentException iae) {
-			throw new IllegalArgumentException("Error obtaining container: " + id + ". " + iae.getMessage(), iae);
+		} catch (FormException iae) {
+			throw new FormException("Error obtaining container: " + id + ". " + iae.getMessage(), iae);
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining container: " + id, e);
+			throw new FormException("Error obtaining container: " + id, e);
 		} finally {
 			if (container != null) {
 				logger.info("Time taken to load the form " + container.getName() + " is: " + (Calendar.getInstance().getTimeInMillis() - t1) + " ms");
@@ -941,10 +940,10 @@ public class Container implements Serializable {
 			}
 
 			return container;
-		} catch (IllegalArgumentException iae) {
-			throw new IllegalArgumentException("Error obtaining container: " + name + ". " + iae.getMessage(), iae);
+		} catch (FormException iae) {
+			throw new FormException("Error obtaining container: " + name + ". " + iae.getMessage(), iae);
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining container: " + name, e);
+			throw new FormException("Error obtaining container: " + name, e);
 		} finally {
 			logger.info("Time taken to load the form " + name + " is: " + (Calendar.getInstance().getTimeInMillis() - t1) + " ms");
 		}
@@ -955,7 +954,7 @@ public class Container implements Serializable {
 			ContainerDao dao = new ContainerDao(JdbcDaoFactory.getJdbcDao());
 			return dao.getContainerInfo();
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining container info", e);
+			throw new FormException("Error obtaining container info", e);
 		}		
 	}
 	
@@ -964,7 +963,7 @@ public class Container implements Serializable {
 			ContainerDao dao = new ContainerDao(JdbcDaoFactory.getJdbcDao());
 			return dao.getContainerInfoByCreator(creatorId);
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining container info by creator id: " + creatorId, e);
+			throw new FormException("Error obtaining container info by creator id: " + creatorId, e);
 		}
 	}
 	
@@ -1020,7 +1019,7 @@ public class Container implements Serializable {
 				
 	public void editContainer(Container newContainer) {
 		if (!this.getName().equals(newContainer.getName())) {
-			throw new IllegalArgumentException("Error : Container name cannot be edited");
+			throw new FormException("Error : Container name cannot be edited");
 		}
 		
 		if (isManagedTables()) {
@@ -1109,7 +1108,7 @@ public class Container implements Serializable {
 			}
 
 			if (idx < 0 || idx >= getDeletedCtrls().size()) {
-				throw new IllegalArgumentException("No control with UDN '" + parts[0] + "' is in deleted state.");
+				throw new FormException("No control with UDN '" + parts[0] + "' is in deleted state.");
 			}
 
 
@@ -1125,14 +1124,14 @@ public class Container implements Serializable {
 		} else {
 			Control ctrl = getControlByUdn(parts[0]);
 			if (ctrl == null) {
-				throw new IllegalArgumentException("No control with UDN: '" + parts[0] + "' exists.");
+				throw new FormException("No control with UDN: '" + parts[0] + "' exists.");
 			}
 
 			if (ctrl instanceof SubFormControl) {
 				Container subForm = ((SubFormControl) ctrl).getSubContainer();
 				subForm.undoDelete(parts[1]);
 			} else {
-				throw new IllegalArgumentException("Control with UDN '" + parts[0] + "' is not a subform.");
+				throw new FormException("Control with UDN '" + parts[0] + "' is not a subform.");
 			}
 		}
 	}
@@ -1298,7 +1297,7 @@ public class Container implements Serializable {
 	
 	private void throwExceptionIfDto() {
 		if (isDto) {
-			throw new RuntimeException("Cannot invoke this operation on DTO");
+			throw new FormException("Cannot invoke this operation on DTO");
 		}
 	}
 
@@ -1308,17 +1307,17 @@ public class Container implements Serializable {
 
 	private void validateContainer(ContainerDao dao, boolean subForm) {
 		if (StringUtils.isBlank(name)) {
-			throw new RuntimeException("Form name cannot be empty or blank!");
+			throw new FormException("Form name cannot be empty or blank!");
 		}
 
 		if (Character.isDigit(name.trim().charAt(0))) {
-			throw new RuntimeException("Form names like " + name + " starting with numeric characters are not allowed!");
+			throw new FormException("Form names like " + name + " starting with numeric characters are not allowed!");
 		}
 
 		if (notAllowed.matcher(name).find()) {
-			throw new RuntimeException(
+			throw new FormException(
 				"Form name " + name + " contains special characters. " +
-				"Following characters including whitespaces are not allowed: " + notAllowed);
+				"Special characters including spaces are not allowed.");
 		}
 
 		for (Control ctrl : getControls()) {
@@ -1335,10 +1334,10 @@ public class Container implements Serializable {
 		try {
 			Long dbId = dao.getIdByName(name);
 			if (!Objects.equals(id, dbId)) {
-				throw new RuntimeException("Form with the same name " + name + " already exists");
+				throw new FormException("Form with the same name " + name + " already exists");
 			}
 		} catch (SQLException e) {
-			throw new RuntimeException("Error querying database", e);
+			throw new FormException("Error querying database", e);
 		}
 	}
 	
@@ -1378,7 +1377,7 @@ public class Container implements Serializable {
 			container.initLogs(); // for some reason, xstream is not initializing add/edit/deleteLogs of container
 			return container;
 		} catch (XStreamException xse) {
-			throw new IllegalArgumentException("Error parsing container definition: " + xse.getMessage());
+			throw new FormException("Error parsing container definition: " + xse.getMessage());
 		}
 	}
 	
@@ -1514,7 +1513,7 @@ public class Container implements Serializable {
 	//
 	public String getControlCanonicalName(Control ctrl) {
 		if (ctrl.getName() == null) {
-			throw new RuntimeException("Control name is null. Invalid control state");
+			throw new FormException("Control name is null. Invalid control state");
 		}
 		
 		Control formCtrl = controlsMap.get(ctrl.getName());
@@ -1539,7 +1538,7 @@ public class Container implements Serializable {
 	
 	public String getControlCanonicalUdn(Control ctrl) {
 		if (ctrl.getUserDefinedName() == null) {
-			throw new RuntimeException("User defined name of control is null. Invalid control state");
+			throw new FormException("User defined name of control is null. Invalid control state");
 		}
 		
 		Control formCtrl = controlsMap.get(ctrl.getName());
@@ -1571,13 +1570,13 @@ public class Container implements Serializable {
 		
 		String[] controlNameParts = controlName.split(separator);
 		if (controlNameParts.length == 1) { // no sub form control name
-			throw new IllegalArgumentException("Invalid control name: " + controlName);
+			throw new FormException("Invalid control name: " + controlName);
 		}
 		
 		for (int i = 0; i < controlNameParts.length - 1; ++i) {
 			ctrl = container.getControl(controlNameParts[i]);
 			if (!(ctrl instanceof SubFormControl)) {
-				throw new IllegalArgumentException("Invalid control name: " + controlName);
+				throw new FormException("Invalid control name: " + controlName);
 			}
 			
 			SubFormControl sfCtrl = (SubFormControl)ctrl;
@@ -1586,7 +1585,7 @@ public class Container implements Serializable {
 		
 		ctrl = container.getControl(controlNameParts[controlNameParts.length - 1]);
 		if (ctrl == null) {
-			throw new IllegalArgumentException("Invalid control name: " + controlName);
+			throw new FormException("Invalid control name: " + controlName);
 		}
 		
 		return ctrl;
@@ -1601,13 +1600,13 @@ public class Container implements Serializable {
 		
 		String[] udnParts = userDefinedName.split(separator);
 		if (udnParts.length == 1) { // no sub form control name
-			throw new IllegalArgumentException("Invalid user defined name: " + userDefinedName);
+			throw new FormException("Invalid user defined name: " + userDefinedName);
 		}
 		
 		for (int i = 0; i < udnParts.length - 1; ++i) {
 			ctrl = container.getControlByUdn(udnParts[i]);
 			if (!(ctrl instanceof SubFormControl)) {
-				throw new IllegalArgumentException("Invalid user defined name: " + userDefinedName);
+				throw new FormException("Invalid user defined name: " + userDefinedName);
 			}
 			
 			SubFormControl sfCtrl = (SubFormControl)ctrl;
@@ -1616,7 +1615,7 @@ public class Container implements Serializable {
 		
 		ctrl = container.getControlByUdn(udnParts[udnParts.length - 1]);
 		if (ctrl == null) {
-			throw new IllegalArgumentException("Invalid user defined name: " + userDefinedName);
+			throw new FormException("Invalid user defined name: " + userDefinedName);
 		}
 		
 		return ctrl;
@@ -1648,7 +1647,7 @@ public class Container implements Serializable {
 			ContainerDao containerDao = new ContainerDao(jdbcDao);
 			return containerDao.getNameById(id);
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining container name with id : " + id);
+			throw new FormException("Error obtaining container name with id : " + id);
 		}
 	}
 	

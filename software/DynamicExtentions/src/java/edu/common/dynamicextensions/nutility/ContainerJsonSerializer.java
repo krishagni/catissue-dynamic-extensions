@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 
 import edu.common.dynamicextensions.domain.nui.Container;
+import edu.common.dynamicextensions.napi.FormException;
 
 public class ContainerJsonSerializer implements ContainerSerializer {
 	private Container container;
@@ -43,7 +44,7 @@ public class ContainerJsonSerializer implements ContainerSerializer {
 				writer.write(json);
 			}			
 		} catch (Exception e) {
-			throw new RuntimeException("Error writing to output stream");
+			throw new FormException("Error writing to output stream");
 		}		
 	}
 }

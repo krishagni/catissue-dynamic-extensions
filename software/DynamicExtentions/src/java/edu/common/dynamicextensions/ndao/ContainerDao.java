@@ -14,6 +14,7 @@ import java.util.List;
 import edu.common.dynamicextensions.domain.nui.Container;
 import edu.common.dynamicextensions.domain.nui.ContainerInfo;
 import edu.common.dynamicextensions.domain.nui.UserContext;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.IdGenerator;
 
 public class ContainerDao {	
@@ -132,7 +133,7 @@ public class ContainerDao {
 			
 			rowsDeleted = jdbcDao.executeUpdate(sql, params);
 		} catch (Exception e) {
-			throw new RuntimeException("Error deleting form", e);
+			throw new FormException("Error deleting form", e);
 		}
 		
 		return rowsDeleted != null && rowsDeleted == 1;
@@ -202,7 +203,7 @@ public class ContainerDao {
 			blobOut.write(xml.getBytes());
 			blobOut.close();
 		} catch (Exception e) {
-			throw new RuntimeException("Error writing blob", e);
+			throw new FormException("Error writing blob", e);
 		}
 	}
 

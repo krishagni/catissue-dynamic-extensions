@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.query.ast.AggregateNode;
 import edu.common.dynamicextensions.query.ast.ArithExpressionNode;
 import edu.common.dynamicextensions.query.ast.ConcatNode;
@@ -59,7 +60,7 @@ public class WideRowUtil {
     		return getTabAliasPk(rootNode, ((RoundOffNode)exprNode).getExprNode());
     	}
     	
-    	throw new RuntimeException("Unknown expression node type: " + exprNode);
+    	throw new FormException("Unknown expression node type: " + exprNode);
     }
     
     private static String[] getTabAliasPk(JoinTree rootNode, ExpressionNode leftOperand, ExpressionNode rightOperand) {

@@ -12,6 +12,7 @@ import edu.common.dynamicextensions.domain.nui.Control;
 import edu.common.dynamicextensions.domain.nui.SubFormControl;
 import edu.common.dynamicextensions.domain.nui.UserContext;
 import edu.common.dynamicextensions.domain.nui.VersionedContainerInfo;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.napi.VersionedContainer;
 import edu.common.dynamicextensions.ndao.JdbcDao;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
@@ -70,7 +71,7 @@ public class VersionedContainerImpl implements VersionedContainer {
 
 			return published;
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining published container: " + formId, e);
+			throw new FormException("Error obtaining published container: " + formId, e);
 		} 
 	}
 	
@@ -121,7 +122,7 @@ public class VersionedContainerImpl implements VersionedContainer {
 
 			return published;
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining published container: " + formName, e);
+			throw new FormException("Error obtaining published container: " + formName, e);
 		} 
 	}
 	
@@ -143,7 +144,7 @@ public class VersionedContainerImpl implements VersionedContainer {
 			
 			return resultId;			
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining published container: " + formName, e);
+			throw new FormException("Error obtaining published container: " + formName, e);
 		}		
 	}
 	
@@ -164,7 +165,7 @@ public class VersionedContainerImpl implements VersionedContainer {
 			
 			return versionInfo;			
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining published container: " + formId, e);
+			throw new FormException("Error obtaining published container: " + formId, e);
 		}		
 	}
 	
@@ -179,7 +180,7 @@ public class VersionedContainerImpl implements VersionedContainer {
 			VersionedContainerInfo info = vdao.getDraftContainerInfo(formId);			
 			return (info != null) ? info.getContainerId() : null; 
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtainer draft container:" + formId, e);
+			throw new FormException("Error obtainer draft container:" + formId, e);
 		}		
 	}
 	
@@ -198,7 +199,7 @@ public class VersionedContainerImpl implements VersionedContainer {
 			
 			return draft;
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtainer draft container:" + formId, e);
+			throw new FormException("Error obtainer draft container:" + formId, e);
 		}
 	}
 	
@@ -256,7 +257,7 @@ public class VersionedContainerImpl implements VersionedContainer {
 				applyChangeAndSave(jdbcDao, usrCtx, publishedContainer, changeLog);
 			}	
 		} catch (Exception e) {
-			throw new RuntimeException("Error publishing container retrospectively", e);
+			throw new FormException("Error publishing container retrospectively", e);
 		}
 	}
 	

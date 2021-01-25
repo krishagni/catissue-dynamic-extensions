@@ -19,6 +19,7 @@ import edu.common.dynamicextensions.domain.nui.PermissibleValue;
 import edu.common.dynamicextensions.domain.nui.PvDataSource;
 import edu.common.dynamicextensions.domain.nui.PvVersion;
 import edu.common.dynamicextensions.domain.nui.SelectControl;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.ParserUtil;
 
 public abstract class AbstractControlFactory implements ControlFactory {
@@ -28,11 +29,11 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		String userDefName = getTextValue(ctrlEle, "udn");
 	
 		if (name == null) {
-			throw new RuntimeException("Control name can't be null. Type = " + ctrlEle.getNodeName());
+			throw new FormException("Control name can't be null. Type = " + ctrlEle.getNodeName());
 		}
 		
 		if (userDefName == null) {
-			throw new RuntimeException("User defined name of control can't be null. Type = " + ctrlEle.getNodeName());
+			throw new FormException("User defined name of control can't be null. Type = " + ctrlEle.getNodeName());
 		}
 		
 		ctrl.setName(name);
@@ -96,11 +97,11 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		String udn  = (String) props.get("udn");
 
 		if (name == null || name.trim().isEmpty()) {
-			throw new RuntimeException("Control name can't be null or empty. Type = " + ctrl.getCtrlType());
+			throw new FormException("Control name can't be null or empty. Type = " + ctrl.getCtrlType());
 		}
 
 		if (udn == null || udn.trim().isEmpty()) {
-			throw new RuntimeException("User defined name of control can't be null or empty. Type = " + ctrl.getCtrlType());
+			throw new FormException("User defined name of control can't be null or empty. Type = " + ctrl.getCtrlType());
 		}
 
 		ctrl.setName(name);
@@ -141,7 +142,7 @@ public abstract class AbstractControlFactory implements ControlFactory {
 		try {
 			pvDataSource.setOrdering(PvDataSource.Ordering.valueOf(ordering));
 		} catch (IllegalArgumentException iae) {
-			throw new RuntimeException("Invalid sort order: " + ordering);
+			throw new FormException("Invalid sort order: " + ordering);
 		}
 
 		List<Map<String, Object>> values = (List<Map<String, Object>>) props.get("pvs");
@@ -229,6 +230,6 @@ public abstract class AbstractControlFactory implements ControlFactory {
 			return ((Number) value).intValue();
 		}
 
-		throw new RuntimeException("Unknown integer type/value: " + value.getClass() + " (" + value.toString() + ")");
+		throw new FormException("Unknown integer type/value: " + value.getClass() + " (" + value.toString() + ")");
 	}
 }

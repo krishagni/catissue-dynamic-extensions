@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.common.dynamicextensions.napi.FormException;
+
 public class FileUploadMgr {
 	private static FileUploadMgr instance = new FileUploadMgr();
 	
@@ -34,7 +36,7 @@ public class FileUploadMgr {
 			IoUtil.copy(in, out);
 			return fileId;
 		} catch (Exception e) {
-			throw new RuntimeException("Error saving file", e);
+			throw new FormException("Error saving file", e);
 		} finally {
 			IoUtil.close(out);
 		}

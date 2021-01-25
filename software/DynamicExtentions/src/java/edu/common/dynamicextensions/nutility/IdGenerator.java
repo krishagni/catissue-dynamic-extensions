@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.ndao.JdbcDaoFactory;
 import edu.common.dynamicextensions.ndao.ResultExtractor;
 import edu.common.dynamicextensions.ndao.TransactionManager;
@@ -52,7 +53,7 @@ public class IdGenerator {
 			if (idRange == null || idRange.nextId > idRange.maxId) {				
 				idRange = getIdSliceFromDb(tableName);
 				if (idRange == null) {
-					throw new RuntimeException("Couldn't obtain ID slice DB for table "	+ tableName);
+					throw new FormException("Couldn't obtain ID slice DB for table "	+ tableName);
 				}
 
 				identifiers.put(tableName, idRange);
@@ -62,7 +63,7 @@ public class IdGenerator {
 			idRange.nextId++;
 			return id;
 		} catch (Exception e) {
-			throw new RuntimeException("Error obtaining next ID for "
+			throw new FormException("Error obtaining next ID for "
 					+ tableName, e);
 		}
 	}
@@ -80,7 +81,7 @@ public class IdGenerator {
 			return idRange;
 		} catch (Exception e) {
 			TransactionManager.getInstance().rollback(txn);
-			throw new RuntimeException("Error obtaining id slice from db for table: " + tableName);
+			throw new FormException("Error obtaining id slice from db for table: " + tableName);
 		}
 	}
 

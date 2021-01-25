@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
+import edu.common.dynamicextensions.napi.FormException;
 import edu.common.dynamicextensions.nutility.DeConfiguration;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.QueryExpressionNode;
@@ -44,12 +45,12 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 			for (int j = 0; j < numArgs && (j + i) < args.size(); ++j) {
 				int columnIdx = Integer.parseInt(args.get(j + i));
 				if (columnIdx <= 0 || columnIdx > columnCount) {
-					throw new IllegalArgumentException("Invalid column index: " + columnIdx);
+					throw new FormException("Invalid column index: " + columnIdx);
 				}
 
 				ExpressionNode exprNode = queryExpr.getSelectList().getElements().get(columnIdx - 1);
 				if (exprNode.getType() != DataType.INTEGER && exprNode.getType() != DataType.FLOAT) {
-					throw new IllegalArgumentException(
+					throw new FormException(
 						"Invalid data type. Only integer or float can be summarised. " +
 						"Column Index: " + columnIdx);
 				}
