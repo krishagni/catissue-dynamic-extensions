@@ -13,7 +13,7 @@ public class FormException extends RuntimeException {
 		this.error = error;
 	}
 
-	String getError() {
+	public String getError() {
 		return error;
 	}
 }
