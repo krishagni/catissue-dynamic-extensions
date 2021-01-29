@@ -468,7 +468,7 @@ public abstract class Control implements Comparable<Control>, Serializable {
 	}
 	
 	public Map<String, Object> getProps() {
-		Map<String, Object> ctrlProps = new HashMap<String, Object>();		
+		Map<String, Object> ctrlProps = new HashMap<>();
 		ctrlProps.put("name", getName());
 		ctrlProps.put("udn", getUserDefinedName());
 		ctrlProps.put("caption", getCaption());
@@ -488,6 +488,7 @@ public abstract class Control implements Comparable<Control>, Serializable {
 		ctrlProps.put("hidden", isHidden());
 		ctrlProps.put("phi", isPhi());
 		ctrlProps.put("mandatory", isMandatory());
+		ctrlProps.put("showInGrid", showInGrid());
 		
 		getProps(ctrlProps);
 		return ctrlProps;
