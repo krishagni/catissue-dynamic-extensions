@@ -1,6 +1,8 @@
 package edu.common.dynamicextensions.query;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.antlr.v4.runtime.Token;
@@ -9,7 +11,6 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import edu.common.dynamicextensions.domain.nui.DataType;
 import edu.common.dynamicextensions.napi.FormException;
-import edu.common.dynamicextensions.ndao.DbSettingsFactory;
 import edu.common.dynamicextensions.query.antlr.AQLBaseVisitor;
 import edu.common.dynamicextensions.query.antlr.AQLParser;
 import edu.common.dynamicextensions.query.antlr.AQLParser.LiteralContext;
@@ -200,20 +201,38 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     }
     
     @Override
-    public FilterNode visitMvFilter(AQLParser.MvFilterContext ctx) {
-    	FilterNode filter = new FilterNode();
-    	filter.setLhs((ExpressionNode)visit(ctx.arith_expr()));
+    public FilterExpressionNode visitMvFilter(AQLParser.MvFilterContext ctx) {
+		ExpressionNode lhs = (ExpressionNode)visit(ctx.arith_expr());
+		RelationalOp relOp = RelationalOp.getBySymbol(ctx.MOP().getText());
 
-		LiteralValueListNode list = (LiteralValueListNode)visit(ctx.literal_values());
-		if (list.size() > 1000 && DbSettingsFactory.isOracle()) {
-			throw new FormException(
-				"You've used " + list.size() + " condition values. " +
-				"However, more than 1000 condition values are not allowed. Please consider breaking the long filter into multiple smaller filters.");
+    	LiteralValueListNode list = (LiteralValueListNode)visit(ctx.literal_values());
+    	int numLiterals = list.size();
+    	List<FilterNodeMarker> filters = new ArrayList<>();
+    	for (int i = 0; i < numLiterals; i += 995) {
+    		List<LiteralValueNode> literals = list.getLiteralVals()
+				.subList(i, (i + 995) < numLiterals ? i + 995 : numLiterals);
+
+    		LiteralValueListNode subList = new LiteralValueListNode();
+    		literals.forEach(literal -> subList.addLiteralVal(literal));
+
+    		FilterNode filter = new FilterNode();
+    		filter.setLhs(lhs);
+			filter.setRelOp(RelationalOp.IN);
+			filter.setRhs(subList);
+			filters.add(filter);
 		}
 
-    	filter.setRhs(list);
-    	filter.setRelOp(RelationalOp.getBySymbol(ctx.MOP().getText()));
-    	return setAql(filter, ctx);
+		FilterExpressionNode logicalExpr = new FilterExpressionNode();
+		logicalExpr.setOperator(filters.size() > 1 ? FilterExpressionNode.Op.OR : FilterExpressionNode.Op.IDENTITY);
+		logicalExpr.setOperands(filters);
+		if (relOp == RelationalOp.NOT_IN) {
+			FilterExpressionNode notExpr = new FilterExpressionNode();
+			notExpr.setOperator(FilterExpressionNode.Op.NOT);
+			notExpr.setOperands(Collections.singletonList(logicalExpr));
+			logicalExpr = notExpr;
+		}
+
+    	return setAql(logicalExpr, ctx);
     }
 
     @Override
