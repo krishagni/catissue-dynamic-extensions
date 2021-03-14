@@ -244,15 +244,14 @@ public class Query {
     }
     
     private QueryResultData getProcessedData(ResultSet rs) {
-    	int dbRowsCount = resultPostProc.processResultSet(rs);
+    	int dbRowsCount = resultPostProc.processResultSet(rs, new DefaultResultPostProc());
     	QueryResultData qrd = getQueryResultData(resultPostProc.getResultColumns());
     	qrd.setDbRowsCount(dbRowsCount);
     	qrd.dataSource(resultPostProc.getRows());
     	return qrd;
     }
 
-    private QueryResultData getQueryResultData(ResultSet rs)
-    throws SQLException {
+    private QueryResultData getQueryResultData(ResultSet rs) {
         QueryResultData queryResult = getQueryResultData(getResultColumns(queryExpr));
         queryResult.dataSource(rs);
         return queryResult;
@@ -271,4 +270,31 @@ public class Query {
 			.map(node -> new ResultColumn(node, 0))
 			.collect(Collectors.toList());
     }
+
+    private class DefaultResultPostProc implements ResultPostProc {
+
+    	private QueryResultData qrd;
+
+		@Override
+		public int processResultSet(ResultSet rs, ResultPostProc defaultProc) {
+			qrd = getQueryResultData(rs);
+			return qrd.getDbRowsCount();
+		}
+
+		@Override
+		public List<ResultColumn> getResultColumns() {
+			return qrd.getResultColumns();
+		}
+
+		@Override
+		public RowsList getRows() {
+			return qrd.rows();
+		}
+
+		@Override
+		public void cleanup() {
+			qrd.close();
+			qrd = null;
+		}
+	}
 }

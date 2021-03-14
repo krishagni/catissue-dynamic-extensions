@@ -22,6 +22,7 @@ import edu.common.dynamicextensions.nutility.Util;
 import edu.common.dynamicextensions.query.ast.AggregateNode;
 import edu.common.dynamicextensions.query.ast.ExpressionNode;
 import edu.common.dynamicextensions.query.ast.FieldNode;
+import edu.common.dynamicextensions.query.cachestore.LinkedEhCacheMap;
 
 public class QueryResultData {
 	private static final String ISO_DATE_TIME_FMT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -33,8 +34,8 @@ public class QueryResultData {
     private List<ResultColumn> resultColumns = null;
 
 	private List<ResultColumn> screenedColumns = null;
-    
-    private List<Object[]> rows = null;
+
+	private RowsList rows = null;
     
     private ShallowWideRowGenerator rowGen = null;
 
@@ -173,12 +174,37 @@ public class QueryResultData {
     }
     
     public void dataSource(List<Object[]> rows) {
-    	this.rows = rows;
+		if (rows == null) {
+			if (this.rows != null) {
+				this.rows.cleanup();
+				this.rows = null;
+			}
+
+			return;
+		}
+
+		this.rows = new RowsList();
+		for (Object[] row : rows) {
+			this.rows.add(row);
+		}
     }
+
+    public void dataSource(RowsList rows) {
+		if (this.rows != null) {
+			this.rows.cleanup();
+			this.rows = null;
+		}
+
+		this.rows = rows;
+	}
        
     public void dataSource(ResultSet rs) {
-    	List<Object[]> rows = new ArrayList<Object[]>();
+    	if (this.rows != null) {
+    		this.rows.cleanup();
+    		this.rows = null;
+		}
 
+    	this.rows = new RowsList();
 		Map<Integer, BigDecimal> cumulative = new HashMap<>();
     	try {
         	int columnCount = rs.getMetaData().getColumnCount();
@@ -211,8 +237,8 @@ public class QueryResultData {
                 if (screener != null) {
                 	row = screener.getScreenedRowData(resultColumns, row);
                 }
-                
-                rows.add(row);
+
+                this.rows.add(row);
             }    		
     	} catch (Exception e) {
     		throw new FormException("Error traversing result set", e);
@@ -221,7 +247,6 @@ public class QueryResultData {
 			cumulative = null;
 		}
 
-    	this.rows = rows;
     	this.dbRowsCount = this.rows.size();
     }
     
@@ -237,7 +262,7 @@ public class QueryResultData {
 			iter = rowIterator(rowGen.iterator());
 		}
 
-		List<Object[]> result = new ArrayList<Object[]>();
+		List<Object[]> result = new ArrayList<>();
 		while (iter.hasNext()) {
 			result.add(iter.next());
 		}
@@ -259,6 +284,10 @@ public class QueryResultData {
 
 	public void setDbRowsCount(int dbRowsCount) {
 		this.dbRowsCount = dbRowsCount;
+	}
+
+	public RowsList rows() {
+		return rows;
 	}
 
 	public List<String[]> getStringifiedRows() {
@@ -298,6 +327,7 @@ public class QueryResultData {
     	}
     	
     	if (rows != null) {
+    		rows.cleanup();
     		rows = null;
     	}
     }

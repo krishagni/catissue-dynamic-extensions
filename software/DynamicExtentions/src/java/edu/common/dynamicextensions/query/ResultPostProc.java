@@ -4,11 +4,11 @@ import java.sql.ResultSet;
 import java.util.List;
 
 public interface ResultPostProc {
-	int processResultSet(ResultSet rs);
+	int processResultSet(ResultSet rs, ResultPostProc defaultProc);
 	
 	List<ResultColumn> getResultColumns();
-	
-	List<Object[]> getRows();
+
+	RowsList getRows();
 	
 	void cleanup();
 }

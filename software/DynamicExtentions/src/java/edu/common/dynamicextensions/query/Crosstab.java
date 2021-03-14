@@ -72,7 +72,7 @@ public class Crosstab implements ResultPostProc {
 	}
 	
 	@Override
-	public int processResultSet(ResultSet rs) {
+	public int processResultSet(ResultSet rs, ResultPostProc defProc) {
 		try {
 			int rowCount = 0;
 						
@@ -128,8 +128,8 @@ public class Crosstab implements ResultPostProc {
 	}
 	
 	@Override
-	public List<Object[]> getRows() {
-		List<Object[]> result = new ArrayList<Object[]>();
+	public RowsList getRows() {
+		RowsList result = new RowsList();
 		
 		for (Row row : rows.values()) {
 			for (String measureCol : measureCols) {

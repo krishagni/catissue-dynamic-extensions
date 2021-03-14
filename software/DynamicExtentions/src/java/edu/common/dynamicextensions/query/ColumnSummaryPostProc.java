@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,8 +27,6 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 	
 	private QueryResultData qrd;
 
-	private List<Object[]> rows = new ArrayList<>();
-	
 	public ColumnSummaryPostProc(QueryExpressionNode queryExpr, String timeZone) {
 		this.queryExpr = queryExpr;
 		this.timeZone = timeZone;
@@ -67,13 +66,14 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 	}
 
 	@Override
-	public int processResultSet(ResultSet rs) {
+	public int processResultSet(ResultSet rs, ResultPostProc defProc) {
 		DeConfiguration cfg = DeConfiguration.getInstance();
 		qrd = new QueryResultData(getResultColumns(queryExpr), cfg.dateFormat(), cfg.timeFormat(), timeZone);
 		qrd.dataSource(rs);
 
-		rows = qrd.getRows();
-		for (Object[] row : rows) {
+		Iterator<Object[]> iter = qrd.rowIterator();
+		while (iter.hasNext()) {
+			Object[] row = iter.next();
 			for (int columnIdx : columnTotals.keySet()) {
 				Number num = (Number)row[columnIdx - 1];
 				if (num == null) {
@@ -93,7 +93,7 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 			}
 		}
 		
-		BigDecimal numRows = new BigDecimal(qrd.getRows().size());
+		BigDecimal numRows = new BigDecimal(qrd.rows().size());
 		Object[] row = new Object[queryExpr.getSelectList().getElements().size()];
 		for (int i = 0; i < row.length; ++i) {
 			if (columnTotals.containsKey(i + 1)) {
@@ -103,7 +103,7 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 			}
 		}
 
-		rows.add(row); // summary row
+		qrd.rows().add(row); // summary row
 		return qrd.getDbRowsCount();
 	}
 
@@ -113,8 +113,8 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 	}
 
 	@Override
-	public List<Object[]> getRows() {
-		return rows;
+	public RowsList getRows() {
+		return qrd.rows();
 	}
 
 	@Override
@@ -125,9 +125,6 @@ public class ColumnSummaryPostProc implements ResultPostProc {
 		columnTotals = null;
 		columnAvgs.clear();
 		columnAvgs = null;
-		rows.clear();
-		rows = null;
-
 	}
 
     private List<ResultColumn> getResultColumns(QueryExpressionNode queryExpr) {
