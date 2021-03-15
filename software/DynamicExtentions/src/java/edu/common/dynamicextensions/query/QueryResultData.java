@@ -173,21 +173,21 @@ public class QueryResultData {
 		return screenedColumns;
     }
     
-    public void dataSource(List<Object[]> rows) {
-		if (rows == null) {
-			if (this.rows != null) {
-				this.rows.cleanup();
-				this.rows = null;
-			}
-
-			return;
-		}
-
-		this.rows = new RowsList();
-		for (Object[] row : rows) {
-			this.rows.add(row);
-		}
-    }
+//    public void dataSource(List<Object[]> rows) {
+//		if (rows == null) {
+//			if (this.rows != null) {
+//				this.rows.cleanup();
+//				this.rows = null;
+//			}
+//
+//			return;
+//		}
+//
+//		this.rows = new RowsList();
+//		for (Object[] row : rows) {
+//			this.rows.add(row);
+//		}
+//    }
 
     public void dataSource(RowsList rows) {
 		if (this.rows != null) {
@@ -241,6 +241,10 @@ public class QueryResultData {
                 this.rows.add(row);
             }    		
     	} catch (Exception e) {
+    		if (rows != null) {
+    			this.rows.cleanup();
+			}
+
     		throw new FormException("Error traversing result set", e);
     	} finally {
     		cumulative.clear();

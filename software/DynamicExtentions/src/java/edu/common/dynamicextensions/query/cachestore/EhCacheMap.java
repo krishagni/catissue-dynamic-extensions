@@ -102,6 +102,10 @@ public class EhCacheMap<K, V> implements Map<K, V> {
 	}
 
 	public void destroy() {
+		if (cache == null) {
+			return;
+		}
+
 		cache.removeAll();
 		EhCacheManager.getInstance().removeCache(cache);
 		cache = null;

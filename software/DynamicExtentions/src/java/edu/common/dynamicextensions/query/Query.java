@@ -244,11 +244,16 @@ public class Query {
     }
     
     private QueryResultData getProcessedData(ResultSet rs) {
-    	int dbRowsCount = resultPostProc.processResultSet(rs, new DefaultResultPostProc());
-    	QueryResultData qrd = getQueryResultData(resultPostProc.getResultColumns());
-    	qrd.setDbRowsCount(dbRowsCount);
-    	qrd.dataSource(resultPostProc.getRows());
-    	return qrd;
+    	DefaultResultPostProc defProc = new DefaultResultPostProc();
+    	try {
+			int dbRowsCount = resultPostProc.processResultSet(rs, defProc);
+			QueryResultData qrd = getQueryResultData(resultPostProc.getResultColumns());
+			qrd.setDbRowsCount(dbRowsCount);
+			qrd.dataSource(resultPostProc.getRows());
+			return qrd;
+		} finally {
+    		defProc.cleanup();
+		}
     }
 
     private QueryResultData getQueryResultData(ResultSet rs) {
@@ -293,8 +298,10 @@ public class Query {
 
 		@Override
 		public void cleanup() {
-			qrd.close();
-			qrd = null;
+			if (qrd != null) {
+				qrd.close();
+				qrd = null;
+			}
 		}
 	}
 }
