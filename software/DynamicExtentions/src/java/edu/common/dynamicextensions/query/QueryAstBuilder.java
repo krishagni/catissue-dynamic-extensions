@@ -222,9 +222,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 			filters.add(filter);
 		}
 
-		FilterExpressionNode logicalExpr = new FilterExpressionNode();
-		logicalExpr.setOperator(filters.size() > 1 ? FilterExpressionNode.Op.OR : FilterExpressionNode.Op.IDENTITY);
-		logicalExpr.setOperands(filters);
+		FilterExpressionNode logicalExpr = or(filters);
 		if (relOp == RelationalOp.NOT_IN) {
 			FilterExpressionNode notExpr = new FilterExpressionNode();
 			notExpr.setOperator(FilterExpressionNode.Op.NOT);
@@ -234,6 +232,29 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 
     	return setAql(logicalExpr, ctx);
     }
+
+    private FilterExpressionNode or(List<FilterNodeMarker> filters) {
+		FilterExpressionNode result = new FilterExpressionNode();
+		switch (filters.size()) {
+			case 0:
+			case 1:
+				result.setOperator(FilterExpressionNode.Op.IDENTITY);
+				result.setOperands(filters);
+				break;
+
+			case 2:
+				result.setOperator(FilterExpressionNode.Op.OR);
+				result.setOperands(filters);
+				break;
+
+			default:
+				result.setOperator(FilterExpressionNode.Op.OR);
+				result.setOperands(Arrays.asList(filters.get(0), or(filters.subList(1, filters.size()))));
+				break;
+		}
+
+		return result;
+	}
 
     @Override
     public FilterNode visitSubQueryFilter(AQLParser.SubQueryFilterContext ctx) {
