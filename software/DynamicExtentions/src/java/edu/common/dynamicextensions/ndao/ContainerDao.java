@@ -25,6 +25,18 @@ public class ContainerDao {
 			"INSERT INTO DYEXTN_CONTAINERS (IDENTIFIER, NAME, CAPTION, CREATED_BY, CREATE_TIME, XML) " +
 			"VALUES(?, ?, ?, ?, ?, empty_blob())";
 
+	private static final String INSERT_CONTAINER_AUD_SQL_MYSQL =
+		"INSERT INTO DYEXTN_CONTAINERS_AUD " +
+			"(REV, REV_TYPE, REV_BY, REV_TIME, IDENTIFIER, NAME, CAPTION, DELETED_ON, XML) " +
+		"VALUES " +
+			"(default, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+	private static final String INSERT_CONTAINER_AUD_SQL_ORA =
+		"INSERT INTO DYEXTN_CONTAINERS_AUD " +
+			"(REV, REV_TYPE, REV_BY, REV_TIME, IDENTIFIER, NAME, CAPTION, DELETED_ON, XML) " +
+		"VALUES " +
+			"(DYEXTN_CONTAINERS_AUD.nextval, ?, ?, ?, ?, ?, ?, ?, empty_blob())";
+
 	private static final String UPDATE_CONTAINER_SQL_MYSQL = 
 			"UPDATE DYEXTN_CONTAINERS SET NAME = ?, CAPTION = ?, LAST_MODIFIED_BY = ?, LAST_MODIFY_TIME = ?, XML = ? " +
 			"WHERE IDENTIFIER = ? AND DELETED_ON IS NULL";
@@ -35,6 +47,14 @@ public class ContainerDao {
 	
 	private static final String GET_CONTAINER_XML_BY_ID_SQL = "SELECT XML, CREATED_BY, CREATE_TIME, LAST_MODIFIED_BY, LAST_MODIFY_TIME"
 			+ " FROM DYEXTN_CONTAINERS WHERE IDENTIFIER = ? AND DELETED_ON IS NULL";
+
+	private static final String GET_CONTAINER_XML_AUD_BY_REV =
+		"SELECT " +
+			"XML " +
+		"FROM " +
+			"DYEXTN_CONTAINERS_AUD " +
+		"WHERE " +
+			"REV = ?";
 	
 	private static final String GET_CONTAINER_XML_BY_NAME_SQL = "SELECT XML, CREATED_BY, CREATE_TIME, LAST_MODIFIED_BY, LAST_MODIFY_TIME"
 			+ " FROM DYEXTN_CONTAINERS WHERE NAME = ? AND DELETED_ON IS NULL";
@@ -88,11 +108,13 @@ public class ContainerDao {
 		params.add(createTime);
 		if (DbSettingsFactory.getProduct().equals("Oracle")) {
 			jdbcDao.executeUpdate(INSERT_CONTAINER_SQL_ORACLE, params);	
-			updateContainerXml(c.getId(), c.toXml());
+			updateContainerXml(GET_CONTAINER_XML_BY_ID_SQL, c.getId(), c.toXml());
 		} else {
 			params.add(c.toXml());
 			jdbcDao.executeUpdate(INSERT_CONTAINER_SQL_MYSQL, params);	
 		}
+
+		addContainerRev(0, c, userCtxt, createTime);
 	}
 	
 	
@@ -108,30 +130,36 @@ public class ContainerDao {
 		if (DbSettingsFactory.getProduct().equals("Oracle")) {
 			params.add(c.getId());
 			jdbcDao.executeUpdate(UPDATE_CONTAINER_SQL_ORACLE, params);
-			updateContainerXml(c.getId(), c.toXml());
+			updateContainerXml(GET_CONTAINER_XML_BY_ID_SQL, c.getId(), c.toXml());
 		} else {
 			params.add(c.toXml());
 			params.add(c.getId());
 			jdbcDao.executeUpdate(UPDATE_CONTAINER_SQL_MYSQL, params);	
 		}
+
+		addContainerRev(1, c, userCtxt, updateTime);
 	}
 	
-	public boolean delete(Long id, boolean softDelete) { 
+	public boolean delete(UserContext userCtxt, Container c, boolean softDelete) {
 		Integer rowsDeleted = null;
 		
-		try { 
-			List<Object> params = new ArrayList<Object>();
+		try {
+			Date deleteTime = Calendar.getInstance().getTime();
+			List<Object> params = new ArrayList<>();
 			String sql = null;
 			if (softDelete) {
 				sql = SOFT_DELETE_CONTAINER_SQL;
-				params.add(Calendar.getInstance().getTime());
-				params.add(id);
+				params.add(deleteTime);
+				params.add(c.getId());
 			} else {
 				sql = DELETE_CONTAINER_SQL;
-				params.add(id);
+				params.add(c.getId());
 			}
 			
 			rowsDeleted = jdbcDao.executeUpdate(sql, params);
+			if (rowsDeleted != null && rowsDeleted > 0) {
+				addContainerRev(2, c, userCtxt, deleteTime);
+			}
 		} catch (Exception e) {
 			throw new FormException("Error deleting form", e);
 		}
@@ -180,20 +208,34 @@ public class ContainerDao {
 		return jdbcDao.getResultSet(GET_CONTAINER_INFO_BY_CREATOR_SQL, params, containerInfoExtractor);
 	}
 
-	private void updateContainerXml(Long id, final String xml) 
-	throws SQLException  {
-		List<Object> params = new ArrayList<Object>();
-		params.add(id);
+	private void addContainerRev(int revType, Container container, UserContext userCtx, Date opTime) {
+		List<Object> params = new ArrayList<>();
+		params.add(revType);
+		params.add(userCtx != null ? userCtx.getUserId() : null);
+		params.add(opTime);
+		params.add(container.getId());
+		params.add(container.getName());
+		params.add(container.getCaption());
+		params.add(revType == 2 ? opTime : null);
 
-		String selectXmlForUpdate = new StringBuilder(GET_CONTAINER_XML_BY_ID_SQL).append(" FOR UPDATE").toString();		
-		jdbcDao.getResultSet(selectXmlForUpdate, params, new ResultExtractor<Object>() {
+		if (DbSettingsFactory.isOracle()) {
+			Number rev = jdbcDao.executeUpdateAndGetKey(INSERT_CONTAINER_AUD_SQL_ORA, params, "REV");
+			updateContainerXml(GET_CONTAINER_XML_AUD_BY_REV, rev.longValue(), container.toXml());
+		} else {
+			params.add(container.toXml());
+			jdbcDao.executeUpdate(INSERT_CONTAINER_AUD_SQL_MYSQL, params);
+		}
+	}
+
+	private void updateContainerXml(String sql, Long id, final String xml) {
+		jdbcDao.getResultSet(sql + " for update", Collections.singletonList(id), new ResultExtractor<Object>() {
 			@Override
 			public Object extract(ResultSet rs) throws SQLException {
 				rs.next();
 				Blob blob = rs.getBlob("XML");
 				writeToBlob(blob, xml);								
 				return null;
-			}				
+			}
 		});		
 	}
 	

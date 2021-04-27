@@ -5,6 +5,8 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
+	<property name="tinyint.type"     value="tinyint" dbms="mysql"/>
+	<property name="tinyint.type"     value="number(3, 0)" dbms="oracle"/>
 	<property name="int.type"         value="bigint"         dbms="mysql"/>
 	<property name="int.type"         value="number(19,0)"   dbms="oracle"/>
 	<property name="text.type"        value="varchar(1000)"  dbms="mysql"/>

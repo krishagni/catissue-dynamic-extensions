@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+  <changeSet author="vpawar" id="Form revisions">
+    <createTable tableName="DYEXTN_CONTAINERS_AUD">
+      <column name="REV" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="REV_TYPE" type="${tinyint.type}"/>
+      <column name="REV_BY" type="${int.type}"/>
+      <column name="REV_TIME" type="${ts.type}"/>
+      <column name="IDENTIFIER" type="${int.type}"/>
+      <column name="NAME" type="${string.type}(64)"/>
+      <column name="CAPTION" type="${string.type}(255)"/>
+      <column name="DELETED_ON" type="${nullable.ts.type}"/>
+      <column name="XML" type="${blob.type}"/>
+    </createTable>
+  </changeSet>
+</databaseChangeLog>

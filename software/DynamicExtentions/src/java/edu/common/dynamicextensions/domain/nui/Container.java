@@ -866,22 +866,22 @@ public class Container implements Serializable {
 		} 
 	}
 	
-	public static boolean deleteContainer(Long id) {
-		return deleteContainer(id, false);
+	public static boolean deleteContainer(UserContext userCtxt, Long id) {
+		return deleteContainer(userCtxt, id, false);
 	}
 	
-	public static boolean softDeleteContainer(Long id) {
-		return deleteContainer(id, true);
+	public static boolean softDeleteContainer(UserContext userCtxt, Long id) {
+		return deleteContainer(userCtxt, id, true);
 	}
 
-	public static boolean deleteContainer(Long id, boolean softDelete) {
+	public static boolean deleteContainer(UserContext userCtxt, Long id, boolean softDelete) {
 		Container container = getContainer(id);
 		if (container == null) {
 			return false;
 		}
 
 
-		boolean deleted = new ContainerDao(JdbcDaoFactory.getJdbcDao()).delete(id, softDelete);
+		boolean deleted = new ContainerDao(JdbcDaoFactory.getJdbcDao()).delete(userCtxt, container, softDelete);
 		if (deleted) {
 			ContainerCache.getInstance().remove(container.getId());
 			FormEventsNotifier.getInstance().notifyDelete(container);

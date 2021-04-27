@@ -39,8 +39,7 @@ public class JdbcDao {
 		return jdbcTemplate.update(updateSql, params != null ? params.toArray() : new Object[0]);
 	}
 	
-	public Number executeUpdateAndGetKey(final String sql, final List<?> params, final String keyCol) 
-	throws Exception{
+	public Number executeUpdateAndGetKey(final String sql, final List<?> params, final String keyCol) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {				
 			@Override
