@@ -35,7 +35,7 @@ public class ContainerDao {
 		"INSERT INTO DYEXTN_CONTAINERS_AUD " +
 			"(REV, REV_TYPE, REV_BY, REV_TIME, IDENTIFIER, NAME, CAPTION, DELETED_ON, XML) " +
 		"VALUES " +
-			"(DYEXTN_CONTAINERS_AUD.nextval, ?, ?, ?, ?, ?, ?, ?, empty_blob())";
+			"(DYEXTN_CONTAINERS_AUD_SEQ.nextval, ?, ?, ?, ?, ?, ?, ?, empty_blob())";
 
 	private static final String UPDATE_CONTAINER_SQL_MYSQL = 
 			"UPDATE DYEXTN_CONTAINERS SET NAME = ?, CAPTION = ?, LAST_MODIFIED_BY = ?, LAST_MODIFY_TIME = ?, XML = ? " +
