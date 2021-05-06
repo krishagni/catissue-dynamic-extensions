@@ -208,9 +208,11 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
     	LiteralValueListNode list = (LiteralValueListNode)visit(ctx.literal_values());
     	int numLiterals = list.size();
     	List<FilterNodeMarker> filters = new ArrayList<>();
-    	for (int i = 0; i < numLiterals; i += 995) {
+    	int literalsLimit = 995;
+
+    	for (int i = 0; i < numLiterals; i += literalsLimit) {
     		List<LiteralValueNode> literals = list.getLiteralVals()
-				.subList(i, (i + 995) < numLiterals ? i + 995 : numLiterals);
+				.subList(i, (i + literalsLimit) < numLiterals ? i + literalsLimit : numLiterals);
 
     		LiteralValueListNode subList = new LiteralValueListNode();
     		literals.forEach(literal -> subList.addLiteralVal(literal));
@@ -230,6 +232,7 @@ public class QueryAstBuilder extends AQLBaseVisitor<Node> {
 			logicalExpr = notExpr;
 		}
 
+		logicalExpr = FilterExpressionNode.parenExpr(logicalExpr);
     	return setAql(logicalExpr, ctx);
     }
 
