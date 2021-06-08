@@ -640,13 +640,15 @@ public class Container implements Serializable {
 
 				add(delLog, existingControl);
 				add(addLog, control);
-			} else if ((existingControl instanceof RadioButton && control instanceof ComboBox) ||
-				(existingControl instanceof ComboBox && control instanceof RadioButton) ||
+			} else if ((existingControl instanceof RadioButton && (control instanceof StringTextField || control instanceof ComboBox)) ||
+				(existingControl instanceof ComboBox && (control instanceof StringTextField || control instanceof RadioButton)) ||
 				(existingControl instanceof MultiSelectControl && control instanceof MultiSelectControl)) {
 
 				//
 				// only following change is allowed:
 				// radio button to dropdown and vice-versa
+				// radio button to string text field
+				// dropdown to string text field
 				// check box to multi-select dropdown and vice-versa
 				//
 
