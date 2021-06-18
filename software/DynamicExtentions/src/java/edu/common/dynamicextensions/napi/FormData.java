@@ -96,7 +96,7 @@ public class FormData {
 		for (Control ctrl : getContainer().getOrderedControlList()) {
 			ControlValue ctrlValue = fieldValues.get(ctrl.getName());
 			if (ctrlValue == null) {
-				continue;
+				ctrlValue = new ControlValue(ctrl, null);
 			}
 
 			controlValues.add(ctrlValue);
